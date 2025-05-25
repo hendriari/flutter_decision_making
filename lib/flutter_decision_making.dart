@@ -94,7 +94,7 @@ class FlutterDecisionMaking {
       "Extremely more important (absolute dominance)",
     ];
 
-    for (int i = 0; i < 9; i++) {
+    for (int i = 0; i < desc.length; i++) {
       result.add(
         PairwiseComparisonScale(
           id: '${now.microsecondsSinceEpoch}_$i',
