@@ -1,0 +1,1 @@
+This package implements the Analytics Hierarchy Process (AHP) originally develop by Thomas L. Saaty.
