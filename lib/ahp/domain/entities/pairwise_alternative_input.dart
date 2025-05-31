@@ -1,6 +1,6 @@
 import 'package:flutter_decision_making/ahp/domain/entities/alternative.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/criteria.dart';
-import 'package:flutter_decision_making/ahp/domain/entities/pairwise_comparison_matrix.dart';
+import 'package:flutter_decision_making/ahp/domain/entities/pairwise_comparison_input.dart';
 
 class PairwiseAlternativeInput {
   final Criteria criteria;

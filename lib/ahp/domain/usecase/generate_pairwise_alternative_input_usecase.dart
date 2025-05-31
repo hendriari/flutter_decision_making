@@ -2,15 +2,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/alternative.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/hierarchy.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/pairwise_alternative_input.dart';
-import 'package:flutter_decision_making/ahp/domain/entities/pairwise_comparison_matrix.dart';
+import 'package:flutter_decision_making/ahp/domain/entities/pairwise_comparison_input.dart';
 import 'package:flutter_decision_making/ahp/helper/ahp_helper.dart';
 
-class GeneratePairwiseAlternativeUsecase {
-  GeneratePairwiseAlternativeUsecase();
+class GeneratePairwiseAlternativeInputUsecase {
+  GeneratePairwiseAlternativeInputUsecase();
 
   Future<List<PairwiseAlternativeInput>> execute(
     List<Hierarchy> nodes,
-  ) async => compute(_generatePairwiseAlternativeInIsolate, nodes);
+  ) async =>
+      compute(_generatePairwiseAlternativeInIsolate, nodes);
 }
 
 List<PairwiseAlternativeInput> _generatePairwiseAlternativeInIsolate(

@@ -159,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   )
                   : SizedBox(height: 40),
 
-              /// GENERATE HIERARCHY STRUCTURE
+              /// GENERATE HIERARCHY STRUCTURE & PAIRWISE MATRIX TEMPLATE
               Center(
                 child: ElevatedButton(
                   onPressed: () async {
@@ -335,8 +335,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                               if (value != null) {
                                                 _decisionMaking
                                                     .updatePairwiseAlternativeValue(
-                                                      criteriaId:
-                                                          data.criteria.id,
+                                                      id: data.criteria.id,
                                                       alternativeId: e.id,
                                                       value: value,
                                                     );
@@ -380,13 +379,41 @@ class _MyHomePageState extends State<MyHomePage> {
                                   ],
                                 ),
                               ),
-
-                              Divider(),
                             ],
                           );
                         },
                       ),
                     ],
+                  )
+                  : const SizedBox(),
+
+              /// GENERATE PAIRWISE MATRIX
+              _decisionMaking.listPairwiseAlternativeInput.isNotEmpty &&
+                      _decisionMaking.listPairwiseCriteriaInput.isNotEmpty
+                  ? Padding(
+                    padding: EdgeInsets.only(top: 20),
+                    child: Center(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          _decisionMaking.generateResult().catchError((e) {
+                            if (context.mounted) {
+                              _helper.showScaffoldMessenger(
+                                context: context,
+                                message: e.toString(),
+                              );
+                            }
+                          });
+                        },
+                        child: Text(
+                          'Generate Result',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
                   )
                   : const SizedBox(),
             ],
