@@ -148,14 +148,55 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
   }
 
   @override
-  Future<List<List<double>>> generateResultPairwiseMatrixAlternative<Alternative>(List<Alternative> items, List<PairwiseAlternativeInput> inputs) {
-    // TODO: implement generateResultPairwiseMatrixAlternative
-    throw UnimplementedError();
+  Future<List<List<double>>> generateResultPairwiseMatrixAlternative(
+    List<Alternative> items,
+    List<PairwiseAlternativeInput> inputs,
+  ) async {
+    try {
+      if (items.isEmpty) {
+        throw ArgumentError('Alternative list is empty');
+      }
+
+      if (inputs.isEmpty) {
+        return List.generate(
+          items.length,
+          (_) => List.filled(items.length, 1.0),
+        );
+      }
+
+      final pairwise = inputs.first.alternative;
+
+      final matrix = List.generate(
+        items.length,
+        (_) => List.filled(items.length, 1.0),
+      );
+
+      for (final comparison in pairwise) {
+        final i = items.indexWhere((e) => e.id == comparison.left.id);
+        final j = items.indexWhere((e) => e.id == comparison.right.id);
+
+        if (i == -1 || j == -1) {
+          throw Exception('Alternative not found in list');
+        }
+
+        final value = comparison.preferenceValue?.value.toDouble() ?? 1.0;
+        if (value <= 0) {
+          throw Exception('Comparison value must be greater than zero');
+        }
+
+        matrix[i][j] = value;
+        matrix[j][i] = 1 / value;
+      }
+
+      return matrix;
+    } catch (e) {
+      throw Exception(
+          'Failed to generate pairwise matrix for alternatives: $e');
+    }
   }
 
   @override
-  Future<List<double>> calculateEigenVector(
-      List<List<double>> matrix) async {
+  Future<List<double>> calculateEigenVector(List<List<double>> matrix) async {
     try {
       List<double> colSums = List.filled(matrix.length, 0);
 
@@ -185,6 +226,7 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
   Future<double> calculateConsistencyRatio(
     List<List<double>> matrix,
     List<double> priorityVector,
+    String source,
   ) async {
     try {
       final int n = matrix.length;
@@ -220,6 +262,15 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
       final ri = _getRI(n);
       if (ri == 0) return 0;
 
+      final cr = ci / ri;
+
+      if (cr > 0.1) {
+        final type = source == 'criteria' ? 'criteria' : 'alternative';
+        throw Exception(
+            '$type consistency ratio exceeds limit (CR = ${cr.toStringAsFixed(3)}). '
+            'Please fix the weights to ensure valid results.');
+      }
+
       return ci / ri;
     } catch (e) {
       throw Exception('Failed calculate consistency ratio $e');
@@ -241,6 +292,4 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
     };
     return riTable[n] ?? 1.49;
   }
-
-
 }

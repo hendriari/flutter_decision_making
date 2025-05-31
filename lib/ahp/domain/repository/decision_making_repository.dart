@@ -23,13 +23,14 @@ abstract class DecisionMakingRepository {
   Future<List<List<double>>> generateResultPairwiseMatrixCriteria<Criteria>(
       List<Criteria> items, List<PairwiseComparisonInput<Criteria>> inputs);
 
-  Future<List<List<double>>> generateResultPairwiseMatrixAlternative<Alternative>(
+  Future<List<List<double>>> generateResultPairwiseMatrixAlternative(
       List<Alternative> items, List<PairwiseAlternativeInput> inputs);
 
   Future<List<double>> calculateEigenVector(List<List<double>> matrix);
 
   Future<double> calculateConsistencyRatio(
-      List<List<double>> matrix, List<double> priorityVector);
-
-
+    List<List<double>> matrix,
+    List<double> priorityVector,
+    String source,
+  );
 }

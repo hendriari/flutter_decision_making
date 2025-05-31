@@ -187,7 +187,10 @@ class FlutterDecisionMaking {
           "Please complete all values from the alternative scale");
     }
 
-    final resultMatrixUsecase =
+    final matrixCriteriaUsecase =
+        GenerateResultPairwiseMatrixCriteriaUsecase(_decisionMakingRepository);
+
+    final matrixAlternativeUsecase =
         GenerateResultPairwiseMatrixCriteriaUsecase(_decisionMakingRepository);
 
     final vectorUsecase =
@@ -196,20 +199,19 @@ class FlutterDecisionMaking {
     final ratioUsecase =
         CalculateConsistencyRatioUsecase(_decisionMakingRepository);
 
-
     /// CRITERIA
-    final resultMatrixCriteria = await resultMatrixUsecase.execute<Criteria>(
+    final resultMatrixCriteria = await matrixCriteriaUsecase.execute<Criteria>(
       _listHierarchy.map((e) => e.criteria).toList(),
       _listPairwiseCriteriaInput,
     );
     dev.log('matrix criteria $resultMatrixCriteria');
 
     final resultVectorCriteria =
-    await vectorUsecase.execute(resultMatrixCriteria);
+        await vectorUsecase.execute(resultMatrixCriteria);
     dev.log('eigen vector criteria $resultVectorCriteria');
 
     final resultCriteriaRatio =
-    await ratioUsecase.execute(resultMatrixCriteria, resultVectorCriteria);
+        await ratioUsecase.execute(resultMatrixCriteria, resultVectorCriteria, 'criteria');
     dev.log('criteria ratio $resultCriteriaRatio');
 
     /// ALTERNATIVE
@@ -218,23 +220,19 @@ class FlutterDecisionMaking {
     final List<PairwiseComparisonInput<Alternative>> alternativeInput =
         _listPairwiseAlternativeInput.expand((e) => e.alternative).toList();
 
-    // final resultMatrixAlternative =
-    //     await resultMatrixUsecase.execute<Alternative>(
-    //   alternative,
-    //   alternativeInput,
-    // );
-    // dev.log('matrix alternative $resultMatrixAlternative');
+    final resultMatrixAlternative =
+        await matrixAlternativeUsecase.execute<Alternative>(
+      alternative,
+      alternativeInput,
+    );
+    dev.log('matrix alternative $resultMatrixAlternative');
 
+    final resultVectorAlternative =
+        await vectorUsecase.execute(resultMatrixAlternative);
+    dev.log('eigen vector alternative $resultVectorAlternative');
 
-
-    // final resultVectorAlternative =
-    //     await vectorUsecase.execute(resultMatrixAlternative);
-    // dev.log('eigen vector alternative $resultVectorAlternative');
-
-
-
-    // final resultAlternativeRatio = await ratioUsecase.execute(
-    //     resultMatrixAlternative, resultVectorAlternative);
-    // dev.log('alternative ratio $resultAlternativeRatio');
+    final resultAlternativeRatio = await ratioUsecase.execute(
+        resultMatrixAlternative, resultVectorAlternative, 'alternative');
+    dev.log('alternative ratio $resultAlternativeRatio');
   }
 }

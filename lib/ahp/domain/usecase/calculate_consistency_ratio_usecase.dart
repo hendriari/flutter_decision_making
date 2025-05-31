@@ -5,8 +5,8 @@ class CalculateConsistencyRatioUsecase {
 
   CalculateConsistencyRatioUsecase(this._decisionMakingRepository);
 
-  Future<double> execute(
-          List<List<double>> matrix, List<double> priorityVector) async =>
+  Future<double> execute(List<List<double>> matrix, List<double> priorityVector,
+          String source) async =>
       await _decisionMakingRepository.calculateConsistencyRatio(
-          matrix, priorityVector);
+          matrix, priorityVector, source);
 }
