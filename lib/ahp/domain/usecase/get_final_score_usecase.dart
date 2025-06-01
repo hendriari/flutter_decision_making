@@ -1,3 +1,5 @@
+import 'package:flutter_decision_making/ahp/domain/entities/ahp_result.dart';
+import 'package:flutter_decision_making/ahp/domain/entities/alternative.dart';
 import 'package:flutter_decision_making/ahp/domain/repository/decision_making_repository.dart';
 
 class GetFinalScoreUsecase {
@@ -5,14 +7,14 @@ class GetFinalScoreUsecase {
 
   GetFinalScoreUsecase(this._decisionMakingRepository);
 
-  Future<List<double>> execute(
-      List<double> eigenVectorCriteria,
-      List<List<List<double>>> listMatrixAlternativePerCriteria,
-      List<List<double>> listEigenVectorAlternativePerCriteria,
+  Future<List<AhpResult>> execute(
+    List<double> eigenVectorCriteria,
+    List<List<double>> eigenVectorsAlternative,
+    List<Alternative> alternatives,
   ) async =>
       await _decisionMakingRepository.getFinalScore(
         eigenVectorCriteria,
-        listMatrixAlternativePerCriteria,
-        listEigenVectorAlternativePerCriteria,
+        eigenVectorsAlternative,
+        alternatives,
       );
 }

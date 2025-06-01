@@ -1,5 +1,6 @@
 import 'dart:developer' as dev;
 
+import 'package:flutter_decision_making/ahp/domain/entities/ahp_result.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/alternative.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/criteria.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/hierarchy.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_decision_making/ahp/domain/entities/identification.dart'
 import 'package:flutter_decision_making/ahp/domain/entities/pairwise_alternative_input.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/pairwise_comparison_input.dart';
 import 'package:flutter_decision_making/ahp/domain/repository/decision_making_repository.dart';
+import 'package:flutter_decision_making/ahp/exception/cosistency_ratio_exception.dart';
 import 'package:flutter_decision_making/ahp/helper/ahp_helper.dart';
 
 class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
@@ -340,10 +342,7 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
       final cr = ci / ri;
 
       if (cr > 0.1) {
-        final type = source == 'criteria' ? 'criteria' : 'alternative';
-        throw Exception(
-            '$type consistency ratio exceeds limit (CR = ${cr.toStringAsFixed(3)}). '
-            'Please fix the weights to ensure valid results.');
+        throw ConsistencyRatioException(type: source, value: cr);
       }
 
       return cr;
@@ -374,37 +373,34 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
   }
 
   @override
-  Future<List<double>> getFinalScore(
+  Future<List<AhpResult>> getFinalScore(
     List<double> eigenVectorCriteria,
-    List<List<List<double>>> listMatrixAlternativePerCriteria,
-    List<List<double>> listEigenVectorAlternativePerCriteria,
+    List<List<double>> eigenVectorsAlternative,
+    List<Alternative> alternatives,
   ) async {
     _startPerformanceProfiling('calculate final score..');
     try {
-      if (listMatrixAlternativePerCriteria.isEmpty ||
-          listEigenVectorAlternativePerCriteria.isEmpty) {
-        throw ArgumentError('Alternative matrices or eigen vectors are empty');
-      }
+      final int altCount = eigenVectorsAlternative.first.length;
+      final int criteriaCount = eigenVectorCriteria.length;
 
-      final int numAlternatives =
-          listEigenVectorAlternativePerCriteria[0].length;
-      final int numCriteria = eigenVectorCriteria.length;
+      List<double> result = List.filled(altCount, 0.0);
 
-      List<double> finalScores = List.filled(numAlternatives, 0.0);
-
-      for (int altIndex = 0; altIndex < numAlternatives; altIndex++) {
-        double score = 0.0;
-        for (int critIndex = 0; critIndex < numCriteria; critIndex++) {
-          final eigenVectorAlt =
-              listEigenVectorAlternativePerCriteria[critIndex];
-          final weightCriteria = eigenVectorCriteria[critIndex];
-
-          score += weightCriteria * eigenVectorAlt[altIndex];
+      for (int i = 0; i < altCount; i++) {
+        for (int j = 0; j < criteriaCount; j++) {
+          result[i] += eigenVectorCriteria[j] * eigenVectorsAlternative[j][i];
         }
-        finalScores[altIndex] = score;
       }
 
-      return finalScores;
+      final ahpResult = <AhpResult>[];
+
+      for (int i = 0; i < altCount; i++) {
+        ahpResult.add(AhpResult(
+            id: alternatives[i].id,
+            name: alternatives[i].name,
+            value: result[i]));
+      }
+
+      return ahpResult..sort((a, b) => b.value.compareTo(a.value));
     } catch (e) {
       throw Exception('Failed calculate final score: $e');
     } finally {

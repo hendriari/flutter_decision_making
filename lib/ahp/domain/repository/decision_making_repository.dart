@@ -1,3 +1,4 @@
+import 'package:flutter_decision_making/ahp/domain/entities/ahp_result.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/alternative.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/criteria.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/hierarchy.dart';
@@ -37,9 +38,9 @@ abstract class DecisionMakingRepository {
     String source,
   );
 
-  Future<List<double>> getFinalScore(
-      List<double> eigenVectorCriteria,
-      List<List<List<double>>> listMatrixAlternativePerCriteria,
-      List<List<double>> listEigenVectorAlternativePerCriteria,
+  Future<List<AhpResult>> getFinalScore(
+    List<double> eigenVectorCriteria,
+    List<List<double>> eigenVectorsAlternative,
+    List<Alternative> alternatives,
   );
 }
