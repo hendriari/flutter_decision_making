@@ -5,17 +5,18 @@ import 'package:flutter_decision_making/ahp/domain/entities/pairwise_alternative
 import 'package:flutter_decision_making/ahp/domain/entities/pairwise_comparison_input.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/pairwise_comparison_scale.dart';
 import 'package:flutter_decision_making/ahp/domain/repository/decision_making_repository.dart';
-import 'package:flutter_decision_making/ahp/domain/usecase/calculate_consistency_ratio_usecase.dart';
+import 'package:flutter_decision_making/ahp/domain/usecase/check_consistency_ratio_usecase.dart';
 import 'package:flutter_decision_making/ahp/domain/usecase/calculate_eigen_vector_usecase.dart';
 import 'package:flutter_decision_making/ahp/domain/usecase/generate_hierarchy_usecase.dart';
 import 'package:flutter_decision_making/ahp/domain/usecase/generate_pairwise_alternative_input_usecase.dart';
 import 'package:flutter_decision_making/ahp/domain/usecase/generate_pairwise_criteria_input_usecase.dart';
-import 'package:flutter_decision_making/ahp/domain/usecase/generate_result_pairwise_matrix_usecase.dart';
+import 'package:flutter_decision_making/ahp/domain/usecase/generate_result_pairwise_matrix_criteria_usecase.dart';
 import 'package:flutter_decision_making/ahp/domain/usecase/identification_usecase.dart';
 
 import 'ahp/data/desicion_making_repository_impl.dart';
 import 'ahp/domain/entities/alternative.dart';
 import 'ahp/domain/entities/criteria.dart';
+import 'ahp/domain/usecase/generate_result_pairwise_matrix_alternative_usecase.dart';
 
 export 'ahp/domain/entities/alternative.dart';
 export 'ahp/domain/entities/criteria.dart';
@@ -66,18 +67,15 @@ class FlutterDecisionMaking {
       listAlternative,
     );
 
-    dev.log("generate hierarchy structure..");
     final hierarchy = await hierarchyUsecase.execute(
       criteria: identification.criteria,
       alternative: identification.alternative,
     );
 
-    dev.log("generate criteria template..");
     final pairCriteria = await pairCriteriaUseacse.execute(
       identification.criteria,
     );
 
-    dev.log("generate criteria alternative..");
     final pairAlternative = await pairAlternativeUsecase.execute(hierarchy);
 
     _listHierarchy = hierarchy;
@@ -135,7 +133,7 @@ class FlutterDecisionMaking {
       throw ArgumentError("Criteria not found");
     }
 
-    dev.log("success update criteria preference value");
+    dev.log("✔️ success update criteria preference value");
     _listPairwiseCriteriaInput[index] =
         _listPairwiseCriteriaInput[index].copyWith(preferenceValue: value);
   }
@@ -167,7 +165,7 @@ class FlutterDecisionMaking {
       return e;
     }).toList();
 
-    dev.log("success update alternative preference value");
+    dev.log("✔️ success update alternative preference value");
     _listPairwiseAlternativeInput[index] = item.copyWith(
       alternative: updateAlternative,
     );
@@ -191,48 +189,46 @@ class FlutterDecisionMaking {
         GenerateResultPairwiseMatrixCriteriaUsecase(_decisionMakingRepository);
 
     final matrixAlternativeUsecase =
-        GenerateResultPairwiseMatrixCriteriaUsecase(_decisionMakingRepository);
+        GenerateResultPairwiseMatrixAlternativeUsecase(
+            _decisionMakingRepository);
 
     final vectorUsecase =
         CalculateEigenVectorUsecase(_decisionMakingRepository);
 
     final ratioUsecase =
-        CalculateConsistencyRatioUsecase(_decisionMakingRepository);
+        CheckConsistencyRatioUsecase(_decisionMakingRepository);
 
     /// CRITERIA
     final resultMatrixCriteria = await matrixCriteriaUsecase.execute<Criteria>(
       _listHierarchy.map((e) => e.criteria).toList(),
       _listPairwiseCriteriaInput,
     );
-    dev.log('matrix criteria $resultMatrixCriteria');
+    dev.log('✅ matrix criteria $resultMatrixCriteria \n');
 
     final resultVectorCriteria =
         await vectorUsecase.execute(resultMatrixCriteria);
-    dev.log('eigen vector criteria $resultVectorCriteria');
+    dev.log('✅ eigen vector criteria $resultVectorCriteria \n');
 
-    final resultCriteriaRatio =
-        await ratioUsecase.execute(resultMatrixCriteria, resultVectorCriteria, 'criteria');
-    dev.log('criteria ratio $resultCriteriaRatio');
+    final resultCriteriaRatio = await ratioUsecase.execute(
+        resultMatrixCriteria, resultVectorCriteria, 'criteria');
+    dev.log('✅ criteria ratio $resultCriteriaRatio \n');
 
     /// ALTERNATIVE
     final List<Alternative> alternative =
         _listHierarchy.expand((e) => e.alternative).toList();
-    final List<PairwiseComparisonInput<Alternative>> alternativeInput =
-        _listPairwiseAlternativeInput.expand((e) => e.alternative).toList();
 
-    final resultMatrixAlternative =
-        await matrixAlternativeUsecase.execute<Alternative>(
+    final resultMatrixAlternative = await matrixAlternativeUsecase.execute(
       alternative,
-      alternativeInput,
+      _listPairwiseAlternativeInput,
     );
-    dev.log('matrix alternative $resultMatrixAlternative');
+    dev.log('✅ matrix alternative $resultMatrixAlternative \n');
 
     final resultVectorAlternative =
         await vectorUsecase.execute(resultMatrixAlternative);
-    dev.log('eigen vector alternative $resultVectorAlternative');
+    dev.log('✅ eigen vector alternative $resultVectorAlternative \n');
 
     final resultAlternativeRatio = await ratioUsecase.execute(
         resultMatrixAlternative, resultVectorAlternative, 'alternative');
-    dev.log('alternative ratio $resultAlternativeRatio');
+    dev.log('✅ alternative ratio $resultAlternativeRatio \n');
   }
 }

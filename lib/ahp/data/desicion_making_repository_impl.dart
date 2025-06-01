@@ -1,3 +1,5 @@
+import 'dart:developer' as dev;
+
 import 'package:flutter_decision_making/ahp/domain/entities/alternative.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/criteria.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/hierarchy.dart';
@@ -9,9 +11,11 @@ import 'package:flutter_decision_making/ahp/helper/ahp_helper.dart';
 
 class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
   final AhpHelper _helper;
+  final Stopwatch _stopwatch;
 
-  DecisionMakingRepositoryImpl({AhpHelper? helper})
-      : _helper = helper ?? AhpHelper();
+  DecisionMakingRepositoryImpl({AhpHelper? helper, Stopwatch? stopwatch})
+      : _helper = helper ?? AhpHelper(),
+        _stopwatch = stopwatch ?? Stopwatch();
 
   static void _validateUniqueId<T>(List<T> items, String Function(T) getId) {
     final seen = <String>{};
@@ -24,11 +28,26 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
     }
   }
 
+  void _startPerformanceProfiling(String name) {
+    dev.log("🔄 start $name..");
+    dev.Timeline.startSync(name);
+    _stopwatch.start();
+  }
+
+  void _endPerformanceProfiling(String name) {
+    dev.Timeline.finishSync();
+    _stopwatch.stop();
+    dev.log(
+        "🏁 $name has been execute - duration : ${_stopwatch.elapsedMilliseconds} ms");
+  }
+
   @override
   Future<Identification> identification(
     List<Criteria> criteria,
     List<Alternative> alternative,
   ) async {
+    _startPerformanceProfiling('identification');
+
     try {
       if (criteria.isEmpty) {
         throw ArgumentError("Criteria can't be empty!");
@@ -66,8 +85,8 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
         criteria: updatedCriteria,
         alternative: updateAlternative,
       );
-    } catch (e) {
-      throw Exception('Failed identification $e');
+    } finally {
+      _endPerformanceProfiling('identification');
     }
   }
 
@@ -76,6 +95,7 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
     List<Criteria> criteria,
     List<Alternative> alternative,
   ) async {
+    _startPerformanceProfiling('generate hierarchy');
     try {
       final resultHierarchy = criteria.map((c) {
         return Hierarchy(criteria: c, alternative: alternative);
@@ -84,6 +104,8 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
       return resultHierarchy;
     } catch (e) {
       throw Exception('Failed generate hierarchy $e');
+    } finally {
+      _endPerformanceProfiling('generate hierarchy');
     }
   }
 
@@ -91,6 +113,7 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
   Future<List<PairwiseComparisonInput<Criteria>>> generatePairwiseCriteria(
     List<Criteria> criteria,
   ) async {
+    _startPerformanceProfiling('generate pairwise criteria');
     try {
       final result = <PairwiseComparisonInput<Criteria>>[];
 
@@ -110,6 +133,8 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
       return result;
     } catch (e) {
       throw Exception('Failed generate pairwise criteria template $e');
+    } finally {
+      _endPerformanceProfiling('generate pairwise criteria');
     }
   }
 
@@ -118,6 +143,8 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
     List<T> items,
     List<PairwiseComparisonInput<T>> inputs,
   ) async {
+    _startPerformanceProfiling('generate result pairwise matrix criteria');
+
     try {
       final matrix = List.generate(
         items.length,
@@ -142,8 +169,8 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
       }
 
       return matrix;
-    } catch (e) {
-      throw Exception('Failed generate pairwise matrix result $e');
+    } finally {
+      _endPerformanceProfiling('generate result pairwise matrix criteria');
     }
   }
 
@@ -152,6 +179,7 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
     List<Alternative> items,
     List<PairwiseAlternativeInput> inputs,
   ) async {
+    _startPerformanceProfiling('generate pairwise matrix alternative');
     try {
       if (items.isEmpty) {
         throw ArgumentError('Alternative list is empty');
@@ -189,14 +217,14 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
       }
 
       return matrix;
-    } catch (e) {
-      throw Exception(
-          'Failed to generate pairwise matrix for alternatives: $e');
+    } finally {
+      _endPerformanceProfiling('generate pairwise matrix alternative');
     }
   }
 
   @override
   Future<List<double>> calculateEigenVector(List<List<double>> matrix) async {
+    _startPerformanceProfiling('calculate eigen vector');
     try {
       List<double> colSums = List.filled(matrix.length, 0);
 
@@ -219,15 +247,18 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
       return priorities;
     } catch (e) {
       throw Exception('Failed calculate eigen vector $e');
+    } finally {
+      _endPerformanceProfiling('calculate eigen vector');
     }
   }
 
   @override
-  Future<double> calculateConsistencyRatio(
+  Future<double> checkConsistencyRatio(
     List<List<double>> matrix,
     List<double> priorityVector,
     String source,
   ) async {
+    _startPerformanceProfiling('check consistency ratio');
     try {
       final int n = matrix.length;
 
@@ -271,9 +302,9 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
             'Please fix the weights to ensure valid results.');
       }
 
-      return ci / ri;
-    } catch (e) {
-      throw Exception('Failed calculate consistency ratio $e');
+      return cr;
+    } finally {
+      _endPerformanceProfiling('check consistency ratio');
     }
   }
 

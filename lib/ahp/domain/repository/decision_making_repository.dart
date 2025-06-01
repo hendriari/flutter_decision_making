@@ -28,7 +28,7 @@ abstract class DecisionMakingRepository {
 
   Future<List<double>> calculateEigenVector(List<List<double>> matrix);
 
-  Future<double> calculateConsistencyRatio(
+  Future<double> checkConsistencyRatio(
     List<List<double>> matrix,
     List<double> priorityVector,
     String source,
