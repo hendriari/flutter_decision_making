@@ -1,3 +1,4 @@
+import 'package:flutter_decision_making/ahp/domain/entities/ahp_result.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/alternative.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/criteria.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/hierarchy.dart';
@@ -20,17 +21,26 @@ abstract class DecisionMakingRepository {
     List<Criteria> criteria,
   );
 
-  Future<List<List<double>>> generateResultPairwiseMatrixCriteria<Criteria>(
+  Future<List<List<double>>> generateResultPairwiseMatrixCriteria(
       List<Criteria> items, List<PairwiseComparisonInput<Criteria>> inputs);
 
   Future<List<List<double>>> generateResultPairwiseMatrixAlternative(
       List<Alternative> items, List<PairwiseAlternativeInput> inputs);
 
-  Future<List<double>> calculateEigenVector(List<List<double>> matrix);
+  Future<List<double>> calculateEigenVectorCriteria(List<List<double>> matrix);
+
+  Future<List<double>> calculateEigenVectorAlternative(
+      List<List<double>> matrix);
 
   Future<double> checkConsistencyRatio(
     List<List<double>> matrix,
     List<double> priorityVector,
     String source,
+  );
+
+  Future<List<AhpResult>> getFinalScore(
+    List<double> eigenVectorCriteria,
+    List<List<double>> eigenVectorsAlternative,
+    List<Alternative> alternatives,
   );
 }

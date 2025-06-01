@@ -1,13 +1,11 @@
-import 'package:flutter_decision_making/ahp/domain/entities/ahp_weigth.dart';
-
-class AhpResult<T> {
-  final List<AhpWeight<T>> weights;
-  final double consistencyRatio;
-  final bool isConsistent;
+class AhpResult {
+  final String? id;
+  final String name;
+  final double value;
 
   AhpResult({
-    required this.weights,
-    required this.consistencyRatio,
-    required this.isConsistent,
+    required this.id,
+    required this.name,
+    required this.value,
   });
 }

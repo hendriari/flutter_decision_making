@@ -395,7 +395,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: Center(
                       child: ElevatedButton(
                         onPressed: () async {
-                          _decisionMaking.generateResult().catchError((e) {
+                          await _decisionMaking.generateResult().catchError((
+                            e,
+                          ) {
                             if (context.mounted) {
                               _helper.showScaffoldMessenger(
                                 context: context,
@@ -403,6 +405,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               );
                             }
                           });
+
+                          setState(() {});
                         },
                         child: Text(
                           'Generate Result',
@@ -414,6 +418,42 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                     ),
+                  )
+                  : const SizedBox(),
+
+              /// RESULT
+              _decisionMaking.ahpResult.isNotEmpty
+                  ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 10),
+                        child: Divider(),
+                      ),
+
+                      Text(
+                        'Result',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.symmetric(vertical: 10),
+                        itemCount: _decisionMaking.ahpResult.length,
+                        itemBuilder: (context, index) {
+                          var data = _decisionMaking.ahpResult[index];
+                          return Text(
+                            '${data.name}: ${data.value}',
+                            style: _textStyle,
+                          );
+                        },
+                      ),
+                    ],
                   )
                   : const SizedBox(),
             ],

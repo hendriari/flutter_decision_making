@@ -1,5 +1,6 @@
 import 'dart:developer' as dev;
 
+import 'package:flutter_decision_making/ahp/domain/entities/ahp_result.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/alternative.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/criteria.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/hierarchy.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_decision_making/ahp/domain/entities/identification.dart'
 import 'package:flutter_decision_making/ahp/domain/entities/pairwise_alternative_input.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/pairwise_comparison_input.dart';
 import 'package:flutter_decision_making/ahp/domain/repository/decision_making_repository.dart';
+import 'package:flutter_decision_making/ahp/exception/cosistency_ratio_exception.dart';
 import 'package:flutter_decision_making/ahp/helper/ahp_helper.dart';
 
 class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
@@ -139,9 +141,9 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
   }
 
   @override
-  Future<List<List<double>>> generateResultPairwiseMatrixCriteria<T>(
-    List<T> items,
-    List<PairwiseComparisonInput<T>> inputs,
+  Future<List<List<double>>> generateResultPairwiseMatrixCriteria(
+    List<Criteria> items,
+    List<PairwiseComparisonInput<Criteria>> inputs,
   ) async {
     _startPerformanceProfiling('generate result pairwise matrix criteria');
 
@@ -223,7 +225,8 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
   }
 
   @override
-  Future<List<double>> calculateEigenVector(List<List<double>> matrix) async {
+  Future<List<double>> calculateEigenVectorCriteria(
+      List<List<double>> matrix) async {
     _startPerformanceProfiling('calculate eigen vector');
     try {
       List<double> colSums = List.filled(matrix.length, 0);
@@ -249,6 +252,49 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
       throw Exception('Failed calculate eigen vector $e');
     } finally {
       _endPerformanceProfiling('calculate eigen vector');
+    }
+  }
+
+  @override
+  Future<List<double>> calculateEigenVectorAlternative(
+      List<List<double>> matrix) async {
+    _startPerformanceProfiling('calculate eigen vector alternative');
+    try {
+      final int n = matrix.length;
+
+      if (n == 0 || matrix.any((row) => row.length != n)) {
+        throw ArgumentError('Matrix must be square and non-empty.');
+      }
+
+      List<double> colSums = List.filled(n, 0.0);
+      for (int j = 0; j < n; j++) {
+        for (int i = 0; i < n; i++) {
+          colSums[j] += matrix[i][j];
+        }
+      }
+
+      List<List<double>> normalizedMatrix =
+          List.generate(n, (i) => List.filled(n, 0.0));
+      for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+          normalizedMatrix[i][j] = matrix[i][j] / colSums[j];
+        }
+      }
+
+      List<double> priorities = List.filled(n, 0.0);
+      for (int i = 0; i < n; i++) {
+        double rowSum = 0.0;
+        for (int j = 0; j < n; j++) {
+          rowSum += normalizedMatrix[i][j];
+        }
+        priorities[i] = rowSum / n;
+      }
+
+      return priorities;
+    } catch (e) {
+      throw Exception('Failed to calculate eigen vector alternative: $e');
+    } finally {
+      _endPerformanceProfiling('calculate eigen vector alternative');
     }
   }
 
@@ -296,10 +342,7 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
       final cr = ci / ri;
 
       if (cr > 0.1) {
-        final type = source == 'criteria' ? 'criteria' : 'alternative';
-        throw Exception(
-            '$type consistency ratio exceeds limit (CR = ${cr.toStringAsFixed(3)}). '
-            'Please fix the weights to ensure valid results.');
+        throw ConsistencyRatioException(type: source, value: cr);
       }
 
       return cr;
@@ -320,7 +363,48 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
       8: 1.41,
       9: 1.45,
       10: 1.49,
+      11: 1.51,
+      12: 1.48,
+      13: 1.56,
+      14: 1.57,
+      15: 1.59,
     };
-    return riTable[n] ?? 1.49;
+    return riTable[n] ?? 1.59;
+  }
+
+  @override
+  Future<List<AhpResult>> getFinalScore(
+    List<double> eigenVectorCriteria,
+    List<List<double>> eigenVectorsAlternative,
+    List<Alternative> alternatives,
+  ) async {
+    _startPerformanceProfiling('calculate final score..');
+    try {
+      final int altCount = eigenVectorsAlternative.first.length;
+      final int criteriaCount = eigenVectorCriteria.length;
+
+      List<double> result = List.filled(altCount, 0.0);
+
+      for (int i = 0; i < altCount; i++) {
+        for (int j = 0; j < criteriaCount; j++) {
+          result[i] += eigenVectorCriteria[j] * eigenVectorsAlternative[j][i];
+        }
+      }
+
+      final ahpResult = <AhpResult>[];
+
+      for (int i = 0; i < altCount; i++) {
+        ahpResult.add(AhpResult(
+            id: alternatives[i].id,
+            name: alternatives[i].name,
+            value: result[i]));
+      }
+
+      return ahpResult..sort((a, b) => b.value.compareTo(a.value));
+    } catch (e) {
+      throw Exception('Failed calculate final score: $e');
+    } finally {
+      _endPerformanceProfiling('calculate final score');
+    }
   }
 }
