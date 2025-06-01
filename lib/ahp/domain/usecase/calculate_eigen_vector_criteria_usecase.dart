@@ -1,10 +1,10 @@
 import 'package:flutter_decision_making/ahp/domain/repository/decision_making_repository.dart';
 
-class CalculateEigenVectorUsecase {
+class CalculateEigenVectorCriteriaUsecase {
   final DecisionMakingRepository _decisionMakingRepository;
 
-  CalculateEigenVectorUsecase(this._decisionMakingRepository);
+  CalculateEigenVectorCriteriaUsecase(this._decisionMakingRepository);
 
   Future<List<double>> execute(List<List<double>> matrix) async =>
-      await _decisionMakingRepository.calculateEigenVector(matrix);
+      await _decisionMakingRepository.calculateEigenVectorCriteria(matrix);
 }

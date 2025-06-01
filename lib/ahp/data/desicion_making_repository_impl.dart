@@ -139,9 +139,9 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
   }
 
   @override
-  Future<List<List<double>>> generateResultPairwiseMatrixCriteria<T>(
-    List<T> items,
-    List<PairwiseComparisonInput<T>> inputs,
+  Future<List<List<double>>> generateResultPairwiseMatrixCriteria(
+    List<Criteria> items,
+    List<PairwiseComparisonInput<Criteria>> inputs,
   ) async {
     _startPerformanceProfiling('generate result pairwise matrix criteria');
 
@@ -223,7 +223,8 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
   }
 
   @override
-  Future<List<double>> calculateEigenVector(List<List<double>> matrix) async {
+  Future<List<double>> calculateEigenVectorCriteria(
+      List<List<double>> matrix) async {
     _startPerformanceProfiling('calculate eigen vector');
     try {
       List<double> colSums = List.filled(matrix.length, 0);
@@ -249,6 +250,49 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
       throw Exception('Failed calculate eigen vector $e');
     } finally {
       _endPerformanceProfiling('calculate eigen vector');
+    }
+  }
+
+  @override
+  Future<List<double>> calculateEigenVectorAlternative(
+      List<List<double>> matrix) async {
+    _startPerformanceProfiling('calculate eigen vector alternative');
+    try {
+      final int n = matrix.length;
+
+      if (n == 0 || matrix.any((row) => row.length != n)) {
+        throw ArgumentError('Matrix must be square and non-empty.');
+      }
+
+      List<double> colSums = List.filled(n, 0.0);
+      for (int j = 0; j < n; j++) {
+        for (int i = 0; i < n; i++) {
+          colSums[j] += matrix[i][j];
+        }
+      }
+
+      List<List<double>> normalizedMatrix =
+          List.generate(n, (i) => List.filled(n, 0.0));
+      for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+          normalizedMatrix[i][j] = matrix[i][j] / colSums[j];
+        }
+      }
+
+      List<double> priorities = List.filled(n, 0.0);
+      for (int i = 0; i < n; i++) {
+        double rowSum = 0.0;
+        for (int j = 0; j < n; j++) {
+          rowSum += normalizedMatrix[i][j];
+        }
+        priorities[i] = rowSum / n;
+      }
+
+      return priorities;
+    } catch (e) {
+      throw Exception('Failed to calculate eigen vector alternative: $e');
+    } finally {
+      _endPerformanceProfiling('calculate eigen vector alternative');
     }
   }
 
@@ -320,7 +364,51 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
       8: 1.41,
       9: 1.45,
       10: 1.49,
+      11: 1.51,
+      12: 1.48,
+      13: 1.56,
+      14: 1.57,
+      15: 1.59,
     };
-    return riTable[n] ?? 1.49;
+    return riTable[n] ?? 1.59;
+  }
+
+  @override
+  Future<List<double>> getFinalScore(
+    List<double> eigenVectorCriteria,
+    List<List<List<double>>> listMatrixAlternativePerCriteria,
+    List<List<double>> listEigenVectorAlternativePerCriteria,
+  ) async {
+    _startPerformanceProfiling('calculate final score..');
+    try {
+      if (listMatrixAlternativePerCriteria.isEmpty ||
+          listEigenVectorAlternativePerCriteria.isEmpty) {
+        throw ArgumentError('Alternative matrices or eigen vectors are empty');
+      }
+
+      final int numAlternatives =
+          listEigenVectorAlternativePerCriteria[0].length;
+      final int numCriteria = eigenVectorCriteria.length;
+
+      List<double> finalScores = List.filled(numAlternatives, 0.0);
+
+      for (int altIndex = 0; altIndex < numAlternatives; altIndex++) {
+        double score = 0.0;
+        for (int critIndex = 0; critIndex < numCriteria; critIndex++) {
+          final eigenVectorAlt =
+              listEigenVectorAlternativePerCriteria[critIndex];
+          final weightCriteria = eigenVectorCriteria[critIndex];
+
+          score += weightCriteria * eigenVectorAlt[altIndex];
+        }
+        finalScores[altIndex] = score;
+      }
+
+      return finalScores;
+    } catch (e) {
+      throw Exception('Failed calculate final score: $e');
+    } finally {
+      _endPerformanceProfiling('calculate final score');
+    }
   }
 }
