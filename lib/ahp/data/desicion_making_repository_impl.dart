@@ -1,16 +1,21 @@
+import 'dart:developer' as dev;
+
 import 'package:flutter_decision_making/ahp/domain/entities/alternative.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/criteria.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/hierarchy.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/identification.dart';
-import 'package:flutter_decision_making/ahp/domain/entities/pairwise_comparison_matrix.dart';
+import 'package:flutter_decision_making/ahp/domain/entities/pairwise_alternative_input.dart';
+import 'package:flutter_decision_making/ahp/domain/entities/pairwise_comparison_input.dart';
 import 'package:flutter_decision_making/ahp/domain/repository/decision_making_repository.dart';
 import 'package:flutter_decision_making/ahp/helper/ahp_helper.dart';
 
 class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
   final AhpHelper _helper;
+  final Stopwatch _stopwatch;
 
-  DecisionMakingRepositoryImpl({AhpHelper? helper})
-    : _helper = helper ?? AhpHelper();
+  DecisionMakingRepositoryImpl({AhpHelper? helper, Stopwatch? stopwatch})
+      : _helper = helper ?? AhpHelper(),
+        _stopwatch = stopwatch ?? Stopwatch();
 
   static void _validateUniqueId<T>(List<T> items, String Function(T) getId) {
     final seen = <String>{};
@@ -23,11 +28,26 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
     }
   }
 
+  void _startPerformanceProfiling(String name) {
+    dev.log("🔄 start $name..");
+    dev.Timeline.startSync(name);
+    _stopwatch.start();
+  }
+
+  void _endPerformanceProfiling(String name) {
+    dev.Timeline.finishSync();
+    _stopwatch.stop();
+    dev.log(
+        "🏁 $name has been execute - duration : ${_stopwatch.elapsedMilliseconds} ms");
+  }
+
   @override
   Future<Identification> identification(
     List<Criteria> criteria,
     List<Alternative> alternative,
   ) async {
+    _startPerformanceProfiling('identification');
+
     try {
       if (criteria.isEmpty) {
         throw ArgumentError("Criteria can't be empty!");
@@ -65,8 +85,8 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
         criteria: updatedCriteria,
         alternative: updateAlternative,
       );
-    } catch (e) {
-      throw Exception(e);
+    } finally {
+      _endPerformanceProfiling('identification');
     }
   }
 
@@ -75,15 +95,17 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
     List<Criteria> criteria,
     List<Alternative> alternative,
   ) async {
+    _startPerformanceProfiling('generate hierarchy');
     try {
-      final resultHierarchy =
-          criteria.map((c) {
-            return Hierarchy(criteria: c, alternative: alternative);
-          }).toList();
+      final resultHierarchy = criteria.map((c) {
+        return Hierarchy(criteria: c, alternative: alternative);
+      }).toList();
 
       return resultHierarchy;
     } catch (e) {
-      throw Exception(e);
+      throw Exception('Failed generate hierarchy $e');
+    } finally {
+      _endPerformanceProfiling('generate hierarchy');
     }
   }
 
@@ -91,6 +113,7 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
   Future<List<PairwiseComparisonInput<Criteria>>> generatePairwiseCriteria(
     List<Criteria> criteria,
   ) async {
+    _startPerformanceProfiling('generate pairwise criteria');
     try {
       final result = <PairwiseComparisonInput<Criteria>>[];
 
@@ -109,7 +132,195 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
 
       return result;
     } catch (e) {
-      throw Exception(e);
+      throw Exception('Failed generate pairwise criteria template $e');
+    } finally {
+      _endPerformanceProfiling('generate pairwise criteria');
     }
+  }
+
+  @override
+  Future<List<List<double>>> generateResultPairwiseMatrixCriteria<T>(
+    List<T> items,
+    List<PairwiseComparisonInput<T>> inputs,
+  ) async {
+    _startPerformanceProfiling('generate result pairwise matrix criteria');
+
+    try {
+      final matrix = List.generate(
+        items.length,
+        (_) => List.filled(items.length, 1.0),
+      );
+
+      for (final e in inputs) {
+        final i = items.indexOf(e.left);
+        final j = items.indexOf(e.right);
+        final value = e.preferenceValue?.value.toDouble() ?? 1.0;
+
+        if (i == -1 || j == -1) {
+          throw Exception('One or both items not found in the list');
+        }
+
+        if (value <= 0) {
+          throw Exception('Comparison value must be greater than zero');
+        }
+
+        matrix[i][j] = value;
+        matrix[j][i] = 1 / value;
+      }
+
+      return matrix;
+    } finally {
+      _endPerformanceProfiling('generate result pairwise matrix criteria');
+    }
+  }
+
+  @override
+  Future<List<List<double>>> generateResultPairwiseMatrixAlternative(
+    List<Alternative> items,
+    List<PairwiseAlternativeInput> inputs,
+  ) async {
+    _startPerformanceProfiling('generate pairwise matrix alternative');
+    try {
+      if (items.isEmpty) {
+        throw ArgumentError('Alternative list is empty');
+      }
+
+      if (inputs.isEmpty) {
+        return List.generate(
+          items.length,
+          (_) => List.filled(items.length, 1.0),
+        );
+      }
+
+      final pairwise = inputs.first.alternative;
+
+      final matrix = List.generate(
+        items.length,
+        (_) => List.filled(items.length, 1.0),
+      );
+
+      for (final comparison in pairwise) {
+        final i = items.indexWhere((e) => e.id == comparison.left.id);
+        final j = items.indexWhere((e) => e.id == comparison.right.id);
+
+        if (i == -1 || j == -1) {
+          throw Exception('Alternative not found in list');
+        }
+
+        final value = comparison.preferenceValue?.value.toDouble() ?? 1.0;
+        if (value <= 0) {
+          throw Exception('Comparison value must be greater than zero');
+        }
+
+        matrix[i][j] = value;
+        matrix[j][i] = 1 / value;
+      }
+
+      return matrix;
+    } finally {
+      _endPerformanceProfiling('generate pairwise matrix alternative');
+    }
+  }
+
+  @override
+  Future<List<double>> calculateEigenVector(List<List<double>> matrix) async {
+    _startPerformanceProfiling('calculate eigen vector');
+    try {
+      List<double> colSums = List.filled(matrix.length, 0);
+
+      for (int j = 0; j < matrix.length; j++) {
+        for (int i = 0; i < matrix.length; i++) {
+          colSums[j] += matrix[i][j];
+        }
+      }
+
+      List<double> priorities = List.filled(matrix.length, 0);
+
+      for (int i = 0; i < matrix.length; i++) {
+        double sum = 0;
+        for (int j = 0; j < matrix.length; j++) {
+          sum += matrix[i][j] / colSums[j];
+        }
+        priorities[i] = sum / matrix.length;
+      }
+
+      return priorities;
+    } catch (e) {
+      throw Exception('Failed calculate eigen vector $e');
+    } finally {
+      _endPerformanceProfiling('calculate eigen vector');
+    }
+  }
+
+  @override
+  Future<double> checkConsistencyRatio(
+    List<List<double>> matrix,
+    List<double> priorityVector,
+    String source,
+  ) async {
+    _startPerformanceProfiling('check consistency ratio');
+    try {
+      final int n = matrix.length;
+
+      if (n == 0 || priorityVector.isEmpty || priorityVector.length != n) {
+        throw ArgumentError(
+          'Matrix and priority vector must be non-empty and of the same size.',
+        );
+      }
+
+      if (priorityVector.any((e) => e == 0)) {
+        throw ArgumentError(
+            'Priority vector contains zero, cannot divide by zero.');
+      }
+
+      List<double> weightedSums = List.filled(n, 0);
+      for (int i = 0; i < n; i++) {
+        double sum = 0;
+        for (int j = 0; j < n; j++) {
+          sum += matrix[i][j] * priorityVector[j];
+        }
+        weightedSums[i] = sum;
+      }
+
+      double lambdaMax = 0;
+      for (int i = 0; i < n; i++) {
+        lambdaMax += weightedSums[i] / priorityVector[i];
+      }
+      lambdaMax /= n;
+
+      double ci = (lambdaMax - n) / (n - 1);
+
+      final ri = _getRI(n);
+      if (ri == 0) return 0;
+
+      final cr = ci / ri;
+
+      if (cr > 0.1) {
+        final type = source == 'criteria' ? 'criteria' : 'alternative';
+        throw Exception(
+            '$type consistency ratio exceeds limit (CR = ${cr.toStringAsFixed(3)}). '
+            'Please fix the weights to ensure valid results.');
+      }
+
+      return cr;
+    } finally {
+      _endPerformanceProfiling('check consistency ratio');
+    }
+  }
+
+  static double _getRI(int n) {
+    const Map<int, double> riTable = {
+      1: 0.0,
+      2: 0.0,
+      3: 0.58,
+      4: 0.90,
+      5: 1.12,
+      6: 1.24,
+      7: 1.32,
+      8: 1.41,
+      9: 1.45,
+      10: 1.49,
+    };
+    return riTable[n] ?? 1.49;
   }
 }
