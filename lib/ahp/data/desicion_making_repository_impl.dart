@@ -341,7 +341,9 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
 
       final cr = ci / ri;
 
-      if (cr > 0.1) {
+      dev.log('λmax: $lambdaMax, CI: $ci, CR: $cr');
+
+      if ((cr - 0.1) > 1e-5) {
         throw ConsistencyRatioException(type: source, value: cr);
       }
 
