@@ -5,20 +5,25 @@ class PairwiseComparisonInput<T> {
   final T left;
   final T right;
   final PairwiseComparisonScale? preferenceValue;
+  final bool? isLeftMoreImportant;
 
   const PairwiseComparisonInput({
     required this.id,
     required this.left,
     required this.right,
     this.preferenceValue,
+    required this.isLeftMoreImportant,
   });
 
   PairwiseComparisonInput<T> copyWith({
     PairwiseComparisonScale? preferenceValue,
-  }) => PairwiseComparisonInput(
-    id: this.id,
-    left: this.left,
-    right: this.right,
-    preferenceValue: preferenceValue ?? this.preferenceValue,
-  );
+    bool? isLeftMoreImportant,
+  }) =>
+      PairwiseComparisonInput(
+        id: this.id,
+        left: this.left,
+        right: this.right,
+        preferenceValue: preferenceValue ?? this.preferenceValue,
+        isLeftMoreImportant: isLeftMoreImportant ?? this.isLeftMoreImportant,
+      );
 }
