@@ -124,7 +124,8 @@ class FlutterDecisionMaking {
   /// UPDATE PAIRWISE CRITERIA INPUT
   void updatePairwiseCriteriaValue({
     required String? id,
-    required PairwiseComparisonScale value,
+    required PairwiseComparisonScale scale,
+    required bool isLeftMoreImportant,
   }) {
     if (_listPairwiseCriteriaInput.isEmpty) {
       throw ArgumentError("Can't update anything, criteria is empty");
@@ -138,14 +139,18 @@ class FlutterDecisionMaking {
 
     dev.log("✔️ success update criteria preference value");
     _listPairwiseCriteriaInput[index] =
-        _listPairwiseCriteriaInput[index].copyWith(preferenceValue: value);
+        _listPairwiseCriteriaInput[index].copyWith(
+      preferenceValue: scale,
+      isLeftMoreImportant: isLeftMoreImportant,
+    );
   }
 
   /// UPDATE ALTERNATIVE VALUE
   void updatePairwiseAlternativeValue({
     required id,
     required alternativeId,
-    required PairwiseComparisonScale value,
+    required PairwiseComparisonScale scale,
+    required bool isLeftMoreImportant,
   }) {
     if (_listPairwiseAlternativeInput.isEmpty) {
       throw ArgumentError("Can't update anything, alternative is empty");
@@ -163,7 +168,10 @@ class FlutterDecisionMaking {
 
     final updateAlternative = item.alternative.map((e) {
       if (e.id == alternativeId) {
-        return e.copyWith(preferenceValue: value);
+        return e.copyWith(
+          preferenceValue: scale,
+          isLeftMoreImportant: isLeftMoreImportant,
+        );
       }
       return e;
     }).toList();
@@ -186,10 +194,21 @@ class FlutterDecisionMaking {
       throw ArgumentError("Please complete all values from the criteria scale");
     }
 
+    if (_listPairwiseCriteriaInput.any((e) => e.isLeftMoreImportant == null)) {
+      throw ArgumentError(
+          "Please complete which more important from the criteria");
+    }
+
     if (_listPairwiseAlternativeInput.any(
         (e) => e.alternative.any((d) => d.preferenceValue?.value == null))) {
       throw ArgumentError(
           "Please complete all values from the alternative scale");
+    }
+
+    if (_listPairwiseAlternativeInput
+        .any((e) => e.alternative.any((d) => d.isLeftMoreImportant == null))) {
+      throw ArgumentError(
+          "Please complete which more important from the alternative");
     }
 
     final matrixCriteriaUsecase =

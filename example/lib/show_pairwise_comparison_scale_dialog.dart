@@ -3,12 +3,16 @@ import 'package:flutter_decision_making/ahp/domain/entities/pairwise_comparison_
 
 class PairwiseComparisonScaleWidget extends StatefulWidget {
   final List<PairwiseComparisonScale> comparison;
-  final Function(PairwiseComparisonScale?) onSelected;
+  final Function(PairwiseComparisonScale?, bool?) onSelected;
+  final String leftItemName;
+  final String rightItemName;
 
   const PairwiseComparisonScaleWidget({
     super.key,
     required this.comparison,
     required this.onSelected,
+    required this.leftItemName,
+    required this.rightItemName,
   });
 
   @override
@@ -21,11 +25,14 @@ class _PairwiseComparisonScaleWidgetState
   final ValueNotifier<PairwiseComparisonScale?> _selectedScale = ValueNotifier(
     null,
   );
+  final ValueNotifier<bool?> _isLeftMoreImportant = ValueNotifier(null);
+  String? _message;
 
   @override
   void dispose() {
     super.dispose();
     _selectedScale.dispose();
+    _isLeftMoreImportant.dispose();
   }
 
   @override
@@ -34,26 +41,26 @@ class _PairwiseComparisonScaleWidgetState
       backgroundColor: Colors.transparent,
       child: Container(
         color: Colors.white,
+        constraints: BoxConstraints(maxHeight: 400),
         padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Pairwise Comparison Scale',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Pairwise Comparison Scale',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
 
-            SizedBox(height: 10),
+              SizedBox(height: 10),
 
-            /// LIST COMPARISON
-            ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: 300),
-              child: MediaQuery.removePadding(
-                removeTop: true,
-                context: context,
-                child: Scrollbar(
-                  thumbVisibility: true,
+              /// LIST COMPARISON
+              ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: 300),
+                child: MediaQuery.removePadding(
+                  removeTop: true,
+                  context: context,
                   child: ListView.builder(
                     itemCount: widget.comparison.length,
                     shrinkWrap: true,
@@ -88,22 +95,98 @@ class _PairwiseComparisonScaleWidgetState
                   ),
                 ),
               ),
-            ),
 
-            SizedBox(height: 10),
+              SizedBox(height: 20),
 
-            /// BUTTON SAVE
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                onPressed: () {
-                  widget.onSelected.call(_selectedScale.value);
-                  Navigator.pop(context);
-                },
-                child: Text('Save', style: TextStyle(fontSize: 18)),
+              /// SELECT IMPORTANT
+              ValueListenableBuilder(
+                valueListenable: _isLeftMoreImportant,
+                builder:
+                    (context, v, c) => Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Which is more important?',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        ListTile(
+                          title: Text(
+                            widget.leftItemName,
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          leading: Radio<bool?>(
+                            value: true,
+                            groupValue: _isLeftMoreImportant.value,
+                            onChanged: (value) {
+                              _isLeftMoreImportant.value = value;
+                            },
+                          ),
+                        ),
+
+                        ListTile(
+                          title: Text(
+                            widget.rightItemName,
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          leading: Radio<bool?>(
+                            value: false,
+                            groupValue: _isLeftMoreImportant.value,
+                            onChanged: (value) {
+                              _isLeftMoreImportant.value = value;
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
               ),
-            ),
-          ],
+
+              SizedBox(height: 10),
+
+              /// ERROR MESSAGE
+              _message != null
+                  ? Text(
+                    _message!,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
+                  : SizedBox(),
+
+              SizedBox(height: 10),
+
+              /// BUTTON SAVE
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (_selectedScale.value == null) {
+                      setState(() {
+                        _message = 'Please select scale comparison!';
+                      });
+                    } else if (_isLeftMoreImportant.value == null) {
+                      setState(() {
+                        _message = 'Please select which more important!';
+                      });
+                    } else {
+                      widget.onSelected.call(
+                        _selectedScale.value,
+                        _isLeftMoreImportant.value,
+                      );
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: Text('Save', style: TextStyle(fontSize: 18)),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -113,16 +196,20 @@ class _PairwiseComparisonScaleWidgetState
 Future<bool?> showPairwiseComparisonScaleDialog(
   BuildContext context, {
   required List<PairwiseComparisonScale> comparison,
-  required Function(PairwiseComparisonScale?) onSelected,
+  required Function(PairwiseComparisonScale?, bool?) onSelected,
+  required String leftItemName,
+  required String rightItemName,
 }) async {
   return showGeneralDialog(
     context: context,
-    barrierLabel: 'PAIRWISE COMPARISON',
+    barrierLabel: 'PAIRWISE COMPARISON SCALE',
     barrierDismissible: true,
     pageBuilder:
         (context, anim1, anim2) => PairwiseComparisonScaleWidget(
           comparison: comparison,
           onSelected: onSelected,
+          leftItemName: leftItemName,
+          rightItemName: rightItemName,
         ),
   );
 }

@@ -126,6 +126,7 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
               left: criteria[i],
               right: criteria[j],
               preferenceValue: null,
+              isLeftMoreImportant: null,
               id: _helper.getCustomUniqueId(),
             ),
           );
@@ -166,8 +167,13 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
           throw Exception('Comparison value must be greater than zero');
         }
 
-        matrix[i][j] = value;
-        matrix[j][i] = 1 / value;
+        if (e.isLeftMoreImportant == true) {
+          matrix[i][j] = value;
+          matrix[j][i] = 1 / value;
+        } else {
+          matrix[i][j] = 1 / value;
+          matrix[j][i] = value;
+        }
       }
 
       return matrix;
@@ -214,8 +220,13 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
           throw Exception('Comparison value must be greater than zero');
         }
 
-        matrix[i][j] = value;
-        matrix[j][i] = 1 / value;
+        if (comparison.isLeftMoreImportant == true) {
+          matrix[i][j] = value;
+          matrix[j][i] = 1 / value;
+        } else {
+          matrix[i][j] = 1 / value;
+          matrix[j][i] = value;
+        }
       }
 
       return matrix;

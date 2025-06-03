@@ -39,6 +39,7 @@ List<PairwiseAlternativeInput> _generatePairwiseAlternativeInIsolate(
               left: alternative[i],
               right: alternative[j],
               preferenceValue: null,
+              isLeftMoreImportant: null,
               id: helper.getCustomUniqueId(),
             ),
           );

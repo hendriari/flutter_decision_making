@@ -39,7 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late FlutterDecisionMaking _decisionMaking;
   late List<Criteria> _listCriteria;
   late List<Alternative> _listAlternative;
-  late List<PairwiseComparisonInput> _inputCriteria;
+  late List<PairwiseComparisonInput<Criteria>> _inputCriteria;
   late List<PairwiseAlternativeInput> _inputAlternative;
   late Helper _helper;
 
@@ -231,12 +231,16 @@ class _MyHomePageState extends State<MyHomePage> {
                                       comparison:
                                           _decisionMaking
                                               .listPairwiseComparisonScale,
-                                      onSelected: (value) {
-                                        if (value != null) {
+                                      leftItemName: criteria.left.name,
+                                      rightItemName: criteria.right.name,
+                                      onSelected: (scale, important) {
+                                        if (scale != null &&
+                                            important != null) {
                                           _decisionMaking
                                               .updatePairwiseCriteriaValue(
                                                 id: criteria.id,
-                                                value: value,
+                                                scale: scale,
+                                                isLeftMoreImportant: important,
                                               );
 
                                           setState(() {
@@ -264,8 +268,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                     ),
                                     child: Text(
                                       criteria.preferenceValue != null
-                                          ? '${criteria.preferenceValue?.value} - ${criteria.preferenceValue?.description}'
-                                          : 'scale comparison',
+                                          ? '${criteria.preferenceValue?.value} - ${criteria.isLeftMoreImportant == true ? 'left item is more important' : 'right item is more important'}'
+                                          : 'please select scale comparison',
                                       style: _textStyle,
                                     ),
                                   ),
@@ -331,13 +335,18 @@ class _MyHomePageState extends State<MyHomePage> {
                                             comparison:
                                                 _decisionMaking
                                                     .listPairwiseComparisonScale,
-                                            onSelected: (value) {
-                                              if (value != null) {
+                                            leftItemName: e.left.name,
+                                            rightItemName: e.right.name,
+                                            onSelected: (scale, important) {
+                                              if (scale != null &&
+                                                  important != null) {
                                                 _decisionMaking
                                                     .updatePairwiseAlternativeValue(
                                                       id: data.criteria.id,
                                                       alternativeId: e.id,
-                                                      value: value,
+                                                      scale: scale,
+                                                      isLeftMoreImportant:
+                                                          important,
                                                     );
 
                                                 setState(() {
@@ -367,8 +376,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                           ),
                                           child: Text(
                                             e.preferenceValue != null
-                                                ? '${e.preferenceValue?.value} - ${e.preferenceValue?.description}'
-                                                : 'scale comparison',
+                                                ? '${e.preferenceValue?.value} - ${e.isLeftMoreImportant == true ? 'left item is more important' : 'right item is more important'}'
+                                                : 'please select scale comparison',
                                             style: _textStyle,
                                           ),
                                         ),
