@@ -1,6 +1,7 @@
 import 'dart:developer' as dev;
 
 import 'package:flutter_decision_making/ahp/domain/entities/ahp_result.dart';
+import 'package:flutter_decision_making/ahp/domain/entities/consistency_ratio.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/hierarchy.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/pairwise_alternative_input.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/pairwise_comparison_input.dart';
@@ -184,9 +185,9 @@ class FlutterDecisionMaking {
 
   /// ******************************* RESULT **********************************
 
-  List<AhpResult> _ahpResult = [];
+  AhpResult? _ahpResult;
 
-  List<AhpResult> get ahpResult => _ahpResult;
+  AhpResult? get ahpResult => _ahpResult;
 
   Future<void> generateResult() async {
     if (_listPairwiseCriteriaInput
@@ -237,17 +238,18 @@ class FlutterDecisionMaking {
     );
     dev.log('✅ matrix criteria $resultMatrixCriteria \n');
 
-    final resultVectorCriteria =
+    final resultEigenVectorCriteria =
         await eigenVectorCriteriaUsecase.execute(resultMatrixCriteria);
-    dev.log('✅ eigen vector criteria $resultVectorCriteria \n');
+    dev.log('✅ eigen vector criteria $resultEigenVectorCriteria \n');
 
     final resultCriteriaRatio = await ratioUsecase.execute(
-        resultMatrixCriteria, resultVectorCriteria, 'criteria');
-    dev.log('✅ criteria ratio $resultCriteriaRatio \n');
+        resultMatrixCriteria, resultEigenVectorCriteria, 'criteria');
+    dev.log('✅ criteria ratio ${resultCriteriaRatio.ratio} \n');
 
     /// Step 2: Matrix & Eigen Vector for each Alternative per Criteria
     final allEigenVectorsAlternative = <List<double>>[];
     final allMatrixAlternatives = <List<List<double>>>[];
+    final alternativeConsistencyRatio = <ConsistencyRatio>[];
 
     for (final input in _listPairwiseAlternativeInput) {
       final matrixAlt = await matrixAlternativeUsecase.execute(
@@ -263,20 +265,24 @@ class FlutterDecisionMaking {
       dev.log(
           '✅ eigen vector alternative (${input.criteria.name}): $eigenAlt \n');
 
-      final ratioAlt = await ratioUsecase.execute(
-          matrixAlt, eigenAlt, 'alternative (${input.criteria.name})');
-      dev.log('✅ alternative ratio (${input.criteria.name}): $ratioAlt \n');
+      final ratioAlt = await ratioUsecase.execute(matrixAlt, eigenAlt,
+          'alternative for criteria ${input.criteria.name}');
+      dev.log(
+          '✅ alternative ratio (${input.criteria.name}): ${ratioAlt.ratio} \n');
+      alternativeConsistencyRatio.add(ratioAlt);
     }
 
     /// Step 3: Final score = eigen criteria .dot. eigen alternative per criteria
     final finalScore = await getFinalScoreUsecase.execute(
-      resultVectorCriteria,
+      resultEigenVectorCriteria,
       allEigenVectorsAlternative,
       _listHierarchy.expand((e) => e.alternative).toList(),
+      resultCriteriaRatio,
+      alternativeConsistencyRatio,
     );
 
     dev.log(
-        '✅ final score ${finalScore.map((e) => '${e.name}: ${e.value}').join(', ')}');
+        '✅ final score ${finalScore.results.map((e) => '${e.name}: ${e.value}').join(', ')}');
     _ahpResult = finalScore;
   }
 }

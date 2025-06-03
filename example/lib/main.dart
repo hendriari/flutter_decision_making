@@ -431,7 +431,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   : const SizedBox(),
 
               /// RESULT
-              _decisionMaking.ahpResult.isNotEmpty
+              _decisionMaking.ahpResult != null
                   ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
@@ -452,16 +452,54 @@ class _MyHomePageState extends State<MyHomePage> {
                       ListView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        padding: EdgeInsets.symmetric(vertical: 10),
-                        itemCount: _decisionMaking.ahpResult.length,
+                        padding: EdgeInsets.only(top: 10),
+                        itemCount:
+                            _decisionMaking.ahpResult?.results.length ?? 0,
                         itemBuilder: (context, index) {
-                          var data = _decisionMaking.ahpResult[index];
+                          var data = _decisionMaking.ahpResult?.results[index];
                           return Text(
-                            '${data.name}: ${data.value}',
+                            '${data?.name}: ${data?.value}',
                             style: _textStyle,
                           );
                         },
                       ),
+
+                      const Divider(),
+
+                      Text(
+                        'criteria consistency ratio: ${_decisionMaking.ahpResult?.consistencyCriteriaRatio}',
+                        style: _textStyle,
+                      ),
+
+                      const Divider(),
+
+                      Text(
+                        'is criteria consistent: ${_decisionMaking.ahpResult?.isConsistentCriteria}',
+                        style: _textStyle,
+                      ),
+
+                      const Divider(),
+
+                      Text(
+                        'alternative consistency ratio: ${_decisionMaking.ahpResult?.consistencyAlternativeRatio}',
+                        style: _textStyle,
+                      ),
+
+                      const Divider(),
+
+                      Text(
+                        'is alternative consistent: ${_decisionMaking.ahpResult?.isConsistentAlternative}',
+                        style: _textStyle,
+                      ),
+
+                      const Divider(),
+
+                      _decisionMaking.ahpResult?.note != null
+                          ? Text(
+                            _decisionMaking.ahpResult!.note!,
+                            style: _textStyle,
+                          )
+                          : const SizedBox(),
                     ],
                   )
                   : const SizedBox(),
