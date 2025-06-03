@@ -56,43 +56,41 @@ class _PairwiseComparisonScaleWidgetState
               SizedBox(height: 10),
 
               /// LIST COMPARISON
-              ConstrainedBox(
-                constraints: BoxConstraints(maxHeight: 300),
-                child: MediaQuery.removePadding(
-                  removeTop: true,
-                  context: context,
-                  child: ListView.builder(
-                    itemCount: widget.comparison.length,
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      var data = widget.comparison[index];
-                      return InkWell(
-                        onTap: () {
-                          _selectedScale.value = data;
+              MediaQuery.removePadding(
+                removeTop: true,
+                context: context,
+                child: ListView.builder(
+                  itemCount: widget.comparison.length,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    var data = widget.comparison[index];
+                    return InkWell(
+                      onTap: () {
+                        _selectedScale.value = data;
+                      },
+                      child: ValueListenableBuilder(
+                        valueListenable: _selectedScale,
+                        builder: (context, v, c) {
+                          return Container(
+                            margin: EdgeInsets.symmetric(vertical: 3),
+                            padding: EdgeInsets.symmetric(
+                              vertical: 5,
+                              horizontal: 5,
+                            ),
+                            color:
+                                _selectedScale.value == data
+                                    ? Colors.grey.shade200
+                                    : null,
+                            child: Text(
+                              '${data.value} - ${data.description}',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          );
                         },
-                        child: ValueListenableBuilder(
-                          valueListenable: _selectedScale,
-                          builder: (context, v, c) {
-                            return Container(
-                              margin: EdgeInsets.symmetric(vertical: 3),
-                              padding: EdgeInsets.symmetric(
-                                vertical: 5,
-                                horizontal: 5,
-                              ),
-                              color:
-                                  _selectedScale.value == data
-                                      ? Colors.grey.shade200
-                                      : null,
-                              child: Text(
-                                '${data.value} - ${data.description}',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
 
