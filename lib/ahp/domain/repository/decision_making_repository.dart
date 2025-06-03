@@ -1,5 +1,6 @@
 import 'package:flutter_decision_making/ahp/domain/entities/ahp_result.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/alternative.dart';
+import 'package:flutter_decision_making/ahp/domain/entities/consistency_ratio.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/criteria.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/hierarchy.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/identification.dart';
@@ -32,15 +33,17 @@ abstract class DecisionMakingRepository {
   Future<List<double>> calculateEigenVectorAlternative(
       List<List<double>> matrix);
 
-  Future<double> checkConsistencyRatio(
+  Future<ConsistencyRatio> checkConsistencyRatio(
     List<List<double>> matrix,
     List<double> priorityVector,
     String source,
   );
 
-  Future<List<AhpResult>> getFinalScore(
+  Future<AhpResult> getFinalScore(
     List<double> eigenVectorCriteria,
     List<List<double>> eigenVectorsAlternative,
     List<Alternative> alternatives,
+    ConsistencyRatio consistencyCriteria,
+    List<ConsistencyRatio> consistencyAlternatives,
   );
 }

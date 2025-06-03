@@ -1,14 +1,15 @@
 import 'dart:developer' as dev;
 
 import 'package:flutter_decision_making/ahp/domain/entities/ahp_result.dart';
+import 'package:flutter_decision_making/ahp/domain/entities/ahp_result_detail.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/alternative.dart';
+import 'package:flutter_decision_making/ahp/domain/entities/consistency_ratio.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/criteria.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/hierarchy.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/identification.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/pairwise_alternative_input.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/pairwise_comparison_input.dart';
 import 'package:flutter_decision_making/ahp/domain/repository/decision_making_repository.dart';
-import 'package:flutter_decision_making/ahp/exception/cosistency_ratio_exception.dart';
 import 'package:flutter_decision_making/ahp/helper/ahp_helper.dart';
 
 class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
@@ -310,7 +311,7 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
   }
 
   @override
-  Future<double> checkConsistencyRatio(
+  Future<ConsistencyRatio> checkConsistencyRatio(
     List<List<double>> matrix,
     List<double> priorityVector,
     String source,
@@ -348,17 +349,19 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
       double ci = (lambdaMax - n) / (n - 1);
 
       final ri = _getRI(n);
-      if (ri == 0) return 0;
+      if (ri == 0) {
+        return ConsistencyRatio(source: source, ratio: 0, isConsistent: true);
+      }
 
       final cr = ci / ri;
 
       dev.log('λmax: $lambdaMax, CI: $ci, CR: $cr');
 
       if ((cr - 0.1) > 1e-5) {
-        throw ConsistencyRatioException(type: source, value: cr);
+        return ConsistencyRatio(source: source, ratio: cr, isConsistent: false);
       }
 
-      return cr;
+      return ConsistencyRatio(source: source, ratio: cr, isConsistent: true);
     } finally {
       _endPerformanceProfiling('check consistency ratio');
     }
@@ -386,10 +389,12 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
   }
 
   @override
-  Future<List<AhpResult>> getFinalScore(
+  Future<AhpResult> getFinalScore(
     List<double> eigenVectorCriteria,
     List<List<double>> eigenVectorsAlternative,
     List<Alternative> alternatives,
+    ConsistencyRatio consistencyCriteria,
+    List<ConsistencyRatio> consistencyAlternatives,
   ) async {
     _startPerformanceProfiling('calculate final score..');
     try {
@@ -404,16 +409,43 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
         }
       }
 
-      final ahpResult = <AhpResult>[];
+      final ahpResultDetail = <AhpResultDetail>[];
 
       for (int i = 0; i < altCount; i++) {
-        ahpResult.add(AhpResult(
+        ahpResultDetail.add(
+          AhpResultDetail(
             id: alternatives[i].id,
             name: alternatives[i].name,
-            value: result[i]));
+            value: result[i],
+          ),
+        );
       }
 
-      return ahpResult..sort((a, b) => b.value.compareTo(a.value));
+      final alternativesConsistency = consistencyAlternatives
+        ..sort((a, b) => b.ratio.compareTo(a.ratio));
+
+      String? note = !consistencyCriteria.isConsistent ||
+              consistencyAlternatives.any((e) => e.isConsistent == false)
+          ? '''
+Thank you for completing the assessment process. Based on the consistency check, the resulting Consistency Ratio (CR) exceeds the acceptable threshold of 0.1.
+As a result, the current assessment does not meet the expected level of consistency and therefore cannot yet be considered valid.
+We recommend reviewing and revising the assessment to ensure that the resulting analysis is more accurate and reliable for decision-making.
+Detail:
+${!consistencyCriteria.isConsistent ? '* inconsistency on criteria' : ''}
+${consistencyAlternatives.any((e) => e.isConsistent == false) ? '* Inconsistency on alternatives per criteria:\n${consistencyAlternatives.where((e) => !e.isConsistent).map((e) => '- ${e.source}: ${e.ratio}').join('\n')}' : ''}
+'''
+          : null;
+
+      final ahpResult = AhpResult(
+        results: ahpResultDetail..sort((a, b) => b.value.compareTo(a.value)),
+        isConsistentCriteria: consistencyCriteria.isConsistent,
+        consistencyCriteriaRatio: consistencyCriteria.ratio,
+        isConsistentAlternative: alternativesConsistency[0].isConsistent,
+        consistencyAlternativeRatio: alternativesConsistency[0].ratio,
+        note: note,
+      );
+
+      return ahpResult;
     } catch (e) {
       throw Exception('Failed calculate final score: $e');
     } finally {
