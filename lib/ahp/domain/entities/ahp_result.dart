@@ -1,5 +1,6 @@
 import 'package:flutter_decision_making/ahp/domain/entities/ahp_result_detail.dart';
 
+/// AHP RESULT ENTITIES
 class AhpResult {
   final List<AhpResultDetail> results;
   final bool isConsistentCriteria;

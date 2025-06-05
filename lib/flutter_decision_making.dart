@@ -28,6 +28,7 @@ export 'ahp/domain/entities/pairwise_alternative_input.dart';
 export 'ahp/domain/entities/pairwise_comparison_input.dart';
 export 'ahp/domain/entities/pairwise_comparison_scale.dart';
 
+/// MAIN AHP PACKAGE CLASS
 class FlutterDecisionMaking {
   final DecisionMakingRepository _decisionMakingRepository;
 
@@ -35,20 +36,20 @@ class FlutterDecisionMaking {
       : _decisionMakingRepository =
             decisionRepository ?? DecisionMakingRepositoryImpl();
 
-  /// HIERARCHY
   List<Hierarchy> _listHierarchy = [];
 
+  /// HIERARCHY
   List<Hierarchy> get listHierarchy => _listHierarchy;
 
-  /// PAIRWISE CRITERIA
   List<PairwiseComparisonInput<Criteria>> _listPairwiseCriteriaInput = [];
 
+  /// PAIRWISE CRITERIA
   List<PairwiseComparisonInput<Criteria>> get listPairwiseCriteriaInput =>
       _listPairwiseCriteriaInput;
 
-  /// PAIRWISE ALTERNATIVE
   List<PairwiseAlternativeInput> _listPairwiseAlternativeInput = [];
 
+  /// PAIRWISE ALTERNATIVE
   List<PairwiseAlternativeInput> get listPairwiseAlternativeInput =>
       _listPairwiseAlternativeInput;
 
@@ -68,22 +69,27 @@ class FlutterDecisionMaking {
     );
     final pairAlternativeUsecase = GeneratePairwiseAlternativeInputUsecase();
 
+    /// step 1: identification
     final identification = await identificationUsecase.execute(
       listCriteria,
       listAlternative,
     );
 
+    /// step 2: generate hierarchy structure
     final hierarchy = await hierarchyUsecase.execute(
       criteria: identification.criteria,
       alternative: identification.alternative,
     );
 
+    /// step 3: generate pairwise matrix input
     final pairCriteria = await pairCriteriaUseacse.execute(
       identification.criteria,
     );
 
+    /// step 4: generate pairwise matrix input
     final pairAlternative = await pairAlternativeUsecase.execute(hierarchy);
 
+    /// result
     _listHierarchy = hierarchy;
     _listPairwiseCriteriaInput = pairCriteria;
     _listPairwiseAlternativeInput = pairAlternative;
@@ -94,6 +100,7 @@ class FlutterDecisionMaking {
     final now = DateTime.now();
     final result = <PairwiseComparisonScale>[];
 
+    /// you can custom this
     final desc = [
       "Equal importance of both elements",
       "Between equal and slightly more important",
@@ -119,6 +126,7 @@ class FlutterDecisionMaking {
     return result;
   }
 
+  /// LIST PAIRWISE COMPARISON SCALE
   List<PairwiseComparisonScale> get listPairwiseComparisonScale =>
       _listPairwiseComparisonScale();
 
@@ -189,8 +197,10 @@ class FlutterDecisionMaking {
 
   AhpResult? _ahpResult;
 
+  /// AHP RESULT CALCULATE
   AhpResult? get ahpResult => _ahpResult;
 
+  /// CALCULATE PAIRWISE MATRIX, EIGENVECTOR, CONSISTENCY RATIO, OUTPUTS AHP RESULT
   Future<void> generateResult() async {
     if (_listPairwiseCriteriaInput
         .any((e) => e.preferenceValue?.value == null)) {

@@ -9,5 +9,6 @@ class GeneratePairwiseCriteriaInputUsecase {
 
   Future<List<PairwiseComparisonInput<Criteria>>> execute(
     List<Criteria> criteria,
-  ) async => _decisionMakingRepository.generatePairwiseCriteria(criteria);
+  ) async =>
+      _decisionMakingRepository.generatePairwiseCriteria(criteria);
 }

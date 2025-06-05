@@ -1,8 +1,6 @@
 [![pub version](https://img.shields.io/pub/v/flutter_decision_making.svg)](https://pub.dev/packages/flutter_decision_making)
 
 
-# 🎯 flutter_decision_making
-
 A Flutter package for implementing multi-criteria decision-making using the **Analytic Hierarchy Process (AHP)**.
 
 Easily manage criteria, alternatives, pairwise comparisons, consistency checks, and final decision scoring — all in one unified package.

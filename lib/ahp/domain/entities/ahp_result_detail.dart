@@ -1,3 +1,4 @@
+/// AHP RESULT DETAIL ENTITIES
 class AhpResultDetail {
   final String? id;
   final String name;

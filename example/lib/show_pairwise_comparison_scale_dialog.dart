@@ -173,6 +173,7 @@ class _PairwiseComparisonScaleWidgetState
                         _message = 'Please select which more important!';
                       });
                     } else {
+                      /// RETURN VALUE
                       widget.onSelected.call(
                         _selectedScale.value,
                         _isLeftMoreImportant.value,

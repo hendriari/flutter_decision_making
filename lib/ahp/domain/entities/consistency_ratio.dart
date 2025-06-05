@@ -1,3 +1,4 @@
+/// CONSISTENCY RATIO ENTITIES
 class ConsistencyRatio {
   final String source;
   final double ratio;

@@ -1,7 +1,9 @@
 import 'dart:developer' as dev;
 import 'dart:math';
 
+/// AHP HELPER
 class AhpHelper {
+  /// HELPER TO GET UNIQUE ID
   String getCustomUniqueId() {
     const String pushChars =
         '-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';

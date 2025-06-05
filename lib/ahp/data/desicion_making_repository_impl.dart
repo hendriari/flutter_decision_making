@@ -20,6 +20,7 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
       : _helper = helper ?? AhpHelper(),
         _stopwatch = stopwatch ?? Stopwatch();
 
+  /// VALIDATE UNIQUE ID
   static void _validateUniqueId<T>(List<T> items, String Function(T) getId) {
     final seen = <String>{};
     for (var e in items) {
@@ -31,12 +32,14 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
     }
   }
 
+  /// START DEV PERFORMANCE PROFILING
   void _startPerformanceProfiling(String name) {
     dev.log("🔄 start $name..");
     dev.Timeline.startSync(name);
     _stopwatch.start();
   }
 
+  /// END DEV PERFORMANCE PROFILING
   void _endPerformanceProfiling(String name) {
     dev.Timeline.finishSync();
     _stopwatch.stop();
@@ -44,6 +47,7 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
         "🏁 $name has been execute - duration : ${_stopwatch.elapsedMilliseconds} ms");
   }
 
+  /// IDENTIFICATION DETAIL
   @override
   Future<Identification> identification(
     List<Criteria> criteria,
@@ -93,6 +97,7 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
     }
   }
 
+  /// GENERATE STRUCTURE HIERARCHY
   @override
   Future<List<Hierarchy>> generateHierarchy(
     List<Criteria> criteria,
@@ -112,6 +117,7 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
     }
   }
 
+  /// GENERATE PAIRWISE CRITERIA INPUTS
   @override
   Future<List<PairwiseComparisonInput<Criteria>>> generatePairwiseCriteria(
     List<Criteria> criteria,
@@ -142,6 +148,7 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
     }
   }
 
+  /// RESULT GENERATE PAIRWISE MATRIX CRITERIA
   @override
   Future<List<List<double>>> generateResultPairwiseMatrixCriteria(
     List<Criteria> items,
@@ -183,6 +190,7 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
     }
   }
 
+  /// RESULT GENERATE PAIRWISE MATRIX ALTERNATIVE
   @override
   Future<List<List<double>>> generateResultPairwiseMatrixAlternative(
     List<Alternative> items,
@@ -236,6 +244,7 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
     }
   }
 
+  /// CALCULATE EIGEN VECTOR FOR CRITERIA
   @override
   Future<List<double>> calculateEigenVectorCriteria(
       List<List<double>> matrix) async {
@@ -267,6 +276,7 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
     }
   }
 
+  /// CALCULATE EIGEN VECTOR FOR ALTERNATIVE
   @override
   Future<List<double>> calculateEigenVectorAlternative(
       List<List<double>> matrix) async {
@@ -310,6 +320,7 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
     }
   }
 
+  /// CHECK CONSISTENCY RATIO
   @override
   Future<ConsistencyRatio> checkConsistencyRatio(
     List<List<double>> matrix,
@@ -367,6 +378,7 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
     }
   }
 
+  /// RANDOM INDEX
   static double _getRI(int n) {
     const Map<int, double> riTable = {
       1: 0.0,
@@ -388,6 +400,7 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
     return riTable[n] ?? 1.59;
   }
 
+  /// GET AHP RESULT
   @override
   Future<AhpResult> getFinalScore(
     List<double> eigenVectorCriteria,

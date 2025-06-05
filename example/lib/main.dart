@@ -211,6 +211,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
 
+                      /// CRITERIA ITEMS
                       ListView.builder(
                         itemCount: _inputCriteria.length,
                         shrinkWrap: true,
@@ -219,12 +220,14 @@ class _MyHomePageState extends State<MyHomePage> {
                           var criteria = _inputCriteria[index];
                           return Row(
                             children: [
+                              /// NAME
                               Text(criteria.left.name, style: _textStyle),
 
                               /// SELECT VALUE COMPARISON
                               Expanded(
                                 child: InkWell(
                                   onTap: () {
+                                    /// SHOW COMPARISON SCALE DIALOG
                                     showPairwiseComparisonScaleDialog(
                                       context,
                                       comparison:
@@ -235,6 +238,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       onSelected: (scale, important) {
                                         if (scale != null &&
                                             important != null) {
+                                          /// UPDATE CRITERIA VALUE
                                           _decisionMaking
                                               .updatePairwiseCriteriaValue(
                                                 id: criteria.id,
@@ -243,6 +247,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                               );
 
                                           setState(() {
+                                            /// COPY UPDATED CRITERIA VALUE
                                             _inputCriteria =
                                                 _decisionMaking
                                                     .listPairwiseCriteriaInput;
@@ -275,6 +280,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 ),
                               ),
 
+                              /// NAME
                               Text(criteria.right.name, style: _textStyle),
                             ],
                           );
@@ -295,6 +301,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: Divider(),
                       ),
 
+                      /// TITLE
                       Text(
                         'Pairwise Alternative',
                         style: TextStyle(
@@ -303,6 +310,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
 
+                      /// ALTERNATIVE ITEMS
                       ListView.builder(
                         itemCount: _inputAlternative.length,
                         shrinkWrap: true,
@@ -323,12 +331,14 @@ class _MyHomePageState extends State<MyHomePage> {
                               ...data.alternative.map(
                                 (e) => Row(
                                   children: [
+                                    /// NAME
                                     Text(e.left.name, style: _textStyle),
 
                                     /// SELECT VALUE COMPARISON
                                     Expanded(
                                       child: InkWell(
                                         onTap: () {
+                                          /// SHOW COMPARISON SCALE DIALOG
                                           showPairwiseComparisonScaleDialog(
                                             context,
                                             comparison:
@@ -339,6 +349,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                             onSelected: (scale, important) {
                                               if (scale != null &&
                                                   important != null) {
+                                                /// UPDATE ALTERNATIVE VALUE
                                                 _decisionMaking
                                                     .updatePairwiseAlternativeValue(
                                                       id: data.criteria.id,
@@ -349,6 +360,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                     );
 
                                                 setState(() {
+                                                  /// COPY UPDATED ALTERNATIVE VALUE
                                                   _inputAlternative =
                                                       _decisionMaking
                                                           .listPairwiseAlternativeInput;
@@ -383,6 +395,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       ),
                                     ),
 
+                                    /// NAME
                                     Text(e.right.name, style: _textStyle),
                                   ],
                                 ),
@@ -403,10 +416,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: Center(
                       child: ElevatedButton(
                         onPressed: () async {
+                          /// GET RESULT AHP
                           await _decisionMaking.generateResult().catchError((
                             e,
                           ) {
                             if (context.mounted) {
+                              /// SHOW MESSAGE IF CATCH EXCEPTION
                               _helper.showScaffoldMessenger(
                                 context: context,
                                 message: e.toString(),
@@ -448,6 +463,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
 
+                      /// RESULT ITEMS
                       ListView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
@@ -465,6 +481,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
                       const Divider(),
 
+                      /// RESULT CONSISTENCY CRITERIA RATIO
                       Text(
                         'criteria consistency ratio: ${_decisionMaking.ahpResult?.consistencyCriteriaRatio}',
                         style: _textStyle,
@@ -472,6 +489,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
                       const Divider(),
 
+                      /// IS VALID CRITERIA?
                       Text(
                         'is criteria consistent: ${_decisionMaking.ahpResult?.isConsistentCriteria}',
                         style: _textStyle,
@@ -479,6 +497,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
                       const Divider(),
 
+                      /// RESULT ALTERNATIVE RATIO
                       Text(
                         'alternative consistency ratio: ${_decisionMaking.ahpResult?.consistencyAlternativeRatio}',
                         style: _textStyle,
@@ -486,6 +505,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
                       const Divider(),
 
+                      /// IS VALID ALTERNATIVE?
                       Text(
                         'is alternative consistent: ${_decisionMaking.ahpResult?.isConsistentAlternative}',
                         style: _textStyle,
@@ -493,6 +513,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
                       const Divider(),
 
+                      /// NOTE WILL BE DISPLAYED IF THE CRITERIA OR ALTERNATIVES ARE INVALID
                       _decisionMaking.ahpResult?.note != null
                           ? Text(
                             _decisionMaking.ahpResult!.note!,

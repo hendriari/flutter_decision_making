@@ -1,6 +1,7 @@
 import 'package:flutter_decision_making/ahp/domain/entities/alternative.dart';
 import 'package:flutter_decision_making/ahp/domain/entities/criteria.dart';
 
+/// HIERARCHY ENTITIES
 class Hierarchy {
   final Criteria criteria;
   final List<Alternative> alternative;

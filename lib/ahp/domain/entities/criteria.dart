@@ -1,3 +1,4 @@
+/// CRITERIA ENTITIES
 class Criteria {
   final String? id;
   final String name;
@@ -10,9 +11,7 @@ class Criteria {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is Criteria &&
-              runtimeType == other.runtimeType &&
-              id == other.id;
+      other is Criteria && runtimeType == other.runtimeType && id == other.id;
 
   @override
   int get hashCode => id.hashCode;

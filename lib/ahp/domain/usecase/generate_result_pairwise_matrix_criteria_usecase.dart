@@ -7,8 +7,8 @@ class GenerateResultPairwiseMatrixCriteriaUsecase {
 
   GenerateResultPairwiseMatrixCriteriaUsecase(this._decisionMakingRepository);
 
-  Future<List<List<double>>> execute(
-          List<Criteria> items, List<PairwiseComparisonInput<Criteria>> inputs) async =>
+  Future<List<List<double>>> execute(List<Criteria> items,
+          List<PairwiseComparisonInput<Criteria>> inputs) async =>
       await _decisionMakingRepository.generateResultPairwiseMatrixCriteria(
           items, inputs);
 }

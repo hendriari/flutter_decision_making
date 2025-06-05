@@ -1,3 +1,4 @@
+/// PAIRWISE COMPARISON SCALE
 class PairwiseComparisonScale {
   final String? id;
   final String description;

@@ -1,5 +1,6 @@
 import 'package:flutter_decision_making/ahp/domain/entities/pairwise_comparison_scale.dart';
 
+/// PAIRWISE COMPARISON INPUT [GENERIC]
 class PairwiseComparisonInput<T> {
   final String? id;
   final T left;

@@ -1,3 +1,4 @@
+/// ALTERNATIVE ENTITIES
 class Alternative {
   final String? id;
   final String name;
