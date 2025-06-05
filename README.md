@@ -1,3 +1,5 @@
+[![pub version](https://img.shields.io/pub/v/flutter_decision_making.svg)](https://pub.dev/packages/flutter_decision_making)
+
 
 # 🎯 flutter_decision_making
 
