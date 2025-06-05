@@ -1,7 +1,6 @@
 import 'package:example/helper.dart';
 import 'package:example/show_pairwise_comparison_scale_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_decision_making/ahp/domain/entities/pairwise_alternative_input.dart';
 import 'package:flutter_decision_making/flutter_decision_making.dart';
 
 void main() {
