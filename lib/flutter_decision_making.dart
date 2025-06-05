@@ -24,7 +24,9 @@ import 'ahp/domain/usecase/generate_result_pairwise_matrix_alternative_usecase.d
 
 export 'ahp/domain/entities/alternative.dart';
 export 'ahp/domain/entities/criteria.dart';
+export 'ahp/domain/entities/pairwise_alternative_input.dart';
 export 'ahp/domain/entities/pairwise_comparison_input.dart';
+export 'ahp/domain/entities/pairwise_comparison_scale.dart';
 
 class FlutterDecisionMaking {
   final DecisionMakingRepository _decisionMakingRepository;
