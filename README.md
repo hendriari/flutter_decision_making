@@ -1,7 +1,7 @@
 [![pub version](https://img.shields.io/pub/v/flutter_decision_making.svg)](https://pub.dev/packages/flutter_decision_making)
 
 
-A Flutter package for implementing multi-criteria decision-making using the **Analytic Hierarchy Process (AHP)**.
+A Flutter package for implementing criteria decision-making using the **Analytic Hierarchy Process (AHP)**.
 
 Easily manage criteria, alternatives, pairwise comparisons, consistency checks, and final decision scoring — all in one unified package.
 
@@ -11,16 +11,16 @@ Easily manage criteria, alternatives, pairwise comparisons, consistency checks, 
 
 ## ✨ Features
 
-- 🏗 Generate hierarchy from criteria and alternatives
-- ⚖️ Pairwise comparisons using Saaty's 1–9 scale
-- ✅ Consistency Ratio check to ensure logical consistency
-- 📊 Eigenvector and final score calculation
-- 🔧 Customizable and extendable architecture
-- 🛠 Built-in performance profiling (dev-friendly)
+- Generate hierarchy from criteria and alternatives
+- Pairwise comparisons using Saaty's 1–9 scale
+- Consistency Ratio check to ensure logical consistency
+- Eigenvector and final score calculation
+- Customizable and extendable architecture
+- Built-in performance profiling (dev-friendly)
 
 ---
 
-## 🚀 Getting Started
+## 📚 Usage Guide
 Initialize the FlutterDecisionMaking instance before using other methods.
 
 ```dart
@@ -30,13 +30,12 @@ late FlutterDecisionMaking _decisionMaking;
   void initState() {
     super.initState();
     _decisionMaking = FlutterDecisionMaking();
+ }
 ```
-
-## 📚 Usage Guide
 
 ### 🛠️ User Role
 
-### 1. 🧱 Define Criteria and Alternatives
+### 1. Define Criteria and Alternatives
 
 Each item must have a unique ID. If not provided, the package auto-generates it.
 
@@ -52,7 +51,7 @@ final alternatives = [
 ];
 ```
 
-### 2. 🧮 Identification, Generate Hierarchy and Generate Pairwise Comparison Input
+### 2. Identification, Generate Hierarchy and Generate Pairwise Comparison Input
 
 Validate and prepare your inputs.
 
@@ -69,7 +68,7 @@ List<PairwiseAlternativeInput> inputAlternative;
 ```
 #### Please ensure that all priority weights are filled in before proceeding to the next step.
 
-### 3. 🔁 Generate Result
+### 3. Generate Result
 
 Call this method to compute the final scores based on input data.
 
@@ -80,16 +79,16 @@ await _decisionMaking.generateResult()
 
 #### on generate result, AHP will do
 
-### 1. 🧮 Generate Pairwise Matrix
+### 1. Generate Pairwise Matrix
 Create a pairwise comparison matrix from criteria or alternatives input.
 
-### 2. 🧮 Calculate Approximate Eigenvector
+### 2. Calculate Approximate Eigenvector
 Calculate priority weights (eigenvector) from the pairwise matrix.
 
-### 3. 🧮 Check Consistency Ratio
+### 3. Check Consistency Ratio
 Compute and verify matrix consistency using the Consistency Ratio (CR).
 
-### 4. 🧮 Calculate Result
+### 4. Calculate Result
 Calculate final scores for alternatives based on criteria and alternative weights, including consistency checks.
 
 The result includes:
@@ -98,14 +97,35 @@ The result includes:
 - Additional notes on consistency issues (if any)
 
 ```dart
-final ahpResult = AhpResult(
-        results: ahpResultDetail..sort((a, b) => b.value.compareTo(a.value)), // list result
-        isConsistentCriteria: consistencyCriteria.isConsistent, /// boolean
-        consistencyCriteriaRatio: consistencyCriteria.ratio, // double
-        isConsistentAlternative: alternativesConsistency[0].isConsistent, // boolean
-        consistencyAlternativeRatio: alternativesConsistency[0].ratio, // double
-        note: note, // string
-      );
+class AhpResult {
+  final List<AhpResultDetail> results;
+  final bool isConsistentCriteria;
+  final double consistencyCriteriaRatio;
+  final bool isConsistentAlternative;
+  final double consistencyAlternativeRatio;
+  final String? note;
+
+  AhpResult({
+    required this.results,
+    required this.isConsistentCriteria,
+    required this.consistencyCriteriaRatio,
+    required this.isConsistentAlternative,
+    required this.consistencyAlternativeRatio,
+    this.note,
+  });
+}
+
+class AhpResultDetail {
+  final String? id;
+  final String name;
+  final double value;
+
+  AhpResultDetail({
+    required this.id,
+    required this.name,
+    required this.value,
+  });
+}
 ```
 
 ---
@@ -173,10 +193,10 @@ CR = CI / RI = 0.039 / 0.58 ≈ 0.067
 
 ## ⚙️ Architecture Notes
 
-- 🧩 Uses immutable data classes (`Criteria`, `Alternative`, etc.)
-- 🔑 Unique ID generation via internal `_helper`
-- ⏱ Integrated performance profiling using `Stopwatch`
-- 🧼 Strong validation with helpful exceptions:
+- Uses immutable data classes (`Criteria`, `Alternative`, etc.)
+- Unique ID generation via internal `_helper`
+- Integrated performance profiling using `Stopwatch`
+- Strong validation with helpful exceptions:
   - Duplicate IDs
   - Empty inputs
   - Invalid matrix dimensions
@@ -186,8 +206,8 @@ CR = CI / RI = 0.039 / 0.58 ≈ 0.067
 ## 📈 Performance Profiling
 
 Every major method logs:
-- ⏱ Start and end timestamps.
-- ⌛ Execution duration (in milliseconds).
+- Start and end timestamps.
+- Execution duration (in milliseconds).
 
 > Great for debugging and optimization during development.
 

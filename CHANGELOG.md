@@ -7,3 +7,6 @@ chore:
 * Provide documentation
 * Pass static analysis
 * update README.md
+
+## 1.0.2
+update docs
