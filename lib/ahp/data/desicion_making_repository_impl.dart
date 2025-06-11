@@ -165,7 +165,7 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
       for (final e in inputs) {
         final i = items.indexOf(e.left);
         final j = items.indexOf(e.right);
-        final value = e.preferenceValue?.value.toDouble() ?? 1.0;
+        final value = e.preferenceValue?.toDouble() ?? 1.0;
 
         if (i == -1 || j == -1) {
           throw Exception('One or both items not found in the list');
@@ -224,7 +224,7 @@ class DecisionMakingRepositoryImpl extends DecisionMakingRepository {
           throw Exception('Alternative not found in list');
         }
 
-        final value = comparison.preferenceValue?.value.toDouble() ?? 1.0;
+        final value = comparison.preferenceValue?.toDouble() ?? 1.0;
         if (value <= 0) {
           throw Exception('Comparison value must be greater than zero');
         }

@@ -10,3 +10,7 @@ chore:
 
 ## 1.0.2
 update docs
+
+## 1.0.3
+* update preference value: only return integer
+* update README.md

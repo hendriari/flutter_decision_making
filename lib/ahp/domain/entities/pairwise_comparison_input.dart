@@ -1,11 +1,9 @@
-import 'package:flutter_decision_making/ahp/domain/entities/pairwise_comparison_scale.dart';
-
 /// PAIRWISE COMPARISON INPUT [GENERIC]
 class PairwiseComparisonInput<T> {
   final String? id;
   final T left;
   final T right;
-  final PairwiseComparisonScale? preferenceValue;
+  final int? preferenceValue;
   final bool? isLeftMoreImportant;
 
   const PairwiseComparisonInput({
@@ -17,7 +15,7 @@ class PairwiseComparisonInput<T> {
   });
 
   PairwiseComparisonInput<T> copyWith({
-    PairwiseComparisonScale? preferenceValue,
+    int? preferenceValue,
     bool? isLeftMoreImportant,
   }) =>
       PairwiseComparisonInput(

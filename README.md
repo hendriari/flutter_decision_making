@@ -13,6 +13,8 @@ Easily manage criteria, alternatives, pairwise comparisons, consistency checks, 
 
 - Generate hierarchy from criteria and alternatives
 - Pairwise comparisons using Saaty's 1–9 scale
+- Requires manual filling of paired comparison values for criteria and alternatives for valid analysis
+- Complete validation and exceptions if there are values that have not been filled in
 - Consistency Ratio check to ensure logical consistency
 - Eigenvector and final score calculation
 - Customizable and extendable architecture
@@ -68,7 +70,63 @@ List<PairwiseAlternativeInput> inputAlternative;
 ```
 #### Please ensure that all priority weights are filled in before proceeding to the next step.
 
-### 3. Generate Result
+### 3. Input Pairwise Matrix and Generate Result
+
+Saaty scale:
+
+#### _You can use custom descriptions for each value when displaying the scale to users, but the numeric values must still conform to the Saaty scale._
+
+#### _The package only accepts values from 1 to 9 for each comparison._
+
+```dart
+final List<PairwiseComparisonScale> pairwiseComparisonScales = [
+  PairwiseComparisonScale(
+    id: '1',
+    description: "Equal importance of both elements",
+    value: 1,
+  ),
+  PairwiseComparisonScale(
+    id: '2',
+    description: "Between equal and slightly more important",
+    value: 2,
+  ),
+  PairwiseComparisonScale(
+    id: '3',
+    description: "Slightly more important",
+    value: 3,
+  ),
+  PairwiseComparisonScale(
+    id: '4',
+    description: "Between slightly and moderately more important",
+    value: 4,
+  ),
+  PairwiseComparisonScale(
+    id: '5',
+    description: "Moderately more important",
+    value: 5,
+  ),
+  PairwiseComparisonScale(
+    id: '6',
+    description: "Between moderately and strongly more important",
+    value: 6,
+  ),
+  PairwiseComparisonScale(
+    id: '7',
+    description: "Strongly more important",
+    value: 7,
+  ),
+  PairwiseComparisonScale(
+    id: '8',
+    description: "Between strongly and extremely more important",
+    value: 8,
+  ),
+  PairwiseComparisonScale(
+    id: '9',
+    description: "Extremely more important (absolute dominance)",
+    value: 9,
+  ),
+];
+```
 
 Call this method to compute the final scores based on input data.
 
