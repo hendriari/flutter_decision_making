@@ -202,8 +202,7 @@ class FlutterDecisionMaking {
 
   /// CALCULATE PAIRWISE MATRIX, EIGENVECTOR, CONSISTENCY RATIO, OUTPUTS AHP RESULT
   Future<void> generateResult() async {
-    if (_listPairwiseCriteriaInput
-        .any((e) => e.preferenceValue == null)) {
+    if (_listPairwiseCriteriaInput.any((e) => e.preferenceValue == null)) {
       throw ArgumentError("Please complete all values from the criteria scale");
     }
 
@@ -212,8 +211,8 @@ class FlutterDecisionMaking {
           "Please complete which more important from the criteria");
     }
 
-    if (_listPairwiseAlternativeInput.any(
-        (e) => e.alternative.any((d) => d.preferenceValue == null))) {
+    if (_listPairwiseAlternativeInput
+        .any((e) => e.alternative.any((d) => d.preferenceValue == null))) {
       throw ArgumentError(
           "Please complete all values from the alternative scale");
     }
@@ -296,5 +295,13 @@ class FlutterDecisionMaking {
     dev.log(
         '✅ final score ${finalScore.results.map((e) => '${e.name}: ${e.value}').join(', ')}');
     _ahpResult = finalScore;
+  }
+
+  /// Reset all internal data and results to initial state
+  void reset() {
+    _listPairwiseCriteriaInput.clear();
+    _listPairwiseAlternativeInput.clear();
+    _listHierarchy.clear();
+    _ahpResult = null;
   }
 }
