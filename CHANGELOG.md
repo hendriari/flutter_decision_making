@@ -14,3 +14,4 @@ update docs
 ## 1.0.3
 * update preference value: only return integer
 * update README.md
+* feature to reset all internal data and results to initial state
