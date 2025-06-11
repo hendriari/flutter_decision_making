@@ -135,7 +135,7 @@ class FlutterDecisionMaking {
   /// UPDATE PAIRWISE CRITERIA INPUT
   void updatePairwiseCriteriaValue({
     required String? id,
-    required PairwiseComparisonScale scale,
+    required int scale,
     required bool isLeftMoreImportant,
   }) {
     if (_listPairwiseCriteriaInput.isEmpty) {
@@ -160,7 +160,7 @@ class FlutterDecisionMaking {
   void updatePairwiseAlternativeValue({
     required id,
     required alternativeId,
-    required PairwiseComparisonScale scale,
+    required int scale,
     required bool isLeftMoreImportant,
   }) {
     if (_listPairwiseAlternativeInput.isEmpty) {
@@ -203,7 +203,7 @@ class FlutterDecisionMaking {
   /// CALCULATE PAIRWISE MATRIX, EIGENVECTOR, CONSISTENCY RATIO, OUTPUTS AHP RESULT
   Future<void> generateResult() async {
     if (_listPairwiseCriteriaInput
-        .any((e) => e.preferenceValue?.value == null)) {
+        .any((e) => e.preferenceValue == null)) {
       throw ArgumentError("Please complete all values from the criteria scale");
     }
 
@@ -213,7 +213,7 @@ class FlutterDecisionMaking {
     }
 
     if (_listPairwiseAlternativeInput.any(
-        (e) => e.alternative.any((d) => d.preferenceValue?.value == null))) {
+        (e) => e.alternative.any((d) => d.preferenceValue == null))) {
       throw ArgumentError(
           "Please complete all values from the alternative scale");
     }

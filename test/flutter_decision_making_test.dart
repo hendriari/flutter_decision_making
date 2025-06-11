@@ -119,8 +119,7 @@ void main() {
         PairwiseComparisonInput<Criteria>(
           left: criteria[0],
           right: criteria[1],
-          preferenceValue:
-              PairwiseComparisonScale(id: '', description: '', value: 3),
+          preferenceValue: 3,
           isLeftMoreImportant: true,
           id: 'p1',
         ),
@@ -142,8 +141,7 @@ void main() {
         PairwiseComparisonInput<Criteria>(
           left: Criteria(id: 'c2', name: 'C2'),
           right: Criteria(id: 'c3', name: 'C3'),
-          preferenceValue:
-              PairwiseComparisonScale(id: '', description: '', value: 2),
+          preferenceValue: 2,
           isLeftMoreImportant: true,
           id: 'p1',
         )
@@ -163,8 +161,7 @@ void main() {
         PairwiseComparisonInput<Criteria>(
           left: criteria[0],
           right: criteria[1],
-          preferenceValue:
-              PairwiseComparisonScale(id: '', description: '', value: 0),
+          preferenceValue: 0,
           isLeftMoreImportant: true,
           id: 'p1',
         ),
@@ -188,8 +185,7 @@ void main() {
         PairwiseComparisonInput<Alternative>(
           left: alternatives[0],
           right: alternatives[1],
-          preferenceValue:
-              PairwiseComparisonScale(id: '', description: '', value: 4),
+          preferenceValue: 4,
           isLeftMoreImportant: true,
           id: 'p1',
         )
@@ -235,8 +231,7 @@ void main() {
         PairwiseComparisonInput<Alternative>(
           left: Alternative(id: 'a2', name: 'A2'),
           right: Alternative(id: 'a3', name: 'A3'),
-          preferenceValue:
-              PairwiseComparisonScale(id: '', description: '', value: 2),
+          preferenceValue: 2,
           isLeftMoreImportant: true,
           id: 'p1',
         )
