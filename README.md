@@ -1,5 +1,18 @@
 [![pub version](https://img.shields.io/pub/v/flutter_decision_making.svg)](https://pub.dev/packages/flutter_decision_making)
 
+**Development Status:**
+
+This package is currently under active development. We are committed to continuously enhancing the features and algorithms to support a broader range of decision-making methods. In upcoming versions, we plan to add several popular algorithms such as SAW, TOPSIS, and other methods to provide a richer selection of decision-making techniques.
+
+| TODO | Algorithm                                                               |
+|:-----|:------------------------------------------------------------------------|
+| ✅    | AHP (Analytic Hierarchy Process)                                        |
+|      | SAW (Simple Additive Weighting)                                         |
+|      | TOPSIS (Technique for Order Preference by Similarity to Ideal Solution) |
+
+Thank you for your valuable feedback and continued support.
+
+---
 
 A Flutter package for implementing criteria decision-making using the **Analytic Hierarchy Process (AHP)**.
 
@@ -35,7 +48,7 @@ late FlutterDecisionMaking _decisionMaking;
  }
 ```
 
-### 🛠️ User Role
+### 🛠️ User Guide
 
 ### 1. Define Criteria and Alternatives
 
@@ -133,7 +146,7 @@ Call this method to compute the final scores based on input data.
 ```dart
 await _decisionMaking.generateResult()
 ```
-### 🛠️ AHP Role
+### 🛠️ How AHP Works
 
 #### on generate result, AHP will do
 
@@ -263,11 +276,11 @@ CR = CI / RI = 0.039 / 0.58 ≈ 0.067
 
 ## 📈 Performance Profiling
 
-Every major method logs:
+Major method logs:
 - Start and end timestamps.
 - Execution duration (in milliseconds).
 
-> Great for debugging and optimization during development.
+> Useful for debugging and optimization during development.
 
 ---
 ## 📌 Important

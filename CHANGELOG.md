@@ -15,3 +15,7 @@ update docs
 * update preference value: only return integer
 * update README.md
 * feature to reset all internal data and results to initial state
+
+## 1.0.4
+* updated README with development note about upcoming support for SAW, TOPSIS, and other algorithms.
+* Improved package description in pubspec.yaml to reflect ongoing development and future feature additions.
