@@ -4,11 +4,11 @@
 
 This package is currently under active development. We are committed to continuously enhancing the features and algorithms to support a broader range of decision-making methods. In upcoming versions, we plan to add several popular algorithms such as SAW, TOPSIS, and other methods to provide a richer selection of decision-making techniques.
 
-| TODO | Algorithm                                                               |
-|:-----|:------------------------------------------------------------------------|
-| ✅    | AHP (Analytic Hierarchy Process)                                        |
-|      | SAW (Simple Additive Weighting)                                         |
-|      | TOPSIS (Technique for Order Preference by Similarity to Ideal Solution) |
+| Status | Algorithm                                                               | Available in version |
+|:-------|:------------------------------------------------------------------------|:---------------------|
+| ✅      | AHP (Analytic Hierarchy Process)                                        | 1.0.0                |
+| 🔜     | SAW (Simple Additive Weighting)                                         | 1.1.0 (planned)      |
+| 🔜     | TOPSIS (Technique for Order Preference by Similarity to Ideal Solution) | 1.2.0 (planned)      |
 
 Thank you for your valuable feedback and continued support.
 
@@ -22,6 +22,11 @@ Easily manage criteria, alternatives, pairwise comparisons, consistency checks, 
 
 ---
 
+## 📌 Important
+
+#### Because the calculations are performed on the client side, the total number of criteria and alternatives may impact your device’s performance. Please use the data wisely.
+
+---
 ## ✨ Features
 
 - Generate hierarchy from criteria and alternatives
@@ -36,7 +41,11 @@ Easily manage criteria, alternatives, pairwise comparisons, consistency checks, 
 ---
 
 ## 📚 Usage Guide
-Initialize the FlutterDecisionMaking instance before using other methods.
+You can use this package in two ways depending on your needs:
+
+1. Using all algorithms together  
+   Initialize the `FlutterDecisionMaking` class to access all available algorithms (currently AHP).  
+   More algorithms such as SAW and TOPSIS are planned for upcoming versions.
 
 ```dart
 late FlutterDecisionMaking _decisionMaking;
@@ -46,6 +55,29 @@ late FlutterDecisionMaking _decisionMaking;
     super.initState();
     _decisionMaking = FlutterDecisionMaking();
  }
+
+// Usage example:
+_decisionMaking.ahp.generateResult();
+_decisionMaking.saw.generateResult();
+```
+
+This is the easiest way if you want to use multiple algorithms in your project.
+
+2. Using a specific algorithm only
+
+If you only need a single algorithm (e.g., AHP), you can import and initialize it directly:
+
+```dart
+late AHP _ahp;
+
+@override
+void initState() {
+  super.initState();
+  _ahp = AHP();
+}
+
+// Usage example:
+_ahp.generateResult();
 ```
 
 ### 🛠️ User Guide
@@ -56,13 +88,13 @@ Each item must have a unique ID. If not provided, the package auto-generates it.
 
 ```dart
 final criteria = [
-  Criteria(id: 'c1', name: 'Price'),
-  Criteria(id: 'c2', name: 'Quality'),
+  AhpItem(id: 'c1', name: 'Price'),
+  AhpItem(id: 'c2', name: 'Quality'),
 ];
 
 final alternatives = [
-  Alternative(id: 'a1', name: 'Product A'),
-  Alternative(id: 'a2', name: 'Product B'),
+  AhpItem(id: 'a1', name: 'Product A'),
+  AhpItem(id: 'a2', name: 'Product B'),
 ];
 ```
 
@@ -71,13 +103,13 @@ final alternatives = [
 Validate and prepare your inputs.
 
 ```dart
-await _decisionMaking.generateHierarchyAndPairwiseTemplate(
+await _ahp.generateHierarchyAndPairwiseTemplate(
 listCriteria: criteria,listAlternative: alternatives);
 ```
 After the process is complete, a paired matrix list will be generated:
 
 ```dart
-List<PairwiseComparisonInput<Criteria>> inputCriteria;
+List<PairwiseComparisonInput> inputCriteria;
 
 List<PairwiseAlternativeInput> inputAlternative;
 ```
@@ -92,48 +124,48 @@ Saaty scale:
 #### _The package only accepts values from 1 to 9 for each comparison._
 
 ```dart
-final List<PairwiseComparisonScale> pairwiseComparisonScales = [
-  PairwiseComparisonScale(
+final List<AhpComparisonScale> pairwiseComparisonScales = [
+  AhpComparisonScale(
     id: '1',
     description: "Equal importance of both elements",
     value: 1,
   ),
-  PairwiseComparisonScale(
+  AhpComparisonScale(
     id: '2',
     description: "Between equal and slightly more important",
     value: 2,
   ),
-  PairwiseComparisonScale(
+  AhpComparisonScale(
     id: '3',
     description: "Slightly more important",
     value: 3,
   ),
-  PairwiseComparisonScale(
+  AhpComparisonScale(
     id: '4',
     description: "Between slightly and moderately more important",
     value: 4,
   ),
-  PairwiseComparisonScale(
+  AhpComparisonScale(
     id: '5',
     description: "Moderately more important",
     value: 5,
   ),
-  PairwiseComparisonScale(
+  AhpComparisonScale(
     id: '6',
     description: "Between moderately and strongly more important",
     value: 6,
   ),
-  PairwiseComparisonScale(
+  AhpComparisonScale(
     id: '7',
     description: "Strongly more important",
     value: 7,
   ),
-  PairwiseComparisonScale(
+  AhpComparisonScale(
     id: '8',
     description: "Between strongly and extremely more important",
     value: 8,
   ),
-  PairwiseComparisonScale(
+  AhpComparisonScale(
     id: '9',
     description: "Extremely more important (absolute dominance)",
     value: 9,
@@ -144,7 +176,7 @@ final List<PairwiseComparisonScale> pairwiseComparisonScales = [
 Call this method to compute the final scores based on input data.
 
 ```dart
-await _decisionMaking.generateResult()
+await _ahp.generateResult()
 ```
 ### 🛠️ How AHP Works
 
@@ -268,9 +300,9 @@ CR = CI / RI = 0.039 / 0.58 ≈ 0.067
 - Unique ID generation via internal `_helper`
 - Integrated performance profiling using `Stopwatch`
 - Strong validation with helpful exceptions:
-  - Duplicate IDs
-  - Empty inputs
-  - Invalid matrix dimensions
+    - Duplicate IDs
+    - Empty inputs
+    - Invalid matrix dimensions
 
 ---
 
@@ -281,11 +313,6 @@ Major method logs:
 - Execution duration (in milliseconds).
 
 > Useful for debugging and optimization during development.
-
----
-## 📌 Important
-
-#### Because the calculations are performed on the client side, the total number of criteria and alternatives may impact your device’s performance. Please use the data wisely.
 
 ---
 

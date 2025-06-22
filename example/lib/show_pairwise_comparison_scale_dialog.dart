@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_decision_making/ahp/domain/entities/pairwise_comparison_scale.dart';
+import 'package:flutter_decision_making/flutter_decision_making.dart';
 
 class PairwiseComparisonScaleWidget extends StatefulWidget {
-  final List<PairwiseComparisonScale> comparison;
-  final Function(PairwiseComparisonScale?, bool?) onSelected;
+  final List<AhpComparisonScale> comparison;
+  final Function(AhpComparisonScale?, bool?) onSelected;
   final String leftItemName;
   final String rightItemName;
 
@@ -22,7 +22,7 @@ class PairwiseComparisonScaleWidget extends StatefulWidget {
 
 class _PairwiseComparisonScaleWidgetState
     extends State<PairwiseComparisonScaleWidget> {
-  final ValueNotifier<PairwiseComparisonScale?> _selectedScale = ValueNotifier(
+  final ValueNotifier<AhpComparisonScale?> _selectedScale = ValueNotifier(
     null,
   );
   final ValueNotifier<bool?> _isLeftMoreImportant = ValueNotifier(null);
@@ -194,8 +194,8 @@ class _PairwiseComparisonScaleWidgetState
 
 Future<bool?> showPairwiseComparisonScaleDialog(
   BuildContext context, {
-  required List<PairwiseComparisonScale> comparison,
-  required Function(PairwiseComparisonScale?, bool?) onSelected,
+  required List<AhpComparisonScale> comparison,
+  required Function(AhpComparisonScale?, bool?) onSelected,
   required String leftItemName,
   required String rightItemName,
 }) async {
