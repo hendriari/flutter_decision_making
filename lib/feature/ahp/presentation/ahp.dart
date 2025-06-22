@@ -201,23 +201,23 @@ class AHP {
   /// CALCULATE PAIRWISE MATRIX, EIGENVECTOR, CONSISTENCY RATIO, OUTPUTS AHP RESULT
   Future<void> generateResult() async {
     if (_listPairwiseCriteriaInput.any((e) => e.preferenceValue == null)) {
-      throw ArgumentError("Please complete all values from the criteria scale");
+      throw Exception("Please complete all values from the criteria scale");
     }
 
     if (_listPairwiseCriteriaInput.any((e) => e.isLeftMoreImportant == null)) {
-      throw ArgumentError(
+      throw Exception(
           "Please complete which more important from the criteria");
     }
 
     if (_listPairwiseAlternativeInput
         .any((e) => e.alternative.any((d) => d.preferenceValue == null))) {
-      throw ArgumentError(
+      throw Exception(
           "Please complete all values from the alternative scale");
     }
 
     if (_listPairwiseAlternativeInput
         .any((e) => e.alternative.any((d) => d.isLeftMoreImportant == null))) {
-      throw ArgumentError(
+      throw Exception(
           "Please complete which more important from the alternative");
     }
 

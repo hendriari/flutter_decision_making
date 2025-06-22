@@ -124,48 +124,48 @@ Saaty scale:
 #### _The package only accepts values from 1 to 9 for each comparison._
 
 ```dart
-final List<PairwiseComparisonScale> pairwiseComparisonScales = [
-  PairwiseComparisonScale(
+final List<AhpComparisonScale> pairwiseComparisonScales = [
+  AhpComparisonScale(
     id: '1',
     description: "Equal importance of both elements",
     value: 1,
   ),
-  PairwiseComparisonScale(
+  AhpComparisonScale(
     id: '2',
     description: "Between equal and slightly more important",
     value: 2,
   ),
-  PairwiseComparisonScale(
+  AhpComparisonScale(
     id: '3',
     description: "Slightly more important",
     value: 3,
   ),
-  PairwiseComparisonScale(
+  AhpComparisonScale(
     id: '4',
     description: "Between slightly and moderately more important",
     value: 4,
   ),
-  PairwiseComparisonScale(
+  AhpComparisonScale(
     id: '5',
     description: "Moderately more important",
     value: 5,
   ),
-  PairwiseComparisonScale(
+  AhpComparisonScale(
     id: '6',
     description: "Between moderately and strongly more important",
     value: 6,
   ),
-  PairwiseComparisonScale(
+  AhpComparisonScale(
     id: '7',
     description: "Strongly more important",
     value: 7,
   ),
-  PairwiseComparisonScale(
+  AhpComparisonScale(
     id: '8',
     description: "Between strongly and extremely more important",
     value: 8,
   ),
-  PairwiseComparisonScale(
+  AhpComparisonScale(
     id: '9',
     description: "Extremely more important (absolute dominance)",
     value: 9,
