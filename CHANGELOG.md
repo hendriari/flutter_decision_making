@@ -20,7 +20,7 @@ update docs
 * updated README with development note about upcoming support for SAW, TOPSIS, and other algorithms.
 * Improved package description in pubspec.yaml to reflect ongoing development and future feature additions.
 
-# 1.0.5
+## 1.0.5
 
 ### Changed
 - Refactor feature AHP.
