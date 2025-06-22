@@ -4,11 +4,11 @@
 
 This package is currently under active development. We are committed to continuously enhancing the features and algorithms to support a broader range of decision-making methods. In upcoming versions, we plan to add several popular algorithms such as SAW, TOPSIS, and other methods to provide a richer selection of decision-making techniques.
 
-| TODO | Algorithm                                                               |
-|:-----|:------------------------------------------------------------------------|
-| ✅    | AHP (Analytic Hierarchy Process)                                        |
-|      | SAW (Simple Additive Weighting)                                         |
-|      | TOPSIS (Technique for Order Preference by Similarity to Ideal Solution) |
+| Status | Algorithm                                                               | Available in version |
+|:-------|:------------------------------------------------------------------------|:---------------------|
+| ✅      | AHP (Analytic Hierarchy Process)                                        | 1.0.0                |
+| 🔜     | SAW (Simple Additive Weighting)                                         | 1.1.0 (planned)      |
+| 🔜     | TOPSIS (Technique for Order Preference by Similarity to Ideal Solution) | 1.2.0 (planned)      |
 
 Thank you for your valuable feedback and continued support.
 
@@ -36,7 +36,11 @@ Easily manage criteria, alternatives, pairwise comparisons, consistency checks, 
 ---
 
 ## 📚 Usage Guide
-Initialize the FlutterDecisionMaking instance before using other methods.
+You can use this package in two ways depending on your needs:
+
+1. Using all algorithms together  
+   Initialize the `FlutterDecisionMaking` class to access all available algorithms (currently AHP).  
+   More algorithms such as SAW and TOPSIS are planned for upcoming versions.
 
 ```dart
 late FlutterDecisionMaking _decisionMaking;
@@ -46,6 +50,29 @@ late FlutterDecisionMaking _decisionMaking;
     super.initState();
     _decisionMaking = FlutterDecisionMaking();
  }
+
+// Usage example:
+_decisionMaking.ahp.generateResult();
+_decisionMaking.saw.generateResult();
+```
+
+This is the easiest way if you want to use multiple algorithms in your project.
+
+2. Using a specific algorithm only
+
+If you only need a single algorithm (e.g., AHP), you can import and initialize it directly:
+
+```dart
+late AHP _ahp;
+
+@override
+void initState() {
+  super.initState();
+  _ahp = AHP();
+}
+
+// Usage example:
+_ahp.generateResult();
 ```
 
 ### 🛠️ User Guide
@@ -71,7 +98,7 @@ final alternatives = [
 Validate and prepare your inputs.
 
 ```dart
-await _decisionMaking.generateHierarchyAndPairwiseTemplate(
+await _ahp.generateHierarchyAndPairwiseTemplate(
 listCriteria: criteria,listAlternative: alternatives);
 ```
 After the process is complete, a paired matrix list will be generated:
@@ -144,7 +171,7 @@ final List<PairwiseComparisonScale> pairwiseComparisonScales = [
 Call this method to compute the final scores based on input data.
 
 ```dart
-await _decisionMaking.generateResult()
+await _ahp.generateResult()
 ```
 ### 🛠️ How AHP Works
 
@@ -268,9 +295,9 @@ CR = CI / RI = 0.039 / 0.58 ≈ 0.067
 - Unique ID generation via internal `_helper`
 - Integrated performance profiling using `Stopwatch`
 - Strong validation with helpful exceptions:
-  - Duplicate IDs
-  - Empty inputs
-  - Invalid matrix dimensions
+    - Duplicate IDs
+    - Empty inputs
+    - Invalid matrix dimensions
 
 ---
 
