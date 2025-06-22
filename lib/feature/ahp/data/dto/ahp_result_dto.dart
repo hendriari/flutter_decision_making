@@ -24,10 +24,10 @@ class AhpResultDto {
           .toList(),
       isConsistentCriteria: map['is_consistent_criteria'],
       consistencyCriteriaRatio:
-      (map['consistency_criteria_ratio'] as num).toDouble(),
+          (map['consistency_criteria_ratio'] as num).toDouble(),
       isConsistentAlternative: map['is_consistent_alternative'],
       consistencyAlternativeRatio:
-      (map['consistency_alternative_ratio'] as num).toDouble(),
+          (map['consistency_alternative_ratio'] as num).toDouble(),
       note: map['note'],
     );
   }

@@ -22,9 +22,7 @@ class PairwiseComparisonScaleWidget extends StatefulWidget {
 
 class _PairwiseComparisonScaleWidgetState
     extends State<PairwiseComparisonScaleWidget> {
-  final ValueNotifier<AhpComparisonScale?> _selectedScale = ValueNotifier(
-    null,
-  );
+  final ValueNotifier<AhpComparisonScale?> _selectedScale = ValueNotifier(null);
   final ValueNotifier<bool?> _isLeftMoreImportant = ValueNotifier(null);
   String? _message;
 

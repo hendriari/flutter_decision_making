@@ -32,7 +32,8 @@ class AHP {
   final AhpRepository _ahpRepository;
 
   AHP({AhpRepository? ahpRepository})
-      : _ahpRepository = ahpRepository ?? AhpRepositoryImpl(AhpLocalDatasourceImpl());
+      : _ahpRepository =
+            ahpRepository ?? AhpRepositoryImpl(AhpLocalDatasourceImpl());
 
   List<AhpHierarchy> _listHierarchy = [];
 
@@ -65,7 +66,8 @@ class AHP {
     final pairCriteriaUseacse = GeneratePairwiseCriteriaInputUsecase(
       _ahpRepository,
     );
-    final pairAlternativeUsecase = GeneratePairwiseAlternativeInputUsecase(_ahpRepository);
+    final pairAlternativeUsecase =
+        GeneratePairwiseAlternativeInputUsecase(_ahpRepository);
 
     /// step 1: identification
     final identification = await identificationUsecase.execute(
@@ -205,14 +207,12 @@ class AHP {
     }
 
     if (_listPairwiseCriteriaInput.any((e) => e.isLeftMoreImportant == null)) {
-      throw Exception(
-          "Please complete which more important from the criteria");
+      throw Exception("Please complete which more important from the criteria");
     }
 
     if (_listPairwiseAlternativeInput
         .any((e) => e.alternative.any((d) => d.preferenceValue == null))) {
-      throw Exception(
-          "Please complete all values from the alternative scale");
+      throw Exception("Please complete all values from the alternative scale");
     }
 
     if (_listPairwiseAlternativeInput
@@ -225,8 +225,7 @@ class AHP {
         GenerateResultPairwiseMatrixCriteriaUsecase(_ahpRepository);
 
     final matrixAlternativeUsecase =
-        GenerateResultPairwiseMatrixAlternativeUsecase(
-            _ahpRepository);
+        GenerateResultPairwiseMatrixAlternativeUsecase(_ahpRepository);
 
     final eigenVectorCriteriaUsecase =
         CalculateEigenVectorCriteriaUsecase(_ahpRepository);
@@ -234,11 +233,9 @@ class AHP {
     final eigenVectorAlternativeUsecase =
         CalculateEigenVectorAlternativeUsecase(_ahpRepository);
 
-    final ratioUsecase =
-        CheckConsistencyRatioUsecase(_ahpRepository);
+    final ratioUsecase = CheckConsistencyRatioUsecase(_ahpRepository);
 
-    final getFinalScoreUsecase =
-        GetFinalScoreUsecase(_ahpRepository);
+    final getFinalScoreUsecase = GetFinalScoreUsecase(_ahpRepository);
 
     /// Step 1: Matrix & Eigen Vector for Criteria
     final resultMatrixCriteria = await matrixCriteriaUsecase.execute(
