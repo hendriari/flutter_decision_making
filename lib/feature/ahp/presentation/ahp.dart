@@ -1,14 +1,15 @@
 import 'dart:developer' as dev;
 
-import 'package:flutter_decision_making/feature/ahp/data/repository_impl/desicion_making_repository_impl.dart';
+import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_local_datasource.dart';
+import 'package:flutter_decision_making/feature/ahp/data/repository_impl/ahp_repository_impl.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_item.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_result.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/entities/comparison_scale.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/entities/consistency_ratio.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/entities/hierarchy.dart';
+import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_comparison_scale.dart';
+import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_consistency_ratio.dart';
+import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_hierarchy.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/entities/pairwise_alternative_input.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/entities/pairwise_comparison_input.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/repository/decision_making_repository.dart';
+import 'package:flutter_decision_making/feature/ahp/domain/repository/ahp_repository.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/usecase/calculate_eigen_vector_alternative_usecase.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/usecase/calculate_eigen_vector_criteria_usecase.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/usecase/check_consistency_ratio_usecase.dart';
@@ -21,22 +22,22 @@ import 'package:flutter_decision_making/feature/ahp/domain/usecase/get_final_sco
 import 'package:flutter_decision_making/feature/ahp/domain/usecase/identification_usecase.dart';
 
 export '/feature/ahp/domain/entities/ahp_item.dart';
-export '/feature/ahp/domain/entities/comparison_scale.dart';
+export '/feature/ahp/domain/entities/ahp_comparison_scale.dart';
 export '/feature/ahp/domain/entities/pairwise_alternative_input.dart';
 export '/feature/ahp/domain/entities/pairwise_comparison_input.dart';
 export '/feature/ahp/domain/entities/ahp_result.dart';
 export '/feature/ahp/domain/entities/ahp_result_detail.dart';
 
 class AHP {
-  final AhpRepository _decisionMakingRepository;
+  final AhpRepository _ahpRepository;
 
   AHP({AhpRepository? ahpRepository})
-      : _decisionMakingRepository = ahpRepository ?? AhpRepositoryImpl();
+      : _ahpRepository = ahpRepository ?? AhpRepositoryImpl(AhpLocalDatasourceImpl());
 
-  List<Hierarchy> _listHierarchy = [];
+  List<AhpHierarchy> _listHierarchy = [];
 
   /// HIERARCHY
-  List<Hierarchy> get listHierarchy => _listHierarchy;
+  List<AhpHierarchy> get listHierarchy => _listHierarchy;
 
   List<PairwiseComparisonInput> _listPairwiseCriteriaInput = [];
 
@@ -56,15 +57,15 @@ class AHP {
     required List<AhpItem> listAlternative,
   }) async {
     final identificationUsecase = IdentificationUsecase(
-      _decisionMakingRepository,
+      _ahpRepository,
     );
     final hierarchyUsecase = GenerateHierarchyUsecase(
-      _decisionMakingRepository,
+      _ahpRepository,
     );
     final pairCriteriaUseacse = GeneratePairwiseCriteriaInputUsecase(
-      _decisionMakingRepository,
+      _ahpRepository,
     );
-    final pairAlternativeUsecase = GeneratePairwiseAlternativeInputUsecase();
+    final pairAlternativeUsecase = GeneratePairwiseAlternativeInputUsecase(_ahpRepository);
 
     /// step 1: identification
     final identification = await identificationUsecase.execute(
@@ -93,9 +94,9 @@ class AHP {
   }
 
   /// ************************* COMPARISON SCALE *******************************
-  List<ComparisonScale> _listPairwiseComparisonScale() {
+  List<AhpComparisonScale> _listPairwiseComparisonScale() {
     final now = DateTime.now();
-    final result = <ComparisonScale>[];
+    final result = <AhpComparisonScale>[];
 
     /// you can custom this
     final desc = [
@@ -112,7 +113,7 @@ class AHP {
 
     for (int i = 0; i < desc.length; i++) {
       result.add(
-        ComparisonScale(
+        AhpComparisonScale(
           id: '${now.microsecondsSinceEpoch}_$i',
           description: desc[i],
           value: i + 1,
@@ -124,7 +125,7 @@ class AHP {
   }
 
   /// LIST PAIRWISE COMPARISON SCALE
-  List<ComparisonScale> get listPairwiseComparisonScale =>
+  List<AhpComparisonScale> get listPairwiseComparisonScale =>
       _listPairwiseComparisonScale();
 
   /// ************ UPDATE CRITERIA OR ALTERNATIVE FROM USER INPUT **************
@@ -221,23 +222,23 @@ class AHP {
     }
 
     final matrixCriteriaUsecase =
-        GenerateResultPairwiseMatrixCriteriaUsecase(_decisionMakingRepository);
+        GenerateResultPairwiseMatrixCriteriaUsecase(_ahpRepository);
 
     final matrixAlternativeUsecase =
         GenerateResultPairwiseMatrixAlternativeUsecase(
-            _decisionMakingRepository);
+            _ahpRepository);
 
     final eigenVectorCriteriaUsecase =
-        CalculateEigenVectorCriteriaUsecase(_decisionMakingRepository);
+        CalculateEigenVectorCriteriaUsecase(_ahpRepository);
 
     final eigenVectorAlternativeUsecase =
-        CalculateEigenVectorAlternativeUsecase(_decisionMakingRepository);
+        CalculateEigenVectorAlternativeUsecase(_ahpRepository);
 
     final ratioUsecase =
-        CheckConsistencyRatioUsecase(_decisionMakingRepository);
+        CheckConsistencyRatioUsecase(_ahpRepository);
 
     final getFinalScoreUsecase =
-        GetFinalScoreUsecase(_decisionMakingRepository);
+        GetFinalScoreUsecase(_ahpRepository);
 
     /// Step 1: Matrix & Eigen Vector for Criteria
     final resultMatrixCriteria = await matrixCriteriaUsecase.execute(
@@ -257,7 +258,7 @@ class AHP {
     /// Step 2: Matrix & Eigen Vector for each Alternative per Criteria
     final allEigenVectorsAlternative = <List<double>>[];
     final allMatrixAlternatives = <List<List<double>>>[];
-    final alternativeConsistencyRatio = <ConsistencyRatio>[];
+    final alternativeConsistencyRatio = <AhpConsistencyRatio>[];
 
     for (final input in _listPairwiseAlternativeInput) {
       final matrixAlt = await matrixAlternativeUsecase.execute(

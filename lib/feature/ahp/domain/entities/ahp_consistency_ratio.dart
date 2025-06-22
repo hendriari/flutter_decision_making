@@ -1,10 +1,10 @@
 /// CONSISTENCY RATIO ENTITIES
-class ConsistencyRatio {
+class AhpConsistencyRatio {
   final String source;
   final double ratio;
   final bool isConsistent;
 
-  ConsistencyRatio({
+  AhpConsistencyRatio({
     required this.source,
     required this.ratio,
     required this.isConsistent,

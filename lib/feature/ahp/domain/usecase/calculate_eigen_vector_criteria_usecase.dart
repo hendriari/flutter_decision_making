@@ -1,4 +1,4 @@
-import 'package:flutter_decision_making/feature/ahp/domain/repository/decision_making_repository.dart';
+import 'package:flutter_decision_making/feature/ahp/domain/repository/ahp_repository.dart';
 
 class CalculateEigenVectorCriteriaUsecase {
   final AhpRepository _decisionMakingRepository;

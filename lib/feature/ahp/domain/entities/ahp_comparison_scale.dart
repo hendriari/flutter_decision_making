@@ -1,19 +1,19 @@
 /// PAIRWISE COMPARISON SCALE
-class ComparisonScale {
+class AhpComparisonScale {
   final String? id;
   final String description;
   final int value;
 
-  ComparisonScale({
+  AhpComparisonScale({
     required this.id,
     required this.description,
     required this.value,
   });
 
-  ComparisonScale copyWith({
+  AhpComparisonScale copyWith({
     String? description,
   }) =>
-      ComparisonScale(
+      AhpComparisonScale(
         id: id,
         description: description ?? this.description,
         value: value,
@@ -22,7 +22,7 @@ class ComparisonScale {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ComparisonScale &&
+      other is AhpComparisonScale &&
           runtimeType == other.runtimeType &&
           id == other.id;
 

@@ -1,6 +1,6 @@
 import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_item.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/entities/pairwise_comparison_input.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/repository/decision_making_repository.dart';
+import 'package:flutter_decision_making/feature/ahp/domain/repository/ahp_repository.dart';
 
 class GenerateResultPairwiseMatrixCriteriaUsecase {
   final AhpRepository _decisionMakingRepository;

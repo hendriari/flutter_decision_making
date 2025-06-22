@@ -70,15 +70,9 @@ class _AHPPageState extends State<AHPPage> {
         title: Text(widget.title),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.only(
-            left: 10,
-            right: 10,
-            top: 10,
-            bottom: paddingBottom + 10,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+          child: ListView(
             children: [
               /// CRITERIA YOU WANT
               _buildInputWidget(
@@ -104,7 +98,6 @@ class _AHPPageState extends State<AHPPage> {
                     width: double.infinity,
                     child: Scrollbar(
                       child: ListView.builder(
-                        shrinkWrap: true,
                         itemCount: _listCriteria.length,
                         itemBuilder: (context, index) {
                           var data = _listCriteria[index];
@@ -144,7 +137,6 @@ class _AHPPageState extends State<AHPPage> {
                     width: double.infinity,
                     child: Scrollbar(
                       child: ListView.builder(
-                        shrinkWrap: true,
                         itemCount: _listAlternative.length,
                         itemBuilder: (context, index) {
                           var data = _listAlternative[index];
@@ -210,76 +202,82 @@ class _AHPPageState extends State<AHPPage> {
                       ),
 
                       /// CRITERIA ITEMS
-                      ListView.builder(
-                        itemCount: _inputCriteria.length,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          var criteria = _inputCriteria[index];
-                          return Row(
-                            children: [
-                              /// NAME
-                              Text(criteria.left.name, style: _textStyle),
+                      SizedBox(
+                        height: 200,
+                        child: Scrollbar(
+                          child: ListView.builder(
+                            itemCount: _inputCriteria.length,
+                            padding: EdgeInsets.only(right: 10),
+                            itemBuilder: (context, index) {
+                              var criteria = _inputCriteria[index];
+                              return Row(
+                                children: [
+                                  /// NAME
+                                  Text(criteria.left.name, style: _textStyle),
 
-                              /// SELECT VALUE COMPARISON
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () {
-                                    /// SHOW COMPARISON SCALE DIALOG
-                                    showPairwiseComparisonScaleDialog(
-                                      context,
-                                      comparison:
-                                          _ahp.listPairwiseComparisonScale,
-                                      leftItemName: criteria.left.name,
-                                      rightItemName: criteria.right.name,
-                                      onSelected: (scale, important) {
-                                        if (scale != null &&
-                                            important != null) {
-                                          /// UPDATE CRITERIA VALUE
-                                          _ahp.updatePairwiseCriteriaValue(
-                                            id: criteria.id,
-                                            scale: scale.value,
-                                            isLeftMoreImportant: important,
-                                          );
+                                  /// SELECT VALUE COMPARISON
+                                  Expanded(
+                                    child: InkWell(
+                                      onTap: () {
+                                        /// SHOW COMPARISON SCALE DIALOG
+                                        showPairwiseComparisonScaleDialog(
+                                          context,
+                                          comparison:
+                                              _ahp.listPairwiseComparisonScale,
+                                          leftItemName: criteria.left.name,
+                                          rightItemName: criteria.right.name,
+                                          onSelected: (scale, important) {
+                                            if (scale != null &&
+                                                important != null) {
+                                              /// UPDATE CRITERIA VALUE
+                                              _ahp.updatePairwiseCriteriaValue(
+                                                id: criteria.id,
+                                                scale: scale.value,
+                                                isLeftMoreImportant: important,
+                                              );
 
-                                          setState(() {
-                                            /// COPY UPDATED CRITERIA VALUE
-                                            _inputCriteria =
-                                                _ahp.listPairwiseCriteriaInput;
-                                          });
-                                        }
+                                              setState(() {
+                                                /// COPY UPDATED CRITERIA VALUE
+                                                _inputCriteria =
+                                                    _ahp.listPairwiseCriteriaInput;
+                                              });
+                                            }
+                                          },
+                                        );
                                       },
-                                    );
-                                  },
-                                  child: Container(
-                                    height: 40,
-                                    width: double.infinity,
-                                    alignment: Alignment.centerLeft,
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 5,
-                                    ),
-                                    margin: EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 5,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.black),
-                                    ),
-                                    child: Text(
-                                      criteria.preferenceValue != null
-                                          ? '${criteria.preferenceValue} - ${criteria.isLeftMoreImportant == true ? 'left item is more important' : 'right item is more important'}'
-                                          : 'please select scale comparison',
-                                      style: _textStyle,
+                                      child: Container(
+                                        height: 40,
+                                        width: double.infinity,
+                                        alignment: Alignment.centerLeft,
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 5,
+                                        ),
+                                        margin: EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 5,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          criteria.preferenceValue != null
+                                              ? '${criteria.preferenceValue} - ${criteria.isLeftMoreImportant == true ? 'left item is more important' : 'right item is more important'}'
+                                              : 'please select scale comparison',
+                                          style: _textStyle,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
 
-                              /// NAME
-                              Text(criteria.right.name, style: _textStyle),
-                            ],
-                          );
-                        },
+                                  /// NAME
+                                  Text(criteria.right.name, style: _textStyle),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
                       ),
                     ],
                   )
@@ -306,95 +304,99 @@ class _AHPPageState extends State<AHPPage> {
                       ),
 
                       /// ALTERNATIVE ITEMS
-                      ListView.builder(
-                        itemCount: _inputAlternative.length,
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          final data = _inputAlternative[index];
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                data.criteria.name,
-                                style: _textStyle.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                      SizedBox(
+                        height: 200,
+                        child: Scrollbar(
+                          child: ListView.builder(
+                            itemCount: _inputAlternative.length,
+                            padding: EdgeInsets.only(right: 10),
+                            itemBuilder: (context, index) {
+                              final data = _inputAlternative[index];
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    data.criteria.name,
+                                    style: _textStyle.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
 
-                              ...data.alternative.map(
-                                (e) => Row(
-                                  children: [
-                                    /// NAME
-                                    Text(e.left.name, style: _textStyle),
+                                  ...data.alternative.map(
+                                    (e) => Row(
+                                      children: [
+                                        /// NAME
+                                        Text(e.left.name, style: _textStyle),
 
-                                    /// SELECT VALUE COMPARISON
-                                    Expanded(
-                                      child: InkWell(
-                                        onTap: () {
-                                          /// SHOW COMPARISON SCALE DIALOG
-                                          showPairwiseComparisonScaleDialog(
-                                            context,
-                                            comparison:
-                                                _ahp.listPairwiseComparisonScale,
-                                            leftItemName: e.left.name,
-                                            rightItemName: e.right.name,
-                                            onSelected: (scale, important) {
-                                              if (scale != null &&
-                                                  important != null) {
-                                                /// UPDATE ALTERNATIVE VALUE
-                                                _ahp.updatePairwiseAlternativeValue(
-                                                  id: data.criteria.id,
-                                                  alternativeId: e.id,
-                                                  scale: scale.value,
-                                                  isLeftMoreImportant:
-                                                      important,
-                                                );
+                                        /// SELECT VALUE COMPARISON
+                                        Expanded(
+                                          child: InkWell(
+                                            onTap: () {
+                                              /// SHOW COMPARISON SCALE DIALOG
+                                              showPairwiseComparisonScaleDialog(
+                                                context,
+                                                comparison:
+                                                    _ahp.listPairwiseComparisonScale,
+                                                leftItemName: e.left.name,
+                                                rightItemName: e.right.name,
+                                                onSelected: (scale, important) {
+                                                  if (scale != null &&
+                                                      important != null) {
+                                                    /// UPDATE ALTERNATIVE VALUE
+                                                    _ahp.updatePairwiseAlternativeValue(
+                                                      id: data.criteria.id,
+                                                      alternativeId: e.id,
+                                                      scale: scale.value,
+                                                      isLeftMoreImportant:
+                                                          important,
+                                                    );
 
-                                                setState(() {
-                                                  /// COPY UPDATED ALTERNATIVE VALUE
-                                                  _inputAlternative =
-                                                      _ahp.listPairwiseAlternativeInput;
-                                                });
-                                              }
+                                                    setState(() {
+                                                      /// COPY UPDATED ALTERNATIVE VALUE
+                                                      _inputAlternative =
+                                                          _ahp.listPairwiseAlternativeInput;
+                                                    });
+                                                  }
+                                                },
+                                              );
                                             },
-                                          );
-                                        },
-                                        child: Container(
-                                          height: 40,
-                                          width: double.infinity,
-                                          alignment: Alignment.centerLeft,
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 5,
-                                          ),
-                                          margin: EdgeInsets.symmetric(
-                                            horizontal: 10,
-                                            vertical: 5,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                              color: Colors.black,
+                                            child: Container(
+                                              height: 40,
+                                              width: double.infinity,
+                                              alignment: Alignment.centerLeft,
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 5,
+                                              ),
+                                              margin: EdgeInsets.symmetric(
+                                                horizontal: 10,
+                                                vertical: 5,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                              child: Text(
+                                                e.preferenceValue != null
+                                                    ? '${e.preferenceValue} - ${e.isLeftMoreImportant == true ? 'left item is more important' : 'right item is more important'}'
+                                                    : 'please select scale comparison',
+                                                style: _textStyle,
+                                              ),
                                             ),
                                           ),
-                                          child: Text(
-                                            e.preferenceValue != null
-                                                ? '${e.preferenceValue} - ${e.isLeftMoreImportant == true ? 'left item is more important' : 'right item is more important'}'
-                                                : 'please select scale comparison',
-                                            style: _textStyle,
-                                          ),
                                         ),
-                                      ),
-                                    ),
 
-                                    /// NAME
-                                    Text(e.right.name, style: _textStyle),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          );
-                        },
+                                        /// NAME
+                                        Text(e.right.name, style: _textStyle),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
                       ),
                     ],
                   )
@@ -509,6 +511,8 @@ class _AHPPageState extends State<AHPPage> {
                     ],
                   )
                   : const SizedBox(),
+
+              SizedBox(height: paddingBottom),
             ],
           ),
         ),

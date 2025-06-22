@@ -22,6 +22,11 @@ Easily manage criteria, alternatives, pairwise comparisons, consistency checks, 
 
 ---
 
+## 📌 Important
+
+#### Because the calculations are performed on the client side, the total number of criteria and alternatives may impact your device’s performance. Please use the data wisely.
+
+---
 ## ✨ Features
 
 - Generate hierarchy from criteria and alternatives
@@ -83,13 +88,13 @@ Each item must have a unique ID. If not provided, the package auto-generates it.
 
 ```dart
 final criteria = [
-  Criteria(id: 'c1', name: 'Price'),
-  Criteria(id: 'c2', name: 'Quality'),
+  AhpItem(id: 'c1', name: 'Price'),
+  AhpItem(id: 'c2', name: 'Quality'),
 ];
 
 final alternatives = [
-  Alternative(id: 'a1', name: 'Product A'),
-  Alternative(id: 'a2', name: 'Product B'),
+  AhpItem(id: 'a1', name: 'Product A'),
+  AhpItem(id: 'a2', name: 'Product B'),
 ];
 ```
 
@@ -104,7 +109,7 @@ listCriteria: criteria,listAlternative: alternatives);
 After the process is complete, a paired matrix list will be generated:
 
 ```dart
-List<PairwiseComparisonInput<Criteria>> inputCriteria;
+List<PairwiseComparisonInput> inputCriteria;
 
 List<PairwiseAlternativeInput> inputAlternative;
 ```
@@ -308,11 +313,6 @@ Major method logs:
 - Execution duration (in milliseconds).
 
 > Useful for debugging and optimization during development.
-
----
-## 📌 Important
-
-#### Because the calculations are performed on the client side, the total number of criteria and alternatives may impact your device’s performance. Please use the data wisely.
 
 ---
 

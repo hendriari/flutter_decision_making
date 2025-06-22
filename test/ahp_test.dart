@@ -1,26 +1,14 @@
-import 'package:flutter_decision_making/core/decision_making_helper.dart';
-import 'package:flutter_decision_making/feature/ahp/data/repository_impl/desicion_making_repository_impl.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/entities/consistency_ratio.dart';
+import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_local_datasource.dart';
+import 'package:flutter_decision_making/feature/ahp/data/repository_impl/ahp_repository_impl.dart';
+import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_consistency_ratio.dart';
 import 'package:flutter_decision_making/flutter_decision_making.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class MockAhpHelper extends DecisionMakingHelper {
-  int _counter = 0;
-
-  @override
-  String getCustomUniqueId() {
-    _counter++;
-    return 'mock-id-$_counter';
-  }
-}
-
 void main() {
   late AhpRepositoryImpl repo;
-  late MockAhpHelper mockHelper;
 
   setUp(() {
-    mockHelper = MockAhpHelper();
-    repo = AhpRepositoryImpl(helper: mockHelper);
+    repo = AhpRepositoryImpl(AhpLocalDatasourceImpl());
   });
 
   group('identification', () {
@@ -50,13 +38,17 @@ void main() {
     });
 
     test('throws if criteria empty', () async {
-      expect(() => repo.identification([], [AhpItem(id: 'a1', name: 'A1')]),
-          throwsArgumentError);
+      await expectLater(
+        repo.identification([], [AhpItem(id: 'a1', name: 'A1')]),
+        throwsException,
+      );
     });
 
     test('throws if alternative empty', () async {
-      expect(() => repo.identification([AhpItem(id: 'c1', name: 'C1')], []),
-          throwsArgumentError);
+      await expectLater(
+        repo.identification([AhpItem(id: 'c1', name: 'C1')], []),
+        throwsException,
+      );
     });
 
     test('throws if duplicate IDs found', () async {
@@ -68,8 +60,10 @@ void main() {
         AhpItem(id: 'a1', name: 'A1'),
       ];
 
-      expect(() => repo.identification(criteria, alternatives),
-          throwsArgumentError);
+      await expectLater(
+        repo.identification(criteria, alternatives),
+        throwsException,
+      );
     });
   });
 
@@ -339,12 +333,14 @@ void main() {
         [0.4, 0.6],
       ];
 
-      final consistencyCriteria =
-          ConsistencyRatio(source: 'criteria', ratio: 0.05, isConsistent: true);
+      final consistencyCriteria = AhpConsistencyRatio(
+          source: 'criteria', ratio: 0.05, isConsistent: true);
 
       final consistencyAlternatives = [
-        ConsistencyRatio(source: 'criteria1', ratio: 0.05, isConsistent: true),
-        ConsistencyRatio(source: 'criteria2', ratio: 0.05, isConsistent: true),
+        AhpConsistencyRatio(
+            source: 'criteria1', ratio: 0.05, isConsistent: true),
+        AhpConsistencyRatio(
+            source: 'criteria2', ratio: 0.05, isConsistent: true),
       ];
 
       final result = await repo.getFinalScore(
@@ -389,12 +385,14 @@ void main() {
         [0.5, 0.5],
       ];
 
-      final consistencyCriteria = ConsistencyRatio(
+      final consistencyCriteria = AhpConsistencyRatio(
           source: 'criteria', ratio: 0.15, isConsistent: false);
 
       final consistencyAlternatives = [
-        ConsistencyRatio(source: 'criteria1', ratio: 0.05, isConsistent: true),
-        ConsistencyRatio(source: 'criteria2', ratio: 0.2, isConsistent: false),
+        AhpConsistencyRatio(
+            source: 'criteria1', ratio: 0.05, isConsistent: true),
+        AhpConsistencyRatio(
+            source: 'criteria2', ratio: 0.2, isConsistent: false),
       ];
 
       final result = await repo.getFinalScore(
@@ -425,9 +423,9 @@ void main() {
         <double>[],
       ];
 
-      final consistencyCriteria =
-          ConsistencyRatio(source: 'criteria', ratio: 0.0, isConsistent: true);
-      final consistencyAlternatives = <ConsistencyRatio>[];
+      final consistencyCriteria = AhpConsistencyRatio(
+          source: 'criteria', ratio: 0.0, isConsistent: true);
+      final consistencyAlternatives = <AhpConsistencyRatio>[];
 
       expect(
         () => repo.getFinalScore(
