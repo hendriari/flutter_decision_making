@@ -2,19 +2,19 @@ import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_result_d
 
 /// AHP RESULT ENTITIES
 class AhpResult {
-  final List<AhpResultDetail> results;
-  final bool isConsistentCriteria;
-  final double consistencyCriteriaRatio;
-  final bool isConsistentAlternative;
-  final double consistencyAlternativeRatio;
+  final List<AhpResultDetail>? results;
+  final bool? isConsistentCriteria;
+  final double? consistencyCriteriaRatio;
+  final bool? isConsistentAlternative;
+  final double? consistencyAlternativeRatio;
   final String? note;
 
   AhpResult({
-    required this.results,
-    required this.isConsistentCriteria,
-    required this.consistencyCriteriaRatio,
-    required this.isConsistentAlternative,
-    required this.consistencyAlternativeRatio,
+    this.results,
+    this.isConsistentCriteria,
+    this.consistencyCriteriaRatio,
+    this.isConsistentAlternative,
+    this.consistencyAlternativeRatio,
     this.note,
   });
 }

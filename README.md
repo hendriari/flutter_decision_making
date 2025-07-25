@@ -14,9 +14,9 @@ Thank you for your valuable feedback and continued support.
 
 ---
 
-A Flutter package for implementing criteria decision-making using the **Analytic Hierarchy Process (AHP)**.
+A Flutter package for criteria-based decision making using the **Analytic Hierarchy Process (AHP)** — and more to come.
 
-Easily manage criteria, alternatives, pairwise comparisons, consistency checks, and final decision scoring — all in one unified package.
+This package helps you evaluate and prioritize alternatives based on weighted criteria through structured pairwise comparisons and consistency checks.
 
 > 🧠 _This package implements the Analytic Hierarchy Process (AHP) originally developed by Thomas L. Saaty._
 
@@ -24,7 +24,7 @@ Easily manage criteria, alternatives, pairwise comparisons, consistency checks, 
 
 ## 📌 Important
 
-#### Because the calculations are performed on the client side, the total number of criteria and alternatives may impact your device’s performance. Please use the data wisely.
+**Since calculations are performed on the client side, the total number of criteria and alternatives may affect your device’s performance. Although this package offloads heavy computations to a separate thread using Isolates, we recommend using data wisely.**
 
 ---
 ## ✨ Features
@@ -49,16 +49,16 @@ You can use this package in two ways depending on your needs:
 
 ```dart
 late FlutterDecisionMaking _decisionMaking;
+AhpResult? _ahpResult;
 
- @override
-  void initState() {
-    super.initState();
-    _decisionMaking = FlutterDecisionMaking();
- }
+@override
+void initState() {
+  super.initState();
+  _decisionMaking = FlutterDecisionMaking();
+}
 
 // Usage example:
-_decisionMaking.ahp.generateResult();
-_decisionMaking.saw.generateResult();
+_ahpResult = await _decisionMaking.ahp.getAhpResult(...);
 ```
 
 This is the easiest way if you want to use multiple algorithms in your project.
@@ -69,6 +69,7 @@ If you only need a single algorithm (e.g., AHP), you can import and initialize i
 
 ```dart
 late AHP _ahp;
+AhpResult? _ahpResult;
 
 @override
 void initState() {
@@ -77,7 +78,7 @@ void initState() {
 }
 
 // Usage example:
-_ahp.generateResult();
+_ahpResult = await _ahp.getAhpResult(...);
 ```
 
 ### 🛠️ User Guide
@@ -98,30 +99,32 @@ final alternatives = [
 ];
 ```
 
-### 2. Identification, Generate Hierarchy and Generate Pairwise Comparison Input
+### 2. Identification and Generate Hierarchy
 
 Validate and prepare your inputs.
 
 ```dart
-await _ahp.generateHierarchyAndPairwiseTemplate(
-listCriteria: criteria,listAlternative: alternatives);
+List<AhpHierarchy> hierarchy = await _ahp.generateHierarchy(listCriteria: criteria, listAlternative: alternatives);
 ```
-After the process is complete, a paired matrix list will be generated:
+**This hierarchy structure is essential for the next steps.**
 
+### 3. Generate pairwise matrix inputs for criteria and alternative
 ```dart
-List<PairwiseComparisonInput> inputCriteria;
+/// Generate pairwise matrix criteria inputs
+List<PairwiseComparisonInput> criteriaInputs = await _ahp. generateCriteriaInputs();
 
-List<PairwiseAlternativeInput> inputAlternative;
+/// Generate pairwise matrix alternative inputs
+List<PairwiseAlternativeInput> alternativeInputs = await _ahp.generateAlternativeInputs(hierarchyNodes: hierarchy);
 ```
-#### Please ensure that all priority weights are filled in before proceeding to the next step.
+After completing this process, you can render the alternatives and their corresponding criteria in your UI.
 
-### 3. Input Pairwise Matrix and Generate Result
-
-Saaty scale:
+### 4. Input Pairwise Matrix and Generate Result
 
 #### _You can use custom descriptions for each value when displaying the scale to users, but the numeric values must still conform to the Saaty scale._
 
 #### _The package only accepts values from 1 to 9 for each comparison._
+
+Saaty scale:
 
 ```dart
 final List<AhpComparisonScale> pairwiseComparisonScales = [
@@ -173,17 +176,37 @@ final List<AhpComparisonScale> pairwiseComparisonScales = [
 ];
 ```
 
+We provide a method to update either criteriaInputs or alternativeInputs. You can use this method to apply updates to the input data as needed.
+
+```dart
+/// Update current criteria inputs
+criteriaInputs = _ahp.updateCriteriaInputs(criteriaInputs, id: 'c1', scale: 2, isLeftMoreImportant: true);
+
+/// Update current alternative inputs
+alternativeInputs = _ahp.updateAlternativeInputs(
+    alternativeInputs, 
+    criteriaId:'c1', 
+    alternativeId: 'a1',
+    scale: 3,
+    isLeftMoreImportant: false);
+```
+
+**Make sure all priority weights in the pairwise matrix are filled in before proceeding to the next step.**
+
 Call this method to compute the final scores based on input data.
 
 ```dart
-await _ahp.generateResult()
+_ahpResult = await _ahp.getAhpResult(
+    hierarchy: hierarchy,
+    inputsCriteria: criteriaInputs,
+    inputsAlternative: alternativeInputs);
 ```
 ### 🛠️ How AHP Works
 
 #### on generate result, AHP will do
 
-### 1. Generate Pairwise Matrix
-Create a pairwise comparison matrix from criteria or alternatives input.
+### 1. Calculate Pairwise Matrix
+Calculate pairwise comparison matrix from criteria or alternatives input.
 
 ### 2. Calculate Approximate Eigenvector
 Calculate priority weights (eigenvector) from the pairwise matrix.

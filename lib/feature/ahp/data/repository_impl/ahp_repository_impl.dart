@@ -1,5 +1,4 @@
 import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_local_datasource.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_consistency_ratio.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_hierarchy.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_identification.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_item.dart';
@@ -38,50 +37,15 @@ class AhpRepositoryImpl extends AhpRepository {
   }
 
   @override
-  Future<List<List<double>>> generateResultPairwiseMatrixCriteria(
-      List<AhpItem> items, List<PairwiseComparisonInput> inputs) async {
-    return await _localDatasource.generateResultPairwiseMatrixCriteria(
-        items, inputs);
-  }
-
-  @override
-  Future<List<List<double>>> generateResultPairwiseMatrixAlternative(
-      List<AhpItem> items, List<PairwiseAlternativeInput> inputs) async {
-    return await _localDatasource.generateResultPairwiseMatrixAlternative(
-        items, inputs);
-  }
-
-  @override
-  Future<List<double>> calculateEigenVectorCriteria(
-      List<List<double>> matrix) async {
-    return await _localDatasource.calculateEigenVectorCriteria(matrix);
-  }
-
-  @override
-  Future<List<double>> calculateEigenVectorAlternative(
-      List<List<double>> matrix) async {
-    return await _localDatasource.calculateEigenVectorAlternative(matrix);
-  }
-
-  @override
-  Future<AhpConsistencyRatio> checkConsistencyRatio(List<List<double>> matrix,
-      List<double> priorityVector, String source) async {
-    return await _localDatasource.checkConsistencyRatio(
-        matrix, priorityVector, source);
-  }
-
-  @override
-  Future<AhpResult> getFinalScore(
-      List<double> eigenVectorCriteria,
-      List<List<double>> eigenVectorsAlternative,
-      List<AhpItem> alternatives,
-      AhpConsistencyRatio consistencyCriteria,
-      List<AhpConsistencyRatio> consistencyAlternatives) async {
-    return await _localDatasource.getFinalScore(
-        eigenVectorCriteria,
-        eigenVectorsAlternative,
-        alternatives,
-        consistencyCriteria,
-        consistencyAlternatives);
+  Future<AhpResult> calculateFinalScore(
+    List<AhpHierarchy> hierarchy,
+    List<PairwiseComparisonInput> inputsCriteria,
+    List<PairwiseAlternativeInput> inputsAlternative,
+  ) async {
+    return await _localDatasource.calculateFinalScore(
+      hierarchy,
+      inputsCriteria,
+      inputsAlternative,
+    );
   }
 }

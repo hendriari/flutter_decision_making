@@ -33,3 +33,16 @@ update docs
     - `calculateEigenVectorCriteria`
     - `calculateEigenVectorAlternative`
     - `checkConsistencyRatio`
+
+## 1.0.6
+
+### Updated
+* update README.md
+* Refactored AHP feature for improved maintainability and performance
+* On mobile and desktop platforms, replaced compute with Isolate.spawn for heavy processing tasks:
+    - `generateResultPairwiseMatrixCriteria`
+    - `generateResultPairwiseMatrixAlternative`
+    - `calculateEigenVectorCriteria`
+    - `calculateEigenVectorAlternative`
+    - `checkConsistencyRatio`
+    - `ahpFinalScore`

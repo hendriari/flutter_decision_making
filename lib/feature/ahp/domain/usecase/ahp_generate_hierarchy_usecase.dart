@@ -2,10 +2,10 @@ import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_item.dar
 import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_hierarchy.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/repository/ahp_repository.dart';
 
-class GenerateHierarchyUsecase {
+class AhpGenerateHierarchyUsecase {
   final AhpRepository _decisionMakingRepository;
 
-  GenerateHierarchyUsecase(this._decisionMakingRepository);
+  AhpGenerateHierarchyUsecase(this._decisionMakingRepository);
 
   Future<List<AhpHierarchy>> execute({
     required List<AhpItem> criteria,
