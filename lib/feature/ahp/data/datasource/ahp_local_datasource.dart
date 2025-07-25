@@ -1,27 +1,31 @@
 import 'dart:developer' as dev;
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_decision_making/core/decision_making_enums.dart';
 import 'package:flutter_decision_making/core/decision_making_helper.dart';
-import 'package:flutter_decision_making/feature/ahp/data/dto/ahp_consistency_ratio_dto.dart';
-import 'package:flutter_decision_making/feature/ahp/data/dto/ahp_hierarchy_dto.dart';
-import 'package:flutter_decision_making/feature/ahp/data/dto/ahp_item_dto.dart';
-import 'package:flutter_decision_making/feature/ahp/data/dto/ahp_result_detail_dto.dart';
+import 'package:flutter_decision_making/core/decision_making_performance_profiling.dart';
+import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_calculate_eigen_vector_alternative_isolated.dart';
+import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_calculate_eigen_vector_criteria_isolated.dart';
+import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_check_consistency_ratio_isolated.dart';
+import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_final_score_isolated.dart';
+import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_input_pairwise_matrix_alternative_with_compute.dart';
+import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_result_pairwise_matrix_alternative_isolated.dart';
+import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_result_pairwise_matrix_criteria_isolated.dart';
 import 'package:flutter_decision_making/feature/ahp/data/dto/ahp_result_dto.dart';
 import 'package:flutter_decision_making/feature/ahp/data/dto/pairwise_comparison_alternative_input_dto.dart';
-import 'package:flutter_decision_making/feature/ahp/data/dto/pairwise_comparison_input_dto.dart';
-import 'package:flutter_decision_making/feature/ahp/data/mapper/ahp_consistency_ratio_mapper.dart';
 import 'package:flutter_decision_making/feature/ahp/data/mapper/ahp_hierarchy_mapper.dart';
 import 'package:flutter_decision_making/feature/ahp/data/mapper/ahp_item_mapper.dart';
 import 'package:flutter_decision_making/feature/ahp/data/mapper/ahp_result_mapper.dart';
 import 'package:flutter_decision_making/feature/ahp/data/mapper/pairwise_comparison_alternative_input_mapper.dart';
 import 'package:flutter_decision_making/feature/ahp/data/mapper/pairwise_comparison_input_mapper.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_consistency_ratio.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_hierarchy.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_identification.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_item.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_result.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/entities/pairwise_alternative_input.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/entities/pairwise_comparison_input.dart';
+
+import 'ahp_main_isolate.dart';
 
 abstract class AhpLocalDatasource {
   /// TO IDENTIFICATION CRITERIA AND ALTERNATIVE
@@ -41,51 +45,26 @@ abstract class AhpLocalDatasource {
     List<AhpItem> criteria,
   );
 
+  /// GENERATE PAIRWISE ALTERNATIVE INPUTS
   Future<List<PairwiseAlternativeInput>> generatePairwiseAlternative(
     List<AhpHierarchy> nodes,
   );
 
-  /// TO GENERATE RESULT PAIRWISE MATRIX CRITERIA
-  Future<List<List<double>>> generateResultPairwiseMatrixCriteria(
-      List<AhpItem> items, List<PairwiseComparisonInput> inputs);
-
-  /// TO GENERATE RESULT PAIRWISE MATRIX ALTERNATIVE
-  Future<List<List<double>>> generateResultPairwiseMatrixAlternative(
-      List<AhpItem> items, List<PairwiseAlternativeInput> inputs);
-
-  /// TO CALCULATE EIGEN VECTOR CRITERIA
-  Future<List<double>> calculateEigenVectorCriteria(List<List<double>> matrix);
-
-  /// TO CALCULATE EIGEN VECTOR ALTERNATIVE
-  Future<List<double>> calculateEigenVectorAlternative(
-      List<List<double>> matrix);
-
-  /// TO CALCULATE AHP RESULT
-  Future<AhpConsistencyRatio> checkConsistencyRatio(
-    List<List<double>> matrix,
-    List<double> priorityVector,
-    String source,
-  );
-
   /// GET RESULT AHP
-  Future<AhpResult> getFinalScore(
-    List<double> eigenVectorCriteria,
-    List<List<double>> eigenVectorsAlternative,
-    List<AhpItem> alternatives,
-    AhpConsistencyRatio consistencyCriteria,
-    List<AhpConsistencyRatio> consistencyAlternatives,
+  Future<AhpResult> calculateFinalScore(
+    List<AhpHierarchy> hierarchy,
+    List<PairwiseComparisonInput> inputsCriteria,
+    List<PairwiseAlternativeInput> inputsAlternative,
   );
 }
 
 class AhpLocalDatasourceImpl extends AhpLocalDatasource {
   final DecisionMakingHelper _helper;
-  final Stopwatch _stopwatch;
 
   AhpLocalDatasourceImpl({
     DecisionMakingHelper? helper,
     Stopwatch? stopwatch,
-  })  : _helper = helper ?? DecisionMakingHelper(),
-        _stopwatch = stopwatch ?? Stopwatch();
+  }) : _helper = helper ?? DecisionMakingHelper();
 
   /// VALIDATE UNIQUE ID
   static void _validateUniqueId<T>(List<T> items, String Function(T) getId) {
@@ -99,27 +78,11 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
     }
   }
 
-  /// START DEV PERFORMANCE PROFILING
-  void _startPerformanceProfiling(String name) {
-    dev.log("🔄 start $name..");
-    dev.Timeline.startSync(name);
-    _stopwatch.start();
-  }
-
-  /// END DEV PERFORMANCE PROFILING
-  void _endPerformanceProfiling(String name) {
-    dev.Timeline.finishSync();
-    _stopwatch.stop();
-    dev.log(
-        "🏁 $name has been execute - duration : ${_stopwatch.elapsedMilliseconds} ms");
-    _stopwatch.reset();
-  }
-
   /// IDENTIFICATION DETAIL
   @override
   Future<AhpIdentification> identification(
       List<AhpItem> criteria, List<AhpItem> alternative) async {
-    _startPerformanceProfiling('identification');
+    startPerformanceProfiling('identification');
 
     try {
       if (criteria.isEmpty) {
@@ -129,9 +92,9 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
         throw Exception("Alternative can't be empty!");
       }
 
-      if (criteria.length > 30 || alternative.length > 50) {
+      if (criteria.length > 40 || alternative.length > 40) {
         throw Exception(
-          "Too much data, please limit the number of criteria/alternatives.",
+          "Too much data, please limit the number of criteria/alternatives (max 40 criteria and 40 alternative).",
         );
       }
 
@@ -159,7 +122,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
         alternative: updateAlternative,
       );
     } finally {
-      _endPerformanceProfiling('identification');
+      endPerformanceProfiling('identification');
     }
   }
 
@@ -167,7 +130,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
   @override
   Future<List<AhpHierarchy>> generateHierarchy(
       List<AhpItem> criteria, List<AhpItem> alternative) async {
-    _startPerformanceProfiling('generate hierarchy');
+    startPerformanceProfiling('generate hierarchy');
     try {
       final resultHierarchy = criteria.map((c) {
         return AhpHierarchy(criteria: c, alternative: alternative);
@@ -177,7 +140,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
     } catch (e) {
       throw Exception('Failed generate hierarchy $e');
     } finally {
-      _endPerformanceProfiling('generate hierarchy');
+      endPerformanceProfiling('generate hierarchy');
     }
   }
 
@@ -185,7 +148,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
   @override
   Future<List<PairwiseComparisonInput>> generatePairwiseCriteria(
       List<AhpItem> criteria) async {
-    _startPerformanceProfiling('generate pairwise criteria');
+    startPerformanceProfiling('generate pairwise criteria');
     try {
       final result = <PairwiseComparisonInput>[];
 
@@ -207,604 +170,255 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
     } catch (e) {
       throw Exception('Failed generate pairwise criteria template $e');
     } finally {
-      _endPerformanceProfiling('generate pairwise criteria');
+      endPerformanceProfiling('generate pairwise criteria');
     }
   }
 
   /// **************************************************************************
 
-  /// GENERATE PAIRWISE ALTERNATIVE
+  /// GENERATE PAIRWISE ALTERNATIVE INPUTS
   @override
   Future<List<PairwiseAlternativeInput>> generatePairwiseAlternative(
     List<AhpHierarchy> nodes,
   ) async {
-    const computeThreshold = 20;
+    const computeThreshold = 15;
 
     final hierarchyList =
         nodes.map((e) => AhpHierarchyMapper.fromEntity(e).toMap()).toList();
 
-    final resultMap = nodes.length < computeThreshold
-        ? await _generatePairwiseAlternativeInIsolateMap(hierarchyList)
-        : await compute(
-            _generatePairwiseAlternativeInIsolateMap, hierarchyList);
+    if (!kIsWeb) {
+      final result = await generateInputPairwiseAlternative(hierarchyList);
 
-    return resultMap
-        .map((e) => PairwiseAlternativeInputDto.fromMap(e).toEntity())
-        .toList();
-  }
+      return result
+          .map((e) => PairwiseAlternativeInputDto.fromMap(e).toEntity())
+          .toList();
+    } else {
+      final result = nodes.length < computeThreshold
+          ? await generateInputPairwiseAlternative(hierarchyList)
+          : await compute(generateInputPairwiseAlternative, hierarchyList);
 
-  /// ISOLATED
-  Future<List<Map<String, dynamic>>> _generatePairwiseAlternativeInIsolateMap(
-    List<Map<String, dynamic>> rawDtoList,
-  ) async {
-    _startPerformanceProfiling('generate pairwise alternative');
-
-    try {
-      final dtoList =
-          rawDtoList.map((e) => AhpHierarchyDto.fromMap(e)).toList();
-
-      final result = <PairwiseAlternativeInputDto>[];
-
-      for (var dto in dtoList) {
-        final alternative = dto.alternative;
-        final pairwise = <PairwiseComparisonInputDto>[];
-
-        for (int i = 0; i < alternative.length; i++) {
-          for (int j = i + 1; j < alternative.length; j++) {
-            pairwise.add(
-              PairwiseComparisonInputDto(
-                id: _helper.getCustomUniqueId(),
-                left: alternative[i],
-                right: alternative[j],
-                preferenceValue: null,
-                isLeftMoreImportant: null,
-              ),
-            );
-          }
-        }
-
-        result.add(
-          PairwiseAlternativeInputDto(
-            criteria: dto.criteria,
-            alternative: pairwise,
-          ),
-        );
-      }
-      return result.map((e) => e.toMap()).toList();
-    } catch (e) {
-      throw Exception('Failed generate pairwise alternative: $e');
-    } finally {
-      _endPerformanceProfiling('generate pairwise alternative');
+      return result
+          .map((e) => PairwiseAlternativeInputDto.fromMap(e).toEntity())
+          .toList();
     }
   }
 
   /// *************************************************************************
 
-  /// GENERATE RESULT PAIRWISE MATRIX CRITERIA
+  /// GET AHP RESULT
   @override
-  Future<List<List<double>>> generateResultPairwiseMatrixCriteria(
-      List<AhpItem> items, List<PairwiseComparisonInput> inputs) async {
-    final computeThreshold = 20;
-
-    final itemList =
-        items.map((e) => AhpItemMapper.fromEntity(e).toMap()).toList();
-
-    final comparisonInput = inputs
-        .map((e) => PairwiseComparisonInputMapper.fromEntity(e).toMap())
-        .toList();
-
-    final result = inputs.length < computeThreshold
-        ? await _generateResultPairwiseMatrixCriteriaInIsolateMap({
-            'items': itemList,
-            'inputs': comparisonInput,
-          })
-        : await compute(
-            _generateResultPairwiseMatrixCriteriaInIsolateMap,
-            {
-              'items': itemList,
-              'inputs': comparisonInput,
-            },
-          );
-
-    return result;
-  }
-
-  /// ISOLATED
-  Future<List<List<double>>> _generateResultPairwiseMatrixCriteriaInIsolateMap(
-      Map<String, dynamic> data) async {
-    _startPerformanceProfiling('generate result pairwise matrix criteria');
-
-    try {
-      final itemsRaw = List<Map<String, dynamic>>.from(data['items']);
-      final inputsRaw = List<Map<String, dynamic>>.from(data['inputs']);
-
-      final inputsDto =
-          inputsRaw.map((e) => PairwiseComparisonInputDto.fromMap(e)).toList();
-      final itemDto = itemsRaw.map((e) => AhpItemDto.fromMap(e)).toList();
-
-      final matrix = List.generate(
-        itemDto.length,
-        (_) => List.filled(itemDto.length, 1.0),
-      );
-
-      final itemIndexMap = <String, int>{};
-      for (int index = 0; index < itemDto.length; index++) {
-        final id = itemDto[index].id;
-        if (id == null || id.isEmpty) {
-          throw Exception('Item with missing ID found');
-        }
-        itemIndexMap[id] = index;
-      }
-
-      for (final e in inputsDto) {
-        final i = itemIndexMap[e.left.id];
-        final j = itemIndexMap[e.right.id];
-        final value = e.preferenceValue?.toDouble() ?? 1.0;
-
-        if (i == null || j == null) {
-          throw Exception('One or both items not found in the list');
-        }
-
-        if (value <= 0) {
-          throw Exception('Comparison value must be greater than zero');
-        }
-
-        if (e.isLeftMoreImportant == true) {
-          matrix[i][j] = value;
-          matrix[j][i] = 1 / value;
-        } else {
-          matrix[i][j] = 1 / value;
-          matrix[j][i] = value;
-        }
-      }
-
-      return matrix;
-    } finally {
-      _endPerformanceProfiling('generate result pairwise matrix criteria');
-    }
-  }
-
-  /// **************************************************************************
-
-  /// GENERATE RESULT PAIRWISE MATRIX ALTERNATIVE
-  @override
-  Future<List<List<double>>> generateResultPairwiseMatrixAlternative(
-      List<AhpItem> items, List<PairwiseAlternativeInput> inputs) async {
-    final computeThreshold = 20;
-
-    final itemList =
-        items.map((e) => AhpItemMapper.fromEntity(e).toMap()).toList();
-
-    final alternativeInputs = inputs
-        .map((e) => PairwiseAlternativeInputMapper.fromEntity(e).toMap())
-        .toList();
-
-    final result = alternativeInputs.length < computeThreshold
-        ? await _generateResultPairwiseMatrixAlternativeInIsolatedMap({
-            'items': itemList,
-            'inputs': alternativeInputs,
-          })
-        : await compute(_generateResultPairwiseMatrixAlternativeInIsolatedMap, {
-            'items': itemList,
-            'inputs': alternativeInputs,
-          });
-
-    return result;
-  }
-
-  /// ISOLATED
-  Future<List<List<double>>>
-      _generateResultPairwiseMatrixAlternativeInIsolatedMap(
-          Map<String, dynamic> data) async {
-    _startPerformanceProfiling('generate pairwise matrix alternative');
-    try {
-      final itemsRaw = List<Map<String, dynamic>>.from(data['items']);
-      final inputsRaw = List<Map<String, dynamic>>.from(data['inputs']);
-
-      final itemDto = itemsRaw.map((e) => AhpItemDto.fromMap(e)).toList();
-      final inputsDto =
-          inputsRaw.map((e) => PairwiseAlternativeInputDto.fromMap(e)).toList();
-
-      if (itemDto.isEmpty) {
-        throw ArgumentError('Alternative list is empty');
-      }
-
-      if (inputsDto.isEmpty) {
-        return List.generate(
-          itemDto.length,
-          (_) => List.filled(itemDto.length, 1.0),
-        );
-      }
-
-      final pairwise = inputsDto.first.alternative;
-
-      final matrix = List.generate(
-        itemDto.length,
-        (_) => List.filled(itemDto.length, 1.0),
-      );
-
-      final itemIndexMap = <String, int>{};
-      for (int index = 0; index < itemDto.length; index++) {
-        final id = itemDto[index].id;
-        if (id == null || id.isEmpty) {
-          throw Exception('Alternative item has missing ID');
-        }
-        itemIndexMap[id] = index;
-      }
-
-      for (final comparison in pairwise) {
-        final i = itemIndexMap[comparison.left.id];
-        final j = itemIndexMap[comparison.right.id];
-
-        if (i == null || j == null) {
-          throw Exception('Alternative not found in list');
-        }
-
-        final value = comparison.preferenceValue?.toDouble() ?? 1.0;
-        if (value <= 0) {
-          throw Exception('Comparison value must be greater than zero');
-        }
-
-        if (comparison.isLeftMoreImportant == true) {
-          matrix[i][j] = value;
-          matrix[j][i] = 1 / value;
-        } else {
-          matrix[i][j] = 1 / value;
-          matrix[j][i] = value;
-        }
-      }
-
-      return matrix;
-    } finally {
-      _endPerformanceProfiling('generate pairwise matrix alternative');
-    }
-  }
-
-  /// **************************************************************************
-
-  /// CALCULATE EIGEN VECTOR CRITERIA
-  @override
-  Future<List<double>> calculateEigenVectorCriteria(
-      List<List<double>> matrix) async {
-    final matrixRaw = matrix.map((e) => e.cast<dynamic>()).toList();
-
-    final result =
-        await compute(_calculateEigenVectorCriteriaInIsolated, matrixRaw);
-
-    return result;
-  }
-
-  /// ISOLATED
-  Future<List<double>> _calculateEigenVectorCriteriaInIsolated(
-      List<dynamic> matrixRaw) async {
-    _startPerformanceProfiling('calculate eigen vector');
-    try {
-      final matrix = matrixRaw
-          .map((row) => (row as List<dynamic>).map((e) => e as double).toList())
-          .toList();
-
-      List<double> colSums = List.filled(matrix.length, 0);
-
-      for (int j = 0; j < matrix.length; j++) {
-        for (int i = 0; i < matrix.length; i++) {
-          colSums[j] += matrix[i][j];
-        }
-      }
-
-      List<double> priorities = List.filled(matrix.length, 0);
-
-      for (int i = 0; i < matrix.length; i++) {
-        double sum = 0;
-        for (int j = 0; j < matrix.length; j++) {
-          sum += matrix[i][j] / colSums[j];
-        }
-        priorities[i] = sum / matrix.length;
-      }
-
-      return priorities;
-    } catch (e) {
-      throw Exception('Failed calculate eigen vector $e');
-    } finally {
-      _endPerformanceProfiling('calculate eigen vector');
-    }
-  }
-
-  /// **************************************************************************
-
-  /// CALCULATE EIGEN VECTOR ALTERNATIVE
-  @override
-  Future<List<double>> calculateEigenVectorAlternative(
-      List<List<double>> matrix) async {
-    final rawMatrix = matrix.map((e) => e.cast<dynamic>()).toList();
-
-    final result =
-        await compute(_calculateEigenVectorAlternativeInIsolated, rawMatrix);
-
-    return result;
-  }
-
-  /// ISOLATED
-  Future<List<double>> _calculateEigenVectorAlternativeInIsolated(
-      List<dynamic> matrixRaw) async {
-    _startPerformanceProfiling('calculate eigen vector alternative');
-    try {
-      final matrix = matrixRaw
-          .map((row) => (row as List<dynamic>).map((e) => e as double).toList())
-          .toList();
-
-      final int n = matrix.length;
-
-      if (n == 0 || matrix.any((row) => row.length != n)) {
-        throw ArgumentError('Matrix must be square and non-empty.');
-      }
-
-      List<double> colSums = List.filled(n, 0.0);
-      for (int j = 0; j < n; j++) {
-        for (int i = 0; i < n; i++) {
-          colSums[j] += matrix[i][j];
-        }
-      }
-
-      List<List<double>> normalizedMatrix =
-          List.generate(n, (i) => List.filled(n, 0.0));
-      for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-          normalizedMatrix[i][j] = matrix[i][j] / colSums[j];
-        }
-      }
-
-      List<double> priorities = List.filled(n, 0.0);
-      for (int i = 0; i < n; i++) {
-        double rowSum = 0.0;
-        for (int j = 0; j < n; j++) {
-          rowSum += normalizedMatrix[i][j];
-        }
-        priorities[i] = rowSum / n;
-      }
-
-      return priorities;
-    } catch (e) {
-      throw Exception('Failed to calculate eigen vector alternative: $e');
-    } finally {
-      _endPerformanceProfiling('calculate eigen vector alternative');
-    }
-  }
-
-  /// **************************************************************************
-
-  /// CHECK CONSISTENCY RATIO
-  @override
-  Future<AhpConsistencyRatio> checkConsistencyRatio(List<List<double>> matrix,
-      List<double> priorityVector, String source) async {
-    final result = await compute(
-      _checkConsistencyRatioInIsolatedMap,
-      {
-        "matrix": matrix,
-        "priority_vector": priorityVector,
-        "source": source,
-      },
-    );
-
-    final data = AhpConsistencyRatioDto.fromMap(result);
-
-    return data.toEntity();
-  }
-
-  /// ISOLATED
-  Future<Map<String, dynamic>> _checkConsistencyRatioInIsolatedMap(
-    Map<String, dynamic> data,
+  Future<AhpResult> calculateFinalScore(
+    List<AhpHierarchy> hierarchy,
+    List<PairwiseComparisonInput> inputsCriteria,
+    List<PairwiseAlternativeInput> inputsAlternative,
   ) async {
-    _startPerformanceProfiling('check consistency ratio');
+    final ahpMainIsolate = AhpMainIsolate();
+    bool isolatedStarted = false;
     try {
-      final matrixRaw = data['matrix'] as List<dynamic>;
-      final priorityRaw = data['priority_vector'] as List<dynamic>;
-      final source = data['source'] as String;
-
-      final matrix = matrixRaw
-          .map((row) => (row as List<dynamic>).map((e) => e as double).toList())
-          .toList();
-
-      final priorityVector = priorityRaw.map((e) => e as double).toList();
-
-      final int n = matrix.length;
-
-      if (n == 0 || priorityVector.isEmpty || priorityVector.length != n) {
-        throw ArgumentError(
-          'Matrix and priority vector must be non-empty and of the same size.',
-        );
+      if (inputsCriteria.any((e) => e.preferenceValue == null)) {
+        throw Exception("Please complete all values from the criteria scale");
       }
 
-      if (priorityVector.any((e) => e == 0)) {
-        throw ArgumentError(
-            'Priority vector contains zero, cannot divide by zero.');
+      if (inputsCriteria.any((e) => e.isLeftMoreImportant == null)) {
+        throw Exception(
+            "Please complete which more important from the criteria");
       }
 
-      List<double> weightedSums = List.filled(n, 0);
-      for (int i = 0; i < n; i++) {
-        double sum = 0;
-        for (int j = 0; j < n; j++) {
-          sum += matrix[i][j] * priorityVector[j];
-        }
-        weightedSums[i] = sum;
+      if (inputsAlternative
+          .any((e) => e.alternative.any((d) => d.preferenceValue == null))) {
+        throw Exception(
+            "Please complete all values from the alternative scale");
       }
 
-      double lambdaMax = 0;
-      for (int i = 0; i < n; i++) {
-        lambdaMax += weightedSums[i] / priorityVector[i];
-      }
-      lambdaMax /= n;
-
-      double ci = (lambdaMax - n) / (n - 1);
-
-      final ri = _getRI(n);
-      if (ri == 0) {
-        return {
-          "source": source,
-          "ratio": 0,
-          "is_consistent": true,
-        };
+      if (inputsAlternative.any(
+          (e) => e.alternative.any((d) => d.isLeftMoreImportant == null))) {
+        throw Exception(
+            "Please complete which more important from the alternative");
       }
 
-      final cr = ci / ri;
-
-      dev.log('λmax: $lambdaMax, CI: $ci, CR: $cr');
-
-      if ((cr - 0.1) > 1e-5) {
-        return {
-          "source": source,
-          "ratio": cr,
-          "is_consistent": false,
-        };
+      if (!kIsWeb) {
+        await ahpMainIsolate.init();
+        isolatedStarted = true;
       }
 
-      return {
-        "source": source,
-        "ratio": cr,
-        "is_consistent": true,
-      };
-    } finally {
-      _endPerformanceProfiling('check consistency ratio');
-    }
-  }
+      /// [CRITERIA]
+      /// GENERATE RESULT MATRIX CRITERIA
+      List<List<double>> resultMatrixCriteria = [[]];
+      final itemCriteria =
+          hierarchy.map((e) => e.criteria).toList(growable: false);
 
-  /// RANDOM INDEX
-  static double _getRI(int n) {
-    const Map<int, double> riTable = {
-      1: 0.0,
-      2: 0.0,
-      3: 0.58,
-      4: 0.90,
-      5: 1.12,
-      6: 1.24,
-      7: 1.32,
-      8: 1.41,
-      9: 1.45,
-      10: 1.49,
-      11: 1.51,
-      12: 1.48,
-      13: 1.56,
-      14: 1.57,
-      15: 1.59,
-    };
-    return riTable[n] ?? 1.59;
-  }
+      final crItemList = itemCriteria
+          .map((e) => AhpItemMapper.fromEntity(e).toMap())
+          .toList(growable: false);
 
-  /// **************************************************************************
+      final crComparisonInput = inputsCriteria
+          .map((e) => PairwiseComparisonInputMapper.fromEntity(e).toMap())
+          .toList(growable: false);
 
-  /// GET FINAL SCORE
-  @override
-  Future<AhpResult> getFinalScore(
-    List<double> eigenVectorCriteria,
-    List<List<double>> eigenVectorsAlternative,
-    List<AhpItem> alternatives,
-    AhpConsistencyRatio consistencyCriteria,
-    List<AhpConsistencyRatio> consistencyAlternatives,
-  ) async {
-    final eigenVectorAltRaw =
-        eigenVectorsAlternative.map((e) => e.cast<dynamic>()).toList();
-    final alternativeRaw =
-        alternatives.map((e) => AhpItemMapper.fromEntity(e).toMap()).toList();
-    final consistencyCriteriaRaw =
-        AhpConsistencyRatioMapper.fromEntity(consistencyCriteria).toMap();
-    final consistencyAltRaw = consistencyAlternatives
-        .map((e) => AhpConsistencyRatioMapper.fromEntity(e).toMap())
-        .toList();
+      resultMatrixCriteria = kIsWeb
+          ? await ahpGenerateResultPairwiseMatrixCriteria({
+              'items': crItemList,
+              'inputs': crComparisonInput,
+            })
+          : await ahpMainIsolate.runTask(
+              AhpProcessingCommand.generateResultPairwiseMatrixCriteria,
+              {
+                'items': crItemList,
+                'inputs': crComparisonInput,
+              },
+            );
 
-    final result = await compute(_getFinalScoreInIsolatedMap, {
-      "eigen_vector_criteria": eigenVectorCriteria,
-      "eigen_vector_alternative": eigenVectorAltRaw,
-      "alternative_raw": alternativeRaw,
-      "consistency_criteria_raw": consistencyCriteriaRaw,
-      "consistency_alternative_raw": consistencyAltRaw,
-    });
+      dev.log('✅ matrix criteria $resultMatrixCriteria \n',
+          name: 'DECISION MAKING');
 
-    final data = AhpResultDto.fromMap(result);
+      /// CALCULATE EIGEN VECTOR CRITERIA
+      final eigenCrMatrixRaw = resultMatrixCriteria
+          .map((e) => e.cast<dynamic>())
+          .toList(growable: false);
+      List<double> eigenVectorCriteria = kIsWeb
+          ? await ahpCalculateEigenVectorCriteria({
+              'matrix': eigenCrMatrixRaw,
+            })
+          : await ahpMainIsolate.runTask(
+              AhpProcessingCommand.calculateEigenVectorCriteria,
+              {
+                'matrix': eigenCrMatrixRaw,
+              },
+            );
 
-    return data.toEntity();
-  }
+      dev.log('✅ eigen vector criteria $eigenVectorCriteria \n',
+          name: 'DECISION MAKING');
 
-  /// ISOLATED
-  Future<Map<String, dynamic>> _getFinalScoreInIsolatedMap(
-      Map<String, dynamic> data) async {
-    _startPerformanceProfiling('calculate final score..');
-    try {
-      final eigenVectorsAlternativeRaw =
-          data['eigen_vector_alternative'] as List<dynamic>;
-      final alternativesRaw = data['alternative_raw'] as List<dynamic>;
-      final consistencyCriteriaRaw = data['consistency_criteria_raw'];
-      final consistencyAlternativesRaw =
-          data['consistency_alternative_raw'] as List<dynamic>;
+      /// CHECK CRITERIA CONSISTENCY RATIO
+      Map<String, dynamic> criteriaConsistencyRatio = kIsWeb
+          ? await ahpCheckConsistencyRatio({
+              "matrix": resultMatrixCriteria,
+              "priority_vector": eigenVectorCriteria,
+              "source": 'criteria',
+            })
+          : await ahpMainIsolate
+              .runTask(AhpProcessingCommand.checkConsistencyRatio, {
+              "matrix": resultMatrixCriteria,
+              "priority_vector": eigenVectorCriteria,
+              "source": 'criteria',
+            });
 
-      List<double> eigenVectorCriteria = data['eigen_vector_criteria'];
-      List<List<double>> eigenVectorsAlternative = eigenVectorsAlternativeRaw
-          .map((row) => (row as List<dynamic>).map((e) => e as double).toList())
-          .toList();
-      List<AhpItemDto> alternatives =
-          alternativesRaw.map((e) => AhpItemDto.fromMap(e)).toList();
-      final consistencyCriteria =
-          AhpConsistencyRatioDto.fromMap(consistencyCriteriaRaw);
-      List<AhpConsistencyRatioDto> consistencyAlternatives =
-          consistencyAlternativesRaw
-              .map((e) => AhpConsistencyRatioDto.fromMap(e))
-              .toList();
+      dev.log('✅ criteria ratio ${criteriaConsistencyRatio['ratio']} \n',
+          name: 'DECISION MAKING');
 
-      if (eigenVectorsAlternative.isEmpty ||
-          eigenVectorsAlternative.first.isEmpty) {
-        throw Exception('Alternative matrix is empty.');
+      /// [ALTERNATIVE]
+      final allEigenVectorsAlternative = <List<double>>[];
+      final allMatrixAlternatives = <List<List<double>>>[];
+      final alternativeConsistencyRatio = <Map<String, dynamic>>[];
+
+      for (var input in inputsAlternative) {
+        final itemAlternative = input.alternative
+            .expand((e) => [e.left, e.right])
+            .toSet()
+            .toList(growable: false);
+
+        final altItemList = itemAlternative
+            .map((e) => AhpItemMapper.fromEntity(e).toMap())
+            .toList(growable: false);
+
+        final altInputs =
+            PairwiseAlternativeInputMapper.fromEntity(input).toMap();
+
+        /// GENERATE RESULT MATRIX ALTERNATIVE
+        final matrixAlt = kIsWeb
+            ? await ahpGenerateResultPairwiseMatrixAlternative({
+                'items': altItemList,
+                'inputs': [altInputs],
+              })
+            : await ahpMainIsolate.runTask(
+                AhpProcessingCommand.generateResultPairwiseMatrixAlternative,
+                {
+                  'items': altItemList,
+                  'inputs': [altInputs],
+                },
+              );
+
+        allMatrixAlternatives.add(matrixAlt);
+        dev.log('✅ matrix alternative (${input.criteria.name}): $matrixAlt \n',
+            name: 'DECISION MAKING');
+
+        /// CALCULATE EIGEN VECTOR ALTERNATIVE
+        final eigenVectorAlt = kIsWeb
+            ? await ahpCalculateEigenVectorAlternative({
+                'matrix': matrixAlt,
+              })
+            : await ahpMainIsolate
+                .runTask(AhpProcessingCommand.calculateEigenVectorAlternative, {
+                'matrix': matrixAlt,
+              });
+
+        allEigenVectorsAlternative.add(eigenVectorAlt);
+        dev.log(
+            '✅ eigen vector alternative (${input.criteria.name}): $eigenVectorAlt \n',
+            name: 'DECISION MAKING');
+
+        /// CHECK ALTERNATIVE CONSISTENCY RATIO
+        final altConsistencyRatio = kIsWeb
+            ? await ahpCheckConsistencyRatio({
+                "matrix": matrixAlt,
+                "priority_vector": eigenVectorAlt,
+                "source": 'alternative',
+              })
+            : await ahpMainIsolate
+                .runTask(AhpProcessingCommand.checkConsistencyRatio, {
+                "matrix": matrixAlt,
+                "priority_vector": eigenVectorAlt,
+                "source": 'alternative',
+              });
+
+        alternativeConsistencyRatio.add(altConsistencyRatio);
+        dev.log(
+            '✅ alternative ratio (${input.criteria.name}): ${altConsistencyRatio['ratio']} \n',
+            name: 'DECISION MAKING');
       }
 
-      final int altCount = eigenVectorsAlternative.first.length;
-      final int criteriaCount = eigenVectorCriteria.length;
+      final alternativeRaw =
+          hierarchy.expand((e) => e.alternative).toList(growable: false);
 
-      List<double> result = List.filled(altCount, 0.0);
+      final alternativeRawDto = alternativeRaw
+          .map((e) => AhpItemMapper.fromEntity(e))
+          .toList(growable: false);
 
-      for (int i = 0; i < altCount; i++) {
-        for (int j = 0; j < criteriaCount; j++) {
-          result[i] += eigenVectorCriteria[j] * eigenVectorsAlternative[j][i];
-        }
-      }
+      final rawFinalScore = kIsWeb
+          ? await ahpFinalScore({
+              "eigen_vector_criteria": eigenVectorCriteria,
+              "eigen_vector_alternative": allEigenVectorsAlternative,
+              "alternative_raw": alternativeRawDto
+                  .map((e) => e.toMap())
+                  .toList(growable: false),
+              "consistency_criteria_raw": criteriaConsistencyRatio,
+              "consistency_alternative_raw": alternativeConsistencyRatio,
+            })
+          : await ahpMainIsolate
+              .runTask(AhpProcessingCommand.calculateFinalScore, {
+              "eigen_vector_criteria": eigenVectorCriteria,
+              "eigen_vector_alternative": allEigenVectorsAlternative,
+              "alternative_raw": alternativeRawDto
+                  .map((e) => e.toMap())
+                  .toList(growable: false),
+              "consistency_criteria_raw": criteriaConsistencyRatio,
+              "consistency_alternative_raw": alternativeConsistencyRatio,
+            });
 
-      final ahpResultDetail = <AhpResultDetailDto>[];
+      final result = AhpResultDto.fromMap(rawFinalScore);
 
-      for (int i = 0; i < altCount; i++) {
-        ahpResultDetail.add(
-          AhpResultDetailDto(
-            id: alternatives[i].id,
-            name: alternatives[i].name,
-            value: result[i],
-          ),
-        );
-      }
+      dev.log(
+          '✅ final score ${result.results?.map((e) => '${e.name}: ${e.value}').join(', ')}',
+          name: 'DECISION MAKING');
 
-      final alternativesConsistency = consistencyAlternatives
-        ..sort((a, b) => b.ratio.compareTo(a.ratio));
-
-      String? note = !consistencyCriteria.isConsistent ||
-              consistencyAlternatives.any((e) => e.isConsistent == false)
-          ? '''
-Thank you for completing the assessment process. Based on the consistency check, the resulting Consistency Ratio (CR) exceeds the acceptable threshold of 0.1.
-As a result, the current assessment does not meet the expected level of consistency and therefore cannot yet be considered valid.
-We recommend reviewing and revising the assessment to ensure that the resulting analysis is more accurate and reliable for decision-making.
-Detail:
-${!consistencyCriteria.isConsistent ? '* inconsistency on criteria' : ''}
-${consistencyAlternatives.any((e) => e.isConsistent == false) ? '* Inconsistency on alternatives per criteria:\n${consistencyAlternatives.where((e) => !e.isConsistent).map((e) => '- ${e.source}: ${e.ratio}').join('\n')}' : ''}
-'''
-          : null;
-
-      final ahpResult = AhpResultDto(
-        results: ahpResultDetail..sort((a, b) => b.value.compareTo(a.value)),
-        isConsistentCriteria: consistencyCriteria.isConsistent,
-        consistencyCriteriaRatio: consistencyCriteria.ratio,
-        isConsistentAlternative: alternativesConsistency[0].isConsistent,
-        consistencyAlternativeRatio: alternativesConsistency[0].ratio,
-        note: note,
-      );
-
-      return ahpResult.toMap();
+      return result.toEntity();
     } catch (e) {
-      throw Exception('Failed calculate final score: $e');
+      dev.log('Failed calculate result: $e', name: 'DECISION MAKING');
+      rethrow;
     } finally {
-      _endPerformanceProfiling('calculate final score');
+      if (!kIsWeb && isolatedStarted) {
+        ahpMainIsolate.dispose();
+      }
     }
   }
 }

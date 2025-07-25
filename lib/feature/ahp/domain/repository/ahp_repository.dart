@@ -1,4 +1,3 @@
-import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_consistency_ratio.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_hierarchy.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_identification.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_item.dart';
@@ -27,34 +26,10 @@ abstract class AhpRepository {
   Future<List<PairwiseAlternativeInput>> generatePairwiseAlternative(
       List<AhpHierarchy> nodes);
 
-  /// TO GENERATE RESULT PAIRWISE MATRIX CRITERIA
-  Future<List<List<double>>> generateResultPairwiseMatrixCriteria(
-      List<AhpItem> items, List<PairwiseComparisonInput> inputs);
-
-  /// TO GENERATE RESULT PAIRWISE MATRIX ALTERNATIVE
-  Future<List<List<double>>> generateResultPairwiseMatrixAlternative(
-      List<AhpItem> items, List<PairwiseAlternativeInput> inputs);
-
-  /// TO CALCULATE EIGEN VECTOR CRITERIA
-  Future<List<double>> calculateEigenVectorCriteria(List<List<double>> matrix);
-
-  /// TO CALCULATE EIGEN VECTOR ALTERNATIVE
-  Future<List<double>> calculateEigenVectorAlternative(
-      List<List<double>> matrix);
-
-  /// TO CALCULATE AHP RESULT
-  Future<AhpConsistencyRatio> checkConsistencyRatio(
-    List<List<double>> matrix,
-    List<double> priorityVector,
-    String source,
-  );
-
   /// GET RESULT AHP
-  Future<AhpResult> getFinalScore(
-    List<double> eigenVectorCriteria,
-    List<List<double>> eigenVectorsAlternative,
-    List<AhpItem> alternatives,
-    AhpConsistencyRatio consistencyCriteria,
-    List<AhpConsistencyRatio> consistencyAlternatives,
+  Future<AhpResult> calculateFinalScore(
+    List<AhpHierarchy> hierarchy,
+    List<PairwiseComparisonInput> inputsCriteria,
+    List<PairwiseAlternativeInput> inputsAlternative,
   );
 }

@@ -6,7 +6,7 @@ import 'ahp_result_detail_mapper.dart';
 extension AhpResultMapper on AhpResultDto {
   AhpResult toEntity() {
     return AhpResult(
-      results: results.map((e) => e.toEntity()).toList(),
+      results: results?.map((e) => e.toEntity()).toList(),
       isConsistentCriteria: isConsistentCriteria,
       consistencyCriteriaRatio: consistencyCriteriaRatio,
       isConsistentAlternative: isConsistentAlternative,
@@ -18,7 +18,7 @@ extension AhpResultMapper on AhpResultDto {
   static AhpResultDto fromEntity(AhpResult entity) {
     return AhpResultDto(
       results: entity.results
-          .map((e) => AhpResultDetailMapper.fromEntity(e))
+          ?.map((e) => AhpResultDetailMapper.fromEntity(e))
           .toList(),
       isConsistentCriteria: entity.isConsistentCriteria,
       consistencyCriteriaRatio: entity.consistencyCriteriaRatio,

@@ -2,10 +2,10 @@ import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_item.dar
 import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_identification.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/repository/ahp_repository.dart';
 
-class IdentificationUsecase {
+class AhpIdentificationUsecase {
   final AhpRepository _decisionMakingRepository;
 
-  IdentificationUsecase(this._decisionMakingRepository);
+  AhpIdentificationUsecase(this._decisionMakingRepository);
 
   Future<AhpIdentification> execute(
     List<AhpItem> criteria,

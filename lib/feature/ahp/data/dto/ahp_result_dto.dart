@@ -1,19 +1,19 @@
 import 'ahp_result_detail_dto.dart';
 
 class AhpResultDto {
-  final List<AhpResultDetailDto> results;
-  final bool isConsistentCriteria;
-  final double consistencyCriteriaRatio;
-  final bool isConsistentAlternative;
-  final double consistencyAlternativeRatio;
+  final List<AhpResultDetailDto>? results;
+  final bool? isConsistentCriteria;
+  final double? consistencyCriteriaRatio;
+  final bool? isConsistentAlternative;
+  final double? consistencyAlternativeRatio;
   final String? note;
 
   AhpResultDto({
-    required this.results,
-    required this.isConsistentCriteria,
-    required this.consistencyCriteriaRatio,
-    required this.isConsistentAlternative,
-    required this.consistencyAlternativeRatio,
+    this.results,
+    this.isConsistentCriteria,
+    this.consistencyCriteriaRatio,
+    this.isConsistentAlternative,
+    this.consistencyAlternativeRatio,
     this.note,
   });
 
@@ -34,7 +34,7 @@ class AhpResultDto {
 
   Map<String, dynamic> toMap() {
     return {
-      'results': results.map((e) => e.toMap()).toList(),
+      'results': results?.map((e) => e.toMap()).toList(),
       'is_consistent_criteria': isConsistentCriteria,
       'consistency_criteria_ratio': consistencyCriteriaRatio,
       'is_consistent_alternative': isConsistentAlternative,
