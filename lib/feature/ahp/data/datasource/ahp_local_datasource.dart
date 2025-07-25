@@ -414,7 +414,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
       return result.toEntity();
     } catch (e) {
       dev.log('Failed calculate result: $e', name: 'DECISION MAKING');
-      throw Exception('Generate result failed: $e');
+      rethrow;
     } finally {
       if (!kIsWeb && isolatedStarted) {
         ahpMainIsolate.dispose();
