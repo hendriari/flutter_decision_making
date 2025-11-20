@@ -104,7 +104,7 @@ class AHP {
   }
 
   /// ************************* COMPARISON SCALE *******************************
-  List<AhpComparisonScale> _listPairwiseComparisonScale() {
+  List<AhpComparisonScale> _listAhpPairwiseComparisonScale() {
     final now = DateTime.now();
     final result = <AhpComparisonScale>[];
 
@@ -135,8 +135,8 @@ class AHP {
   }
 
   /// LIST PAIRWISE COMPARISON SCALE
-  List<AhpComparisonScale> get listPairwiseComparisonScale =>
-      _listPairwiseComparisonScale();
+  List<AhpComparisonScale> get listAhpPairwiseComparisonScale =>
+      _listAhpPairwiseComparisonScale();
 
   /// ************ UPDATE CRITERIA OR ALTERNATIVE FROM USER INPUT **************
 

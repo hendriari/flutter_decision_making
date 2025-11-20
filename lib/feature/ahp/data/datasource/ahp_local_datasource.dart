@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_decision_making/core/decision_making_enums.dart';
 import 'package:flutter_decision_making/core/decision_making_helper.dart';
 import 'package:flutter_decision_making/core/decision_making_performance_profiling.dart';
+import 'package:flutter_decision_making/core/isolate/decision_main_isolate.dart';
 import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_calculate_eigen_vector_alternative_isolated.dart';
 import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_calculate_eigen_vector_criteria_isolated.dart';
 import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_check_consistency_ratio_isolated.dart';
@@ -24,8 +25,6 @@ import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_item.dar
 import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_result.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/entities/pairwise_alternative_input.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/entities/pairwise_comparison_input.dart';
-
-import 'ahp_main_isolate.dart';
 
 abstract class AhpLocalDatasource {
   /// TO IDENTIFICATION CRITERIA AND ALTERNATIVE
@@ -63,20 +62,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
 
   AhpLocalDatasourceImpl({
     DecisionMakingHelper? helper,
-    Stopwatch? stopwatch,
   }) : _helper = helper ?? DecisionMakingHelper();
-
-  /// VALIDATE UNIQUE ID
-  static void _validateUniqueId<T>(List<T> items, String Function(T) getId) {
-    final seen = <String>{};
-    for (var e in items) {
-      final id = getId(e);
-      if (seen.contains(id)) {
-        throw Exception('Duplicate id found');
-      }
-      seen.add(id);
-    }
-  }
 
   /// IDENTIFICATION DETAIL
   @override
@@ -113,9 +99,6 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
             ? e.copyWith(id: _helper.getCustomUniqueId())
             : e;
       });
-
-      _validateUniqueId<AhpItem>(updatedCriteria, (e) => e.id!);
-      _validateUniqueId<AhpItem>(updateAlternative, (e) => e.id!);
 
       return AhpIdentification(
         criteria: updatedCriteria,
@@ -212,8 +195,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
     List<PairwiseComparisonInput> inputsCriteria,
     List<PairwiseAlternativeInput> inputsAlternative,
   ) async {
-    final ahpMainIsolate = AhpMainIsolate();
-    bool isolatedStarted = false;
+    final decisionMainIsolate = DecisionMainIsolate();
     try {
       if (inputsCriteria.any((e) => e.preferenceValue == null)) {
         throw Exception("Please complete all values from the criteria scale");
@@ -236,11 +218,6 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
             "Please complete which more important from the alternative");
       }
 
-      if (!kIsWeb) {
-        await ahpMainIsolate.init();
-        isolatedStarted = true;
-      }
-
       /// [CRITERIA]
       /// GENERATE RESULT MATRIX CRITERIA
       List<List<double>> resultMatrixCriteria = [[]];
@@ -260,7 +237,8 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
               'items': crItemList,
               'inputs': crComparisonInput,
             })
-          : await ahpMainIsolate.runTask(
+          : await decisionMainIsolate.runTask(
+              DecisionAlgorithm.ahp,
               AhpProcessingCommand.generateResultPairwiseMatrixCriteria,
               {
                 'items': crItemList,
@@ -279,7 +257,8 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
           ? await ahpCalculateEigenVectorCriteria({
               'matrix': eigenCrMatrixRaw,
             })
-          : await ahpMainIsolate.runTask(
+          : await decisionMainIsolate.runTask(
+              DecisionAlgorithm.ahp,
               AhpProcessingCommand.calculateEigenVectorCriteria,
               {
                 'matrix': eigenCrMatrixRaw,
@@ -296,8 +275,8 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
               "priority_vector": eigenVectorCriteria,
               "source": 'criteria',
             })
-          : await ahpMainIsolate
-              .runTask(AhpProcessingCommand.checkConsistencyRatio, {
+          : await decisionMainIsolate.runTask(DecisionAlgorithm.ahp,
+              AhpProcessingCommand.checkConsistencyRatio, {
               "matrix": resultMatrixCriteria,
               "priority_vector": eigenVectorCriteria,
               "source": 'criteria',
@@ -330,7 +309,8 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
                 'items': altItemList,
                 'inputs': [altInputs],
               })
-            : await ahpMainIsolate.runTask(
+            : await decisionMainIsolate.runTask(
+                DecisionAlgorithm.ahp,
                 AhpProcessingCommand.generateResultPairwiseMatrixAlternative,
                 {
                   'items': altItemList,
@@ -347,8 +327,8 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
             ? await ahpCalculateEigenVectorAlternative({
                 'matrix': matrixAlt,
               })
-            : await ahpMainIsolate
-                .runTask(AhpProcessingCommand.calculateEigenVectorAlternative, {
+            : await decisionMainIsolate.runTask(DecisionAlgorithm.ahp,
+                AhpProcessingCommand.calculateEigenVectorAlternative, {
                 'matrix': matrixAlt,
               });
 
@@ -364,8 +344,8 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
                 "priority_vector": eigenVectorAlt,
                 "source": 'alternative',
               })
-            : await ahpMainIsolate
-                .runTask(AhpProcessingCommand.checkConsistencyRatio, {
+            : await decisionMainIsolate.runTask(DecisionAlgorithm.ahp,
+                AhpProcessingCommand.checkConsistencyRatio, {
                 "matrix": matrixAlt,
                 "priority_vector": eigenVectorAlt,
                 "source": 'alternative',
@@ -394,8 +374,8 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
               "consistency_criteria_raw": criteriaConsistencyRatio,
               "consistency_alternative_raw": alternativeConsistencyRatio,
             })
-          : await ahpMainIsolate
-              .runTask(AhpProcessingCommand.calculateFinalScore, {
+          : await decisionMainIsolate.runTask(
+              DecisionAlgorithm.ahp, AhpProcessingCommand.calculateFinalScore, {
               "eigen_vector_criteria": eigenVectorCriteria,
               "eigen_vector_alternative": allEigenVectorsAlternative,
               "alternative_raw": alternativeRawDto
@@ -416,9 +396,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
       dev.log('Failed calculate result: $e', name: 'DECISION MAKING');
       rethrow;
     } finally {
-      if (!kIsWeb && isolatedStarted) {
-        ahpMainIsolate.dispose();
-      }
+      dev.log('Success get result AHP', name: 'DECISION MAKING');
     }
   }
 }

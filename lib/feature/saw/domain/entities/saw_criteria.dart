@@ -1,0 +1,40 @@
+class SawCriteria {
+  final String? id;
+  final String name;
+  final bool isBenefit;
+  final double weightPercent;
+  final String? description;
+
+  SawCriteria({
+    this.id,
+    required this.name,
+    required this.isBenefit,
+    required this.weightPercent,
+    this.description,
+  });
+
+  SawCriteria copyWith({
+    String? id,
+    String? name,
+    bool? isBenefit,
+    double? weightPercent,
+    String? description,
+  }) =>
+      SawCriteria(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        isBenefit: isBenefit ?? this.isBenefit,
+        weightPercent: weightPercent ?? this.weightPercent,
+        description: description ?? this.description,
+      );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SawCriteria &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+}

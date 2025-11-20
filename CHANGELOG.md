@@ -46,3 +46,12 @@ update docs
     - `calculateEigenVectorAlternative`
     - `checkConsistencyRatio`
     - `ahpFinalScore`
+
+## 1.1.0
+
+### Updated
+* adding Simple Additive Weighting (SAW) algorithm
+* main isolate manager
+* make multi-command isolate
+* minimum flutter version
+* minor update AHP

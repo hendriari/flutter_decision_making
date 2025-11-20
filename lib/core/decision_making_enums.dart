@@ -1,3 +1,8 @@
+enum DecisionAlgorithm {
+  ahp,
+  saw,
+}
+
 enum AhpProcessingCommand {
   generateResultPairwiseMatrixCriteria,
   calculateEigenVectorCriteria,
@@ -5,4 +10,9 @@ enum AhpProcessingCommand {
   calculateEigenVectorAlternative,
   checkConsistencyRatio,
   calculateFinalScore
+}
+
+enum SawProcessingCommand {
+  generateSawMatrix,
+  normalizeMatrix,
 }
