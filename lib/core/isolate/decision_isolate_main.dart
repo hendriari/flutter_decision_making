@@ -3,10 +3,11 @@ import 'dart:isolate';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_decision_making/core/decision_making_enums.dart';
+import 'package:flutter_decision_making/core/decision_making_helper.dart';
 import 'package:synchronized/synchronized.dart';
 
+import 'decision_isolate_message.dart';
 import 'decision_isolate_worker.dart';
-import 'decision_isolated_message.dart';
 
 /// Enterprise-grade isolate manager with auto-dispose, idle timeout,
 /// active task tracking, and full lifecycle control.
@@ -39,12 +40,12 @@ import 'decision_isolated_message.dart';
 /// // Force cleanup
 /// isolate.dispose(force: true);
 /// ```
-class DecisionMainIsolate with WidgetsBindingObserver {
-  static final DecisionMainIsolate _instance = DecisionMainIsolate._internal();
+class DecisionIsolateMain with WidgetsBindingObserver {
+  static final DecisionIsolateMain instance = DecisionIsolateMain._internal();
 
-  factory DecisionMainIsolate() => _instance;
+  factory DecisionIsolateMain() => instance;
 
-  DecisionMainIsolate._internal() {
+  DecisionIsolateMain._internal() {
     _setupAutoDispose();
   }
 
@@ -53,12 +54,14 @@ class DecisionMainIsolate with WidgetsBindingObserver {
   Completer<void>? _initCompleter;
   final _lock = Lock();
   Timer? _idleTimer;
+  final _helper = DecisionMakingHelper();
   DateTime? _lastUsed;
   DateTime? _spawnTime;
   int _activeTasks = 0;
-  int _totalTasksCompleted = 0; // ← Bonus: tracking total tasks
+  int _totalTasksCompleted = 0;
   final String _debugId =
       DateTime.now().microsecondsSinceEpoch.toRadixString(16);
+  final _logName = 'Decision Making Isolate';
 
   static const Duration _idleTimeout = Duration(minutes: 5);
   static const Duration _idleCheckInterval = Duration(minutes: 1);
@@ -73,17 +76,20 @@ class DecisionMainIsolate with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.paused:
-        debugPrint(
-            '[DecisionIsolate:$_debugId] 📱 App paused → check dispose in 30s');
+        _helper.printLog(
+            message: '[$_debugId] 📱 App paused → check dispose in 30s',
+            logName: _logName);
         _tryDisposeOnPause();
         break;
       case AppLifecycleState.detached:
-        debugPrint(
-            '[DecisionIsolate:$_debugId] 🛑 App detached → force dispose');
+        _helper.printLog(
+            message: '[$_debugId] 🛑 App detached → force dispose',
+            logName: _logName);
         dispose(force: true);
         break;
       case AppLifecycleState.resumed:
-        debugPrint('[DecisionIsolate:$_debugId] ✅ App resumed');
+        _helper.printLog(
+            message: '[$_debugId] ✅ App resumed', logName: _logName);
         break;
       default:
         break;
@@ -93,12 +99,15 @@ class DecisionMainIsolate with WidgetsBindingObserver {
   void _tryDisposeOnPause() {
     Future.delayed(const Duration(seconds: 30), () {
       if (_isolate != null && _activeTasks == 0) {
-        debugPrint(
-            '[DecisionIsolate:$_debugId] 💤 No active tasks → auto-dispose');
+        _helper.printLog(
+            message: '[$_debugId] 💤 No active tasks → auto-dispose',
+            logName: _logName);
         dispose();
       } else if (_activeTasks > 0) {
-        debugPrint(
-            '[DecisionIsolate:$_debugId] ⚠️  $_activeTasks tasks active → skip dispose');
+        _helper.printLog(
+            message:
+                '[$_debugId] ⚠️  $_activeTasks tasks active → skip dispose',
+            logName: _logName);
       }
     });
   }
@@ -110,8 +119,9 @@ class DecisionMainIsolate with WidgetsBindingObserver {
 
       final idle = DateTime.now().difference(_lastUsed!);
       if (idle > _idleTimeout) {
-        debugPrint(
-            '[DecisionIsolate:$_debugId] 💤 Idle ${idle.inMinutes}min → dispose');
+        _helper.printLog(
+            message: '[$_debugId] 💤 Idle ${idle.inMinutes}min → dispose',
+            logName: _logName);
         dispose();
         timer.cancel();
       }
@@ -142,7 +152,8 @@ class DecisionMainIsolate with WidgetsBindingObserver {
       final receivePort = ReceivePort();
 
       try {
-        debugPrint('[DecisionIsolate:$_debugId] 🚀 Spawning isolate...');
+        _helper.printLog(
+            message: '[$_debugId] 🚀 Spawning isolate...', logName: _logName);
         _isolate = await Isolate.spawn(
           decisionIsolateWorker,
           receivePort.sendPort,
@@ -177,9 +188,12 @@ class DecisionMainIsolate with WidgetsBindingObserver {
         _spawnTime = DateTime.now();
         _initCompleter!.complete();
         _startIdleChecker();
-        debugPrint('[DecisionIsolate:$_debugId] ✅ Initialized successfully');
+        _helper.printLog(
+            message: '[$_debugId] ✅ Initialized successfully',
+            logName: _logName);
       } catch (e, st) {
-        debugPrint('[DecisionIsolate:$_debugId] ❌ Init failed: $e');
+        _helper.printLog(
+            message: '[$_debugId] ❌ Init failed: $e', logName: _logName);
         _initCompleter!.completeError(e, st);
         _cleanup();
         rethrow;
@@ -224,15 +238,16 @@ class DecisionMainIsolate with WidgetsBindingObserver {
       final responsePort = ReceivePort();
 
       try {
-        final message = DecisionIsolatedMessage(
+        final message = DecisionIsolateMessage(
           algorithm: algorithm,
           command: command,
           payload: data,
           replyPort: responsePort.sendPort,
         );
 
-        debugPrint(
-            '[DecisionIsolate:$_debugId] 📤 Task #$taskId → $algorithm.$command');
+        _helper.printLog(
+            message: '[$_debugId] 📤 Task #$taskId → $algorithm.$command',
+            logName: _logName);
         _sendPort!.send(message);
 
         final result = await responsePort.first.timeout(
@@ -250,19 +265,23 @@ class DecisionMainIsolate with WidgetsBindingObserver {
         }
 
         _totalTasksCompleted++;
-        debugPrint('[DecisionIsolate:$_debugId] ✅ Task #$taskId completed');
+        _helper.printLog(
+            message: '[$_debugId] ✅ Task #$taskId completed',
+            logName: _logName);
         return result;
       } finally {
         responsePort.close();
       }
     } catch (e) {
-      debugPrint('[DecisionIsolate:$_debugId] ❌ Task #$taskId failed: $e');
+      _helper.printLog(
+          message: '[$_debugId] ❌ Task #$taskId failed: $e', logName: _logName);
       rethrow;
     } finally {
       _activeTasks--;
       if (_activeTasks < 0) {
-        debugPrint(
-            '[DecisionIsolate:$_debugId] ⚠️  WARNING: _activeTasks went negative!');
+        _helper.printLog(
+            message: '[$_debugId] ⚠️  WARNING: _activeTasks went negative!',
+            logName: _logName);
         _activeTasks = 0;
       }
     }
@@ -288,17 +307,23 @@ class DecisionMainIsolate with WidgetsBindingObserver {
     if (_isolate == null) return;
 
     if (!force && _activeTasks > 0) {
-      debugPrint(
-          '[DecisionIsolate:$_debugId] ⚠️  SKIP dispose: $_activeTasks tasks still active');
+      _helper.printLog(
+          message:
+              '[$_debugId] ⚠️  SKIP dispose: $_activeTasks tasks still active',
+          logName: _logName);
       return;
     }
 
     if (force && _activeTasks > 0) {
-      debugPrint(
-          '[DecisionIsolate:$_debugId] ⚠️  Force disposing with $_activeTasks active tasks!');
+      _helper.printLog(
+          message:
+              '[$_debugId] ⚠️  Force disposing with $_activeTasks active tasks!',
+          logName: _logName);
     }
 
-    debugPrint('[DecisionIsolate:$_debugId] 🧹 Disposing (force: $force)...');
+    _helper.printLog(
+        message: '[$_debugId] 🧹 Disposing (force: $force)...',
+        logName: _logName);
     _idleTimer?.cancel();
     _idleTimer = null;
     _cleanup();
@@ -311,7 +336,7 @@ class DecisionMainIsolate with WidgetsBindingObserver {
   ///
   /// Useful for recovering from errors or applying configuration changes.
   Future<void> reset() async {
-    debugPrint('[DecisionIsolate:$_debugId] 🔄 Resetting...');
+    _helper.printLog(message: '[$_debugId] 🔄 Resetting...', logName: _logName);
     dispose(force: true);
     _setupAutoDispose();
     await init();

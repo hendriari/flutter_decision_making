@@ -5,19 +5,20 @@ import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_calculat
 import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_calculate_eigen_vector_criteria_isolated.dart';
 import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_check_consistency_ratio_isolated.dart';
 import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_final_score_isolated.dart';
+import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_input_pairwise_matrix_alternative_with_compute.dart';
 import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_result_pairwise_matrix_alternative_isolated.dart';
 import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_result_pairwise_matrix_criteria_isolated.dart';
 import 'package:flutter_decision_making/feature/saw/data/datasource/generate_saw_matrix_isolate.dart';
 import 'package:flutter_decision_making/feature/saw/data/datasource/normalize_saw_matrix_isolate.dart';
 
-import 'decision_isolated_message.dart';
+import 'decision_isolate_message.dart';
 
 void decisionIsolateWorker(SendPort mainSendPort) {
   final receivePort = ReceivePort();
   mainSendPort.send(receivePort.sendPort);
 
   receivePort.listen((message) async {
-    if (message is! DecisionIsolatedMessage) return;
+    if (message is! DecisionIsolateMessage) return;
 
     try {
       final result = await _handleDecisionTask(
@@ -50,6 +51,8 @@ Future<dynamic> _handleAhpTask(
   Map<String, dynamic> data,
 ) async {
   switch (command) {
+    case AhpProcessingCommand.generateInputPairwiseAlternative:
+      return generateInputPairwiseAlternative(data);
     case AhpProcessingCommand.generateResultPairwiseMatrixCriteria:
       return ahpGenerateResultPairwiseMatrixCriteria(data);
     case AhpProcessingCommand.generateResultPairwiseMatrixAlternative:
@@ -62,6 +65,7 @@ Future<dynamic> _handleAhpTask(
       return ahpCheckConsistencyRatio(data);
     case AhpProcessingCommand.calculateFinalScore:
       return ahpFinalScore(data);
+
   }
 }
 

@@ -4,6 +4,7 @@ enum DecisionAlgorithm {
 }
 
 enum AhpProcessingCommand {
+  generateInputPairwiseAlternative,
   generateResultPairwiseMatrixCriteria,
   calculateEigenVectorCriteria,
   generateResultPairwiseMatrixAlternative,

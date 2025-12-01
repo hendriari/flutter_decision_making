@@ -132,6 +132,8 @@ class _AhpExamplePageState extends State<AhpExamplePage> {
                   )
                   : SizedBox(height: 20),
 
+              CircularProgressIndicator(),
+
               /// GENERATE HIERARCHY STRUCTURE & PAIRWISE MATRIX TEMPLATE
               Center(
                 child: ElevatedButton(
@@ -230,7 +232,7 @@ class _AhpExamplePageState extends State<AhpExamplePage> {
                                           child: InkWell(
                                             onTap: () {
                                               /// SHOW COMPARISON SCALE DIALOG
-                                              showPairwiseComparisonScaleDialog(
+                                              showAhpPairwiseComparisonScaleDialog(
                                                 context,
                                                 comparison:
                                                     _ahp.listAhpPairwiseComparisonScale,
@@ -374,7 +376,7 @@ class _AhpExamplePageState extends State<AhpExamplePage> {
                                               child: InkWell(
                                                 onTap: () {
                                                   /// SHOW COMPARISON SCALE DIALOG
-                                                  showPairwiseComparisonScaleDialog(
+                                                  showAhpPairwiseComparisonScaleDialog(
                                                     context,
                                                     comparison:
                                                         _ahp.listAhpPairwiseComparisonScale,

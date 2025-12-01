@@ -51,7 +51,6 @@ update docs
 
 ### Updated
 * adding Simple Additive Weighting (SAW) algorithm
-* main isolate manager
-* make multi-command isolate
+* main isolate manager, make to multi-command isolate
 * minimum flutter version
 * minor update AHP

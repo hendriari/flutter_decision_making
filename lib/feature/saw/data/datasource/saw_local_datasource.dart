@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_decision_making/core/decision_making_enums.dart';
 import 'package:flutter_decision_making/core/decision_making_helper.dart';
 import 'package:flutter_decision_making/core/decision_making_performance_profiling.dart';
-import 'package:flutter_decision_making/core/isolate/decision_main_isolate.dart';
+import 'package:flutter_decision_making/core/isolate/decision_isolate_main.dart';
 import 'package:flutter_decision_making/feature/saw/data/dto/saw_matrix_dto.dart';
 import 'package:flutter_decision_making/feature/saw/data/mapper/saw_alternative_mapper.dart';
 import 'package:flutter_decision_making/feature/saw/data/mapper/saw_criteria_mapper.dart';
@@ -143,7 +143,7 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
     List<SawAlternative> alternatives,
     List<SawCriteria> criteria,
   ) async {
-    final decisionMainIsolate = DecisionMainIsolate();
+    final decisionMainIsolate = DecisionIsolateMain();
     final rawResult = await decisionMainIsolate.runTask(
       DecisionAlgorithm.saw,
       SawProcessingCommand.generateSawMatrix,
@@ -214,7 +214,7 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   /// Normalize matrix using isolate
   Future<List<SawMatrix>> _normalizeMatrixWithIsolate(
       List<SawMatrix> listMatrix) async {
-    final decisionMainIsolate = DecisionMainIsolate();
+    final decisionMainIsolate = DecisionIsolateMain();
     final rawData = await decisionMainIsolate.runTask(
       DecisionAlgorithm.saw,
       SawProcessingCommand.normalizeMatrix,
