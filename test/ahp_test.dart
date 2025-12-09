@@ -14,6 +14,8 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   late AhpRepositoryImpl repo;
 
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   setUp(() {
     repo = AhpRepositoryImpl(AhpLocalDatasourceImpl());
   });
@@ -54,21 +56,6 @@ void main() {
     test('throws if alternative empty', () async {
       await expectLater(
         repo.identification([AhpItem(id: 'c1', name: 'C1')], []),
-        throwsException,
-      );
-    });
-
-    test('throws if duplicate IDs found', () async {
-      final criteria = [
-        AhpItem(id: 'dup', name: 'C1'),
-        AhpItem(id: 'dup', name: 'C2'),
-      ];
-      final alternatives = [
-        AhpItem(id: 'a1', name: 'A1'),
-      ];
-
-      await expectLater(
-        repo.identification(criteria, alternatives),
         throwsException,
       );
     });

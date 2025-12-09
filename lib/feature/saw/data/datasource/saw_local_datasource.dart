@@ -32,11 +32,14 @@ abstract class SawLocalDatasource {
 
 class SawLocalDatasourceImpl extends SawLocalDatasource {
   final DecisionMakingHelper _helper;
+  final DecisionIsolateMain _isolate;
 
   SawLocalDatasourceImpl({
     DecisionMakingHelper? helper,
     Stopwatch? stopwatch,
-  }) : _helper = helper ?? DecisionMakingHelper();
+    DecisionIsolateMain? isolate,
+  })  : _helper = helper ?? DecisionMakingHelper(),
+        _isolate = isolate ?? DecisionIsolateMain();
 
   /// [MATRIX]
   /// GENERATE SAW MATRIX
@@ -143,8 +146,7 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
     List<SawAlternative> alternatives,
     List<SawCriteria> criteria,
   ) async {
-    final decisionMainIsolate = DecisionIsolateMain();
-    final rawResult = await decisionMainIsolate.runTask(
+    final rawResult = await _isolate.runTask(
       DecisionAlgorithm.saw,
       SawProcessingCommand.generateSawMatrix,
       {
@@ -214,8 +216,7 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   /// Normalize matrix using isolate
   Future<List<SawMatrix>> _normalizeMatrixWithIsolate(
       List<SawMatrix> listMatrix) async {
-    final decisionMainIsolate = DecisionIsolateMain();
-    final rawData = await decisionMainIsolate.runTask(
+    final rawData = await _isolate.runTask(
       DecisionAlgorithm.saw,
       SawProcessingCommand.normalizeMatrix,
       {
@@ -271,10 +272,11 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   }
 
   /// Normalize a single rating based on criteria statistics
+  /// Normalize a single rating based on criteria statistics
   SawRating _normalizeRating(
-    SawRating rating,
-    Map<String, _CriteriaStats> stats,
-  ) {
+      SawRating rating,
+      Map<String, _CriteriaStats> stats,
+      ) {
     final cid = rating.criteria?.id;
     final val = rating.value ?? 0;
 
@@ -282,30 +284,23 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
       return rating;
     }
 
+    if (rating.criteria!.isBenefit == false && val == 0) {
+      throw Exception(
+        'Zero value found in cost criteria: ${rating.criteria!.name}. '
+            'Cost criteria must have positive values.',
+      );
+    }
+
     final maxV = stats[cid]!.max;
     final minV = stats[cid]!.min;
 
     num newValue;
 
-    // If all values are the same
     if (maxV == minV) {
       newValue = 1;
-    }
-    // Benefit criteria: higher is better
-    else if (rating.criteria!.isBenefit == true) {
+    } else if (rating.criteria!.isBenefit == true) {
       newValue = maxV == 0 ? 0 : val / maxV;
-    }
-    // Cost criteria: lower is better
-    else {
-      // Validate no zero values for cost criteria
-      if (val == 0) {
-        throw Exception(
-          'Zero value found in cost criteria: ${rating.criteria!.name}. '
-          'Cost criteria must have positive values.',
-        );
-      }
-
-      // Standard SAW formula for cost criteria: min / value
+    } else {
       newValue = minV / val;
     }
 
@@ -349,10 +344,8 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
         ));
       }
 
-      // Sort by score descending
       sawResult.sort((a, b) => b.score.compareTo(a.score));
 
-      // Assign ranks
       for (int i = 0; i < sawResult.length; i++) {
         sawResult[i] = sawResult[i].copyWith(rank: i + 1);
       }
@@ -395,10 +388,8 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
         throw Exception("Matrix cannot be empty!");
       }
 
-      // Validate and fix matrix data
       final validatedMatrix = _validateAndFixMatrix(matrix);
 
-      // Normalize and calculate
       final normalizedMatrix = await _normalizeMatrix(validatedMatrix);
       final sawResult = await _calculateSawScore(normalizedMatrix);
 
@@ -413,16 +404,12 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   /// Validate and fix matrix data structure
   List<SawMatrix> _validateAndFixMatrix(List<SawMatrix> matrix) {
     return matrix.map((m) {
-      // Ensure matrix has ID
       var updatedMatrix = _ensureMatrixId(m);
 
-      // Ensure alternative has ID
       updatedMatrix = _ensureAlternativeId(updatedMatrix);
 
-      // Ensure ratings have IDs and criteria IDs
       updatedMatrix = _ensureRatingIds(updatedMatrix);
 
-      // Normalize weights if necessary
       updatedMatrix = _normalizeMatrixWeights(updatedMatrix);
 
       return updatedMatrix;
@@ -462,12 +449,10 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
     final updatedRatings = matrix.ratings.map((rating) {
       var updatedRating = rating;
 
-      // Ensure rating has ID
       if (rating.id == null || rating.id!.isEmpty) {
         updatedRating = rating.copyWith(id: _helper.getCustomUniqueId());
       }
 
-      // Ensure criteria has ID
       if (rating.criteria?.id == null || rating.criteria!.id!.isEmpty) {
         final updatedCriteria =
             rating.criteria?.copyWith(id: _helper.getCustomUniqueId());

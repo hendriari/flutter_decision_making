@@ -18,10 +18,8 @@ Future<List<Map<String, dynamic>>> normalizeSawMatrixIsolate({
     final listMatrix =
         rawListMatrix.map((e) => SawMatrixDto.fromJson(e)).toList();
 
-    // Calculate min/max for each criteria
     final criteriaStats = _calculateCriteriaStatsIsolate(listMatrix);
 
-    // Normalize each matrix
     final normalized = listMatrix.map((matrix) {
       final newRatings = matrix.ratings.map((rating) {
         return _normalizeRatingIsolate(rating, criteriaStats);
@@ -87,18 +85,11 @@ SawRatingDto _normalizeRatingIsolate(
 
   num newValue;
 
-  // Case 1: All values are the same (no variance)
   if (maxV == minV) {
     newValue = 1.0;
-  }
-  // Case 2: Benefit criteria (higher is better)
-  else if (rating.criteria!.isBenefit == true) {
-    // Formula: value / max
+  } else if (rating.criteria!.isBenefit == true) {
     newValue = maxV == 0 ? 0 : val / maxV;
-  }
-  // Case 3: Cost criteria (lower is better)
-  else {
-    // Validate: cost criteria cannot have zero values
+  } else {
     if (val == 0) {
       throw Exception(
         'Zero value found in cost criteria: ${rating.criteria!.name}. '
@@ -106,7 +97,6 @@ SawRatingDto _normalizeRatingIsolate(
       );
     }
 
-    // Additional validation: if min is 0, data is invalid
     if (minV == 0) {
       throw Exception(
         'Minimum value is zero in cost criteria: ${rating.criteria!.name}. '
@@ -114,7 +104,6 @@ SawRatingDto _normalizeRatingIsolate(
       );
     }
 
-    // Standard SAW formula for cost criteria: min / value
     newValue = minV / val;
   }
 

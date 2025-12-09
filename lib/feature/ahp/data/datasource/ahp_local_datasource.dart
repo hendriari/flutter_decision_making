@@ -65,7 +65,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
     DecisionMakingHelper? helper,
     DecisionIsolateMain? isolateMain,
   })  : _helper = helper ?? DecisionMakingHelper(),
-        _isolateMain = isolateMain ?? DecisionIsolateMain.instance;
+        _isolateMain = isolateMain ?? DecisionIsolateMain();
 
   bool _useIsolate = false;
 
@@ -276,7 +276,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
         );
       }
 
-      dev.log('✅ matrix criteria $resultMatrixCriteria \n',
+      dev.log('[AHP] ✅ matrix criteria $resultMatrixCriteria \n',
           name: 'DECISION MAKING');
 
       /// CALCULATE EIGEN VECTOR CRITERIA
@@ -300,7 +300,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
         );
       }
 
-      dev.log('✅ eigen vector criteria $eigenVectorCriteria \n',
+      dev.log('[AHP] ✅ eigen vector criteria $eigenVectorCriteria \n',
           name: 'DECISION MAKING');
 
       /// CHECK CRITERIA CONSISTENCY RATIO
@@ -321,7 +321,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
         });
       }
 
-      dev.log('✅ criteria ratio ${criteriaConsistencyRatio['ratio']} \n',
+      dev.log('[AHP] ✅ criteria ratio ${criteriaConsistencyRatio['ratio']} \n',
           name: 'DECISION MAKING');
 
       /// [ALTERNATIVE]
@@ -362,7 +362,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
         }
 
         allMatrixAlternatives.add(matrixAlt);
-        dev.log('✅ matrix alternative (${input.criteria.name}): $matrixAlt \n',
+        dev.log('[AHP] ✅ matrix alternative (${input.criteria.name}): $matrixAlt \n',
             name: 'DECISION MAKING');
 
         /// CALCULATE EIGEN VECTOR ALTERNATIVE
@@ -381,7 +381,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
 
         allEigenVectorsAlternative.add(eigenVectorAlt);
         dev.log(
-            '✅ eigen vector alternative (${input.criteria.name}): $eigenVectorAlt \n',
+            '[AHP] ✅ eigen vector alternative (${input.criteria.name}): $eigenVectorAlt \n',
             name: 'DECISION MAKING');
 
         /// CHECK ALTERNATIVE CONSISTENCY RATIO
@@ -405,7 +405,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
 
         alternativeConsistencyRatio.add(altConsistencyRatio);
         dev.log(
-            '✅ alternative ratio (${input.criteria.name}): ${altConsistencyRatio['ratio']} \n',
+            '[AHP] ✅ alternative ratio (${input.criteria.name}): ${altConsistencyRatio['ratio']} \n',
             name: 'DECISION MAKING');
       }
 
@@ -442,15 +442,15 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
       final result = AhpResultDto.fromMap(rawFinalScore);
 
       dev.log(
-          '✅ final score ${result.results?.map((e) => '${e.name}: ${e.value}').join(', ')}',
+          '[AHP] ✅ final score ${result.results?.map((e) => '${e.name}: ${e.value}').join(', ')}',
           name: 'DECISION MAKING');
 
       return result.toEntity();
     } catch (e) {
-      dev.log('Failed calculate result: $e', name: 'DECISION MAKING');
+      dev.log('[AHP] Failed calculate result: $e', name: 'DECISION MAKING');
       rethrow;
     } finally {
-      dev.log('Done calculate result AHP', name: 'DECISION MAKING');
+      dev.log('[AHP] Done calculate result AHP', name: 'DECISION MAKING');
     }
   }
 }

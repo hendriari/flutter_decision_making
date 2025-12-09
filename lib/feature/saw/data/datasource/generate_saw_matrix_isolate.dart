@@ -8,9 +8,10 @@ Future<List<Map<String, dynamic>>> generateSawMatrixIsolate({
   required Map<String, dynamic> data,
 }) async {
   try {
-    // Validate input data
-    if (!data.containsKey('list_criteria') || !data.containsKey('list_alternative')) {
-      throw Exception('Missing required keys: list_criteria or list_alternative');
+    if (!data.containsKey('list_criteria') ||
+        !data.containsKey('list_alternative')) {
+      throw Exception(
+          'Missing required keys: list_criteria or list_alternative');
     }
 
     final rawCriteria = data['list_criteria'];
@@ -23,19 +24,15 @@ Future<List<Map<String, dynamic>>> generateSawMatrixIsolate({
     final listCriteria = List<Map<String, dynamic>>.from(rawCriteria);
     final listAlternative = List<Map<String, dynamic>>.from(rawAlternative);
 
-    // Parse DTOs
     final criteriaParsed =
-    listCriteria.map((e) => SawCriteriaDto.fromJson(e)).toList();
+        listCriteria.map((e) => SawCriteriaDto.fromJson(e)).toList();
     final alternativeParsed =
-    listAlternative.map((e) => SawAlternativeDto.fromJson(e)).toList();
+        listAlternative.map((e) => SawAlternativeDto.fromJson(e)).toList();
 
-    // Validate parsed data
     _validateInputsIsolate(alternativeParsed, criteriaParsed);
 
-    // Normalize criteria weights if needed
     final normalizedCriteria = _normalizeCriteriaWeightsIsolate(criteriaParsed);
 
-    // Generate matrix
     final result = _generateMatrixDataIsolate(
       alternativeParsed,
       normalizedCriteria,
@@ -43,15 +40,16 @@ Future<List<Map<String, dynamic>>> generateSawMatrixIsolate({
 
     return result.map((e) => e.toJson()).toList();
   } catch (e, stackTrace) {
-    throw Exception('Failed to generate SAW matrix in isolate: $e\n$stackTrace');
+    throw Exception(
+        'Failed to generate SAW matrix in isolate: $e\n$stackTrace');
   }
 }
 
 /// Validate inputs for matrix generation
 void _validateInputsIsolate(
-    List<SawAlternativeDto> alternatives,
-    List<SawCriteriaDto> criteria,
-    ) {
+  List<SawAlternativeDto> alternatives,
+  List<SawCriteriaDto> criteria,
+) {
   if (alternatives.isEmpty) {
     throw ArgumentError('Alternatives list cannot be empty!');
   }
@@ -60,7 +58,6 @@ void _validateInputsIsolate(
     throw ArgumentError('Criteria list cannot be empty!');
   }
 
-  // Validate criteria weights
   for (var c in criteria) {
     if (c.weightPercent < 0) {
       throw ArgumentError(
@@ -78,19 +75,14 @@ void _validateInputsIsolate(
 
 /// Normalize criteria weights to sum to 100%
 List<SawCriteriaDto> _normalizeCriteriaWeightsIsolate(
-    List<SawCriteriaDto> criteria,
-    ) {
+  List<SawCriteriaDto> criteria,
+) {
   final totalWeight = criteria.fold<num>(0, (a, b) => a + b.weightPercent);
 
-  // If already normalized, return as is
   if (totalWeight == 100) {
     return criteria;
   }
 
-  // Log normalization (in isolate, we can't use dev.log, so we just proceed)
-  // The main thread should log this before calling isolate
-
-  // Normalize weights
   return criteria.map((c) {
     final normalized = (c.weightPercent / totalWeight) * 100;
     return c.copyWith(weightPercent: normalized);
@@ -99,9 +91,9 @@ List<SawCriteriaDto> _normalizeCriteriaWeightsIsolate(
 
 /// Generate matrix data
 List<SawMatrixDto> _generateMatrixDataIsolate(
-    List<SawAlternativeDto> alternatives,
-    List<SawCriteriaDto> criteria,
-    ) {
+  List<SawAlternativeDto> alternatives,
+  List<SawCriteriaDto> criteria,
+) {
   return alternatives.map((alt) {
     final ratings = criteria.map((crt) {
       return SawRatingDto(
@@ -118,4 +110,3 @@ List<SawMatrixDto> _generateMatrixDataIsolate(
     );
   }).toList();
 }
-

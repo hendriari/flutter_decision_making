@@ -7,7 +7,7 @@ This package is currently under active development. We are committed to continuo
 | Status | Algorithm                                                               | Available in version |
 |:-------|:------------------------------------------------------------------------|:---------------------|
 | ✅      | AHP (Analytic Hierarchy Process)                                        | 1.0.0                |
-| 🔜     | SAW (Simple Additive Weighting)                                         | 1.1.0 (planned)      |
+| ✅     | SAW (Simple Additive Weighting)                                         | 1.1.0                |
 | 🔜     | TOPSIS (Technique for Order Preference by Similarity to Ideal Solution) | 1.2.0 (planned)      |
 
 Thank you for your valuable feedback and continued support.

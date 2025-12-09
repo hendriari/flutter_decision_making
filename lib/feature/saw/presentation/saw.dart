@@ -10,11 +10,14 @@ import 'package:flutter_decision_making/feature/saw/domain/usecase/saw_calculate
 import 'package:flutter_decision_making/feature/saw/domain/usecase/saw_generate_pairwise_matrix_usecase.dart';
 
 class SAW {
-  final SawRepository _sawRepository;
+  static final SAW _instance = SAW._internal();
 
-  SAW({SawRepository? sawRepository})
-      : _sawRepository =
-            sawRepository ?? SawRepositoryImpl(SawLocalDatasourceImpl());
+  factory SAW() => _instance;
+
+  SAW._internal()
+      : _sawRepository = SawRepositoryImpl(SawLocalDatasourceImpl());
+
+  final SawRepository _sawRepository;
 
   /// GENERATE SAW MATRIX
   Future<List<SawMatrix>> generateSawMatrix({

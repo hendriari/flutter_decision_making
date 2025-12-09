@@ -23,11 +23,14 @@ export '/feature/ahp/domain/entities/pairwise_alternative_input.dart';
 export '/feature/ahp/domain/entities/pairwise_comparison_input.dart';
 
 class AHP {
-  final AhpRepository _ahpRepository;
+  static final AHP _instance = AHP._internal();
 
-  AHP({AhpRepository? ahpRepository})
-      : _ahpRepository =
-            ahpRepository ?? AhpRepositoryImpl(AhpLocalDatasourceImpl());
+  factory AHP() => _instance;
+
+  AHP._internal()
+      : _ahpRepository = AhpRepositoryImpl(AhpLocalDatasourceImpl());
+
+  final AhpRepository _ahpRepository;
 
   AhpIdentification _currentAhpIdentification = AhpIdentification(
     criteria: [],

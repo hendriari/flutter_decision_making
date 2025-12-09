@@ -41,9 +41,9 @@ import 'decision_isolate_worker.dart';
 /// isolate.dispose(force: true);
 /// ```
 class DecisionIsolateMain with WidgetsBindingObserver {
-  static final DecisionIsolateMain instance = DecisionIsolateMain._internal();
+  static final DecisionIsolateMain _instance = DecisionIsolateMain._internal();
 
-  factory DecisionIsolateMain() => instance;
+  factory DecisionIsolateMain() => _instance;
 
   DecisionIsolateMain._internal() {
     _setupAutoDispose();
