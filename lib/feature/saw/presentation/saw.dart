@@ -9,15 +9,12 @@ import 'package:flutter_decision_making/feature/saw/domain/usecase/saw_calculate
 import 'package:flutter_decision_making/feature/saw/domain/usecase/saw_calculate_result_with_existing_matrix_usecase.dart';
 import 'package:flutter_decision_making/feature/saw/domain/usecase/saw_generate_pairwise_matrix_usecase.dart';
 
+export 'saw_utils.dart';
+
 class SAW {
-  static final SAW _instance = SAW._internal();
-
-  factory SAW() => _instance;
-
-  SAW._internal()
-      : _sawRepository = SawRepositoryImpl(SawLocalDatasourceImpl());
-
   final SawRepository _sawRepository;
+
+  SAW() : _sawRepository = SawRepositoryImpl(SawLocalDatasourceImpl());
 
   /// GENERATE SAW MATRIX
   Future<List<SawMatrix>> generateSawMatrix({
@@ -37,6 +34,12 @@ class SAW {
       rethrow;
     }
   }
+
+//   Future<List<SawRating>> updateSawRating({
+//     required List<SawRating> currentRating,
+// }) async {
+//
+//   }
 
   /// CALCULATE SAW RESULT
   Future<List<SawResult>> calculateSawResult({

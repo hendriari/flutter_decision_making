@@ -14,23 +14,12 @@ import 'package:flutter_decision_making/feature/ahp/domain/usecase/ahp_generate_
 import 'package:flutter_decision_making/feature/ahp/domain/usecase/ahp_generate_pairwise_criteria_input_usecase.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/usecase/ahp_identification_usecase.dart';
 
-export '/feature/ahp/domain/entities/ahp_comparison_scale.dart';
-export '/feature/ahp/domain/entities/ahp_hierarchy.dart';
-export '/feature/ahp/domain/entities/ahp_item.dart';
-export '/feature/ahp/domain/entities/ahp_result.dart';
-export '/feature/ahp/domain/entities/ahp_result_detail.dart';
-export '/feature/ahp/domain/entities/pairwise_alternative_input.dart';
-export '/feature/ahp/domain/entities/pairwise_comparison_input.dart';
+export 'ahp_utils.dart';
 
 class AHP {
-  static final AHP _instance = AHP._internal();
-
-  factory AHP() => _instance;
-
-  AHP._internal()
-      : _ahpRepository = AhpRepositoryImpl(AhpLocalDatasourceImpl());
-
   final AhpRepository _ahpRepository;
+
+  AHP() : _ahpRepository = AhpRepositoryImpl(AhpLocalDatasourceImpl());
 
   AhpIdentification _currentAhpIdentification = AhpIdentification(
     criteria: [],

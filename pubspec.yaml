@@ -1,5 +1,5 @@
 name: flutter_decision_making
-description: "Dart package for multi-criteria decision making. Currently supports Analytic Hierarchy Process (AHP) with plans to add other popular algorithms like SAW and TOPSIS."
+description: "Flutter package for practical multi-criteria decision-making, providing algorithms such as AHP, SAW, and TOPSIS (coming soon) to help developers perform weighting, evaluation, and ranking of alternatives easily and accurately within their Flutter applications."
 version: 1.1.1
 homepage: https://github.com/hendriari/flutter_decision_making
 repository: https://github.com/hendriari/flutter_decision_making

@@ -1,4 +1,5 @@
-import 'package:example/ahp/show_pairwise_comparison_scale_dialog.dart';
+import 'package:example/ahp/show_ahp_pairwise_comparison_scale_dialog.dart';
+import 'package:example/example_input_widget.dart';
 import 'package:example/helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_decision_making/feature/ahp/presentation/ahp.dart';
@@ -57,7 +58,7 @@ class _AhpExamplePageState extends State<AhpExamplePage> {
           child: ListView(
             children: [
               /// CRITERIA YOU WANT
-              _buildInputWidget(
+              ExampleInputWidget(
                 title: 'Criteria',
                 controller: _criteriaController,
                 onPressed:
@@ -96,7 +97,7 @@ class _AhpExamplePageState extends State<AhpExamplePage> {
               const Divider(),
 
               /// ALTERNATIVE YOU HAVE
-              _buildInputWidget(
+              ExampleInputWidget(
                 title: 'Alternative',
                 controller: _alternativeController,
                 onPressed:
@@ -131,8 +132,6 @@ class _AhpExamplePageState extends State<AhpExamplePage> {
                     ),
                   )
                   : SizedBox(height: 20),
-
-              CircularProgressIndicator(),
 
               /// GENERATE HIERARCHY STRUCTURE & PAIRWISE MATRIX TEMPLATE
               Center(
@@ -585,31 +584,6 @@ class _AhpExamplePageState extends State<AhpExamplePage> {
           ),
         ),
       ),
-    );
-  }
-
-  /// INPUT FOR CRITERIA OR ALTERNATIVE
-  Widget _buildInputWidget({
-    required String title,
-    required TextEditingController controller,
-    required Function() onPressed,
-  }) {
-    return Row(
-      children: [
-        Text(title, style: _textStyle),
-
-        Expanded(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            child: TextFormField(
-              controller: controller,
-              decoration: InputDecoration(border: OutlineInputBorder()),
-            ),
-          ),
-        ),
-
-        ElevatedButton(onPressed: onPressed, child: Text('Add')),
-      ],
     );
   }
 

@@ -1,13 +1,3 @@
-import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_calculate_eigen_vector_alternative_isolated.dart';
-import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_calculate_eigen_vector_criteria_isolated.dart';
-import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_check_consistency_ratio_isolated.dart';
-import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_final_score_isolated.dart';
-import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_local_datasource.dart';
-import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_result_pairwise_matrix_alternative_isolated.dart';
-import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_result_pairwise_matrix_criteria_isolated.dart';
-import 'package:flutter_decision_making/feature/ahp/data/mapper/ahp_item_mapper.dart';
-import 'package:flutter_decision_making/feature/ahp/data/mapper/pairwise_comparison_alternative_input_mapper.dart';
-import 'package:flutter_decision_making/feature/ahp/data/repository_impl/ahp_repository_impl.dart';
 import 'package:flutter_decision_making/flutter_decision_making.dart';
 import 'package:flutter_test/flutter_test.dart';
 

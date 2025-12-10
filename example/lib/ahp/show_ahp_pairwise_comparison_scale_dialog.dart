@@ -95,50 +95,40 @@ class _AhpPairwiseComparisonScaleWidgetState
               SizedBox(height: 20),
 
               /// SELECT IMPORTANT
+              Text(
+                'Which is more important?',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+
               ValueListenableBuilder(
                 valueListenable: _isLeftMoreImportant,
-                builder:
-                    (context, v, c) => Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
+                builder: (context, value, _) {
+                  return RadioGroup<bool?>(
+                    onChanged: (newValue) {
+                      _isLeftMoreImportant.value = newValue;
+                    },
+                    groupValue: _isLeftMoreImportant.value,
+                    child: Column(
                       children: [
-                        Text(
-                          'Which is more important?',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-
-                        ListTile(
+                        RadioListTile<bool?>(
+                          value: true,
                           title: Text(
                             widget.leftItemName,
                             style: TextStyle(fontSize: 16),
                           ),
-                          leading: Radio<bool?>(
-                            value: true,
-                            groupValue: _isLeftMoreImportant.value,
-                            onChanged: (value) {
-                              _isLeftMoreImportant.value = value;
-                            },
-                          ),
                         ),
 
-                        ListTile(
+                        RadioListTile<bool?>(
+                          value: false,
                           title: Text(
                             widget.rightItemName,
                             style: TextStyle(fontSize: 16),
                           ),
-                          leading: Radio<bool?>(
-                            value: false,
-                            groupValue: _isLeftMoreImportant.value,
-                            onChanged: (value) {
-                              _isLeftMoreImportant.value = value;
-                            },
-                          ),
                         ),
                       ],
                     ),
+                  );
+                },
               ),
 
               SizedBox(height: 10),
