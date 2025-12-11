@@ -1,4 +1,4 @@
-[![pub version](https://img.shields.io/pub/v/flutter_decision_making.svg)](https://pub.dev/packages/flutter_decision_making) [![GitHub](https://badgen.net/badge/icon/ko-fi?icon=kofi&color=red&label)](https://ko-fi.com/hendriari) [![Saweria](./assets/saweria_icon.svg)](https://saweria.co/hendriarii)
+[![pub version](https://img.shields.io/pub/v/flutter_decision_making.svg)](https://pub.dev/packages/flutter_decision_making) [![GitHub](https://badgen.net/badge/icon/ko-fi?icon=kofi&color=red&label)](https://ko-fi.com/hendriari) [![Saweria Badge](https://img.shields.io/badge/Saweria-Donate-orange?style=flat&logo=buymeacoffee&logoColor=white)](https://saweria.co/hendriarii)
 
 ## ✨ About
 
@@ -86,7 +86,8 @@ Major method logs:
 
 ---
 ## Support Me
-[![Ko-Fi](https://badgen.net/badge/icon/ko-fi?icon=kofi&color=red&label)](https://ko-fi.com/hendriari) [![Saweria](./assets/saweria_icon.svg)](https://saweria.co/hendriarii) 
+[![Ko-Fi](https://badgen.net/badge/icon/ko-fi?icon=kofi&color=red&label)](https://ko-fi.com/hendriari) [![Saweria Badge](https://img.shields.io/badge/Saweria-Donate-orange?style=flat&logo=buymeacoffee&logoColor=white)](https://saweria.co/hendriarii)
+ 
 ---
 
 ## 🙋‍♂️ Contributing
