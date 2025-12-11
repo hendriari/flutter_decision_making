@@ -3,6 +3,7 @@ import 'package:flutter_decision_making/feature/saw/data/repository_impl/saw_rep
 import 'package:flutter_decision_making/feature/saw/domain/entities/saw_alternative.dart';
 import 'package:flutter_decision_making/feature/saw/domain/entities/saw_criteria.dart';
 import 'package:flutter_decision_making/feature/saw/domain/entities/saw_matrix.dart';
+import 'package:flutter_decision_making/feature/saw/domain/entities/saw_rating.dart';
 import 'package:flutter_decision_making/feature/saw/domain/entities/saw_result.dart';
 import 'package:flutter_decision_making/feature/saw/domain/repository/saw_repository.dart';
 import 'package:flutter_decision_making/feature/saw/domain/usecase/saw_calculate_result_usecase.dart';
@@ -35,11 +36,35 @@ class SAW {
     }
   }
 
-//   Future<List<SawRating>> updateSawRating({
-//     required List<SawRating> currentRating,
-// }) async {
-//
-//   }
+  /// UPDATE SAW MATRIX
+  Future<List<SawMatrix>> updateSawMatrix({
+    required List<SawMatrix> currentMatrix,
+    required String? matrixId,
+    required String? ratingsId,
+    required num value,
+  }) async {
+    var updatedList = List<SawMatrix>.from(currentMatrix);
+
+    final matrixIndex = updatedList.indexWhere((m) => m.id == matrixId);
+    if (matrixIndex == -1) {
+      throw Exception("Matrix not found!");
+    }
+
+    final matrix = updatedList[matrixIndex];
+
+    final ratingIndex = matrix.ratings.indexWhere((r) => r.id == ratingsId);
+    if (ratingIndex == -1) {
+      throw Exception("Rating not found!");
+    }
+
+    var updatedRatings = List<SawRating>.from(matrix.ratings);
+    updatedRatings[ratingIndex] = updatedRatings[ratingIndex].copyWith(value: value);
+
+    updatedList[matrixIndex] = matrix.copyWith(ratings: updatedRatings);
+
+    return updatedList;
+  }
+
 
   /// CALCULATE SAW RESULT
   Future<List<SawResult>> calculateSawResult({

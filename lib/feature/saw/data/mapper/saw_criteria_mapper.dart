@@ -7,6 +7,7 @@ extension SawCriteriaMapper on SawCriteriaDto {
         name: name,
         isBenefit: isBenefit,
         weightPercent: weightPercent,
+        maxValue: maxValue,
         description: description,
       );
 }
@@ -17,6 +18,7 @@ extension SawCriteriaEntityMapper on SawCriteria {
         name: name,
         isBenefit: isBenefit,
         weightPercent: weightPercent,
+        maxValue: maxValue,
         description: description,
       );
 }

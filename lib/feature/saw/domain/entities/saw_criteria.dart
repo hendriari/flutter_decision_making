@@ -3,6 +3,7 @@ class SawCriteria {
   final String name;
   final bool isBenefit;
   final double weightPercent;
+  final num maxValue;
   final String? description;
 
   SawCriteria({
@@ -10,6 +11,7 @@ class SawCriteria {
     required this.name,
     required this.isBenefit,
     required this.weightPercent,
+    required this.maxValue,
     this.description,
   });
 
@@ -18,6 +20,7 @@ class SawCriteria {
     String? name,
     bool? isBenefit,
     double? weightPercent,
+    num? maxValue,
     String? description,
   }) =>
       SawCriteria(
@@ -25,6 +28,7 @@ class SawCriteria {
         name: name ?? this.name,
         isBenefit: isBenefit ?? this.isBenefit,
         weightPercent: weightPercent ?? this.weightPercent,
+        maxValue: maxValue ?? this.maxValue,
         description: description ?? this.description,
       );
 

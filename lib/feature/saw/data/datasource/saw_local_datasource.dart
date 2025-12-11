@@ -72,7 +72,7 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
       return result;
     } catch (e, s) {
       debugPrint('SAW Matrix Error: $e\n$s');
-      throw Exception('Failed to generate SAW matrix: $e');
+      rethrow;
     } finally {
       endPerformanceProfiling('Generate SAW pairwise matrix');
     }
@@ -207,7 +207,7 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
 
       return normalized;
     } catch (e) {
-      throw Exception('Failed to normalize matrix: $e');
+      rethrow;
     } finally {
       endPerformanceProfiling('normalize matrix saw');
     }
@@ -274,9 +274,9 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   /// Normalize a single rating based on criteria statistics
   /// Normalize a single rating based on criteria statistics
   SawRating _normalizeRating(
-      SawRating rating,
-      Map<String, _CriteriaStats> stats,
-      ) {
+    SawRating rating,
+    Map<String, _CriteriaStats> stats,
+  ) {
     final cid = rating.criteria?.id;
     final val = rating.value ?? 0;
 
@@ -287,7 +287,7 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
     if (rating.criteria!.isBenefit == false && val == 0) {
       throw Exception(
         'Zero value found in cost criteria: ${rating.criteria!.name}. '
-            'Cost criteria must have positive values.',
+        'Cost criteria must have positive values.',
       );
     }
 
@@ -352,7 +352,7 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
 
       return sawResult;
     } catch (e) {
-      throw Exception('Failed to calculate SAW scores: $e');
+      rethrow;
     } finally {
       endPerformanceProfiling('Calculate SAW result');
     }
@@ -364,12 +364,14 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   }) async {
     startPerformanceProfiling('Combined all method SAW algorithm');
     try {
+      await _validateMaxInputValue(matrix);
+
       final normalized = await _normalizeMatrix(matrix);
       final result = await _calculateSawScore(normalized);
 
       return result;
     } catch (e) {
-      throw Exception('Failed to calculate SAW algorithm: $e');
+      rethrow;
     } finally {
       endPerformanceProfiling('Combined all method SAW algorithm');
     }
@@ -388,6 +390,8 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
         throw Exception("Matrix cannot be empty!");
       }
 
+      await _validateMaxInputValue(matrix);
+
       final validatedMatrix = _validateAndFixMatrix(matrix);
 
       final normalizedMatrix = await _normalizeMatrix(validatedMatrix);
@@ -395,9 +399,35 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
 
       return sawResult;
     } catch (e) {
-      throw Exception('Failed to calculate result with existing matrix: $e');
+      rethrow;
     } finally {
       endPerformanceProfiling('Calculate result with existing matrix');
+    }
+  }
+
+  /// VALIDATE INPUT VALUE
+  Future<void> _validateMaxInputValue(List<SawMatrix> matrix) async {
+    for (var e in matrix) {
+      for (var r in e.ratings) {
+        final criteria = r.criteria;
+
+        if (criteria == null) {
+          throw Exception("Rating on ${e.alternative.name} has no criteria.");
+        }
+
+        final value = r.value;
+
+        if (value == null) {
+          throw Exception(
+              "Empty value in ${e.alternative.name} for criteria ${criteria.name}");
+        }
+
+        if (value > criteria.maxValue) {
+          throw Exception(
+              "The value '$value' for alternative '${e.alternative.name}' in criteria '${criteria.name}' "
+              "is greater than the maximum (${criteria.maxValue}).");
+        }
+      }
     }
   }
 

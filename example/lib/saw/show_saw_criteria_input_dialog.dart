@@ -15,6 +15,7 @@ class _SawCriteriaInputWidgetState extends State<SawCriteriaInputWidget> {
   final ValueNotifier<bool?> _isBenefit = ValueNotifier(null);
   final _weightController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _maxValueController = TextEditingController();
   late TextStyle _textStyle;
   String? _errorMessage;
 
@@ -30,6 +31,7 @@ class _SawCriteriaInputWidgetState extends State<SawCriteriaInputWidget> {
     _weightController.dispose();
     _descriptionController.dispose();
     _isBenefit.dispose();
+    _maxValueController.dispose();
     super.dispose();
   }
 
@@ -107,6 +109,17 @@ class _SawCriteriaInputWidgetState extends State<SawCriteriaInputWidget> {
 
               const SizedBox(height: 10),
 
+              /// MAX VALUE
+              TextFormField(
+                controller: _maxValueController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  hint: Text('Maximum Value for Criteria', style: _textStyle),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 10),
+
               /// DESCRIPTION
               TextFormField(
                 controller: _descriptionController,
@@ -149,6 +162,7 @@ class _SawCriteriaInputWidgetState extends State<SawCriteriaInputWidget> {
                       final name = _nameController.text.trim();
                       final weight = _weightController.text.trim();
                       final description = _descriptionController.text.trim();
+                      final maxValue = _maxValueController.text.trim();
 
                       if (name.isEmpty) {
                         _updateErrorMessage("Name criteria can't be empty!");
@@ -158,8 +172,13 @@ class _SawCriteriaInputWidgetState extends State<SawCriteriaInputWidget> {
                         _updateErrorMessage(
                           "Please select criteria cost or benefit",
                         );
+                      } else if (maxValue.isEmpty) {
+                        _updateErrorMessage(
+                          "Please add maximum value for this criteria",
+                        );
                       } else {
                         final weightParsed = double.tryParse(weight);
+                        final maxValueParsed = num.tryParse(maxValue);
 
                         if (weightParsed == null) {
                           _updateErrorMessage("Please input valid a number");
@@ -171,12 +190,19 @@ class _SawCriteriaInputWidgetState extends State<SawCriteriaInputWidget> {
                           _updateErrorMessage(
                             "The total weight must not be a negative number",
                           );
+                        } else if (maxValueParsed == null) {
+                          _updateErrorMessage("Please input valid a number");
+                        } else if (maxValueParsed < 0) {
+                          _updateErrorMessage(
+                            "The total weight must not be a negative number",
+                          );
                         } else {
                           final criteria = SawCriteria(
                             name: name,
                             isBenefit: _isBenefit.value!,
                             weightPercent: weightParsed,
                             description: description,
+                            maxValue: maxValueParsed,
                           );
 
                           widget.onSave.call(criteria);

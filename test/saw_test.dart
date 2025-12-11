@@ -27,12 +27,14 @@ void main() {
         name: 'Criteria 1',
         weightPercent: 50,
         isBenefit: true,
+        maxValue: 100,
       ),
       SawCriteria(
         id: 'crt2',
         name: 'Criteria 2',
         weightPercent: 50,
         isBenefit: false,
+        maxValue: 100,
       ),
     ];
 
@@ -78,6 +80,7 @@ void main() {
           name: 'Criteria 1',
           weightPercent: -10,
           isBenefit: true,
+          maxValue: 100,
         ),
       ];
 
@@ -98,6 +101,7 @@ void main() {
           name: 'Criteria 1',
           weightPercent: 0,
           isBenefit: true,
+          maxValue: 100,
         ),
       ];
 
@@ -118,12 +122,14 @@ void main() {
           name: 'Criteria 1',
           weightPercent: 30,
           isBenefit: true,
+          maxValue: 100,
         ),
         SawCriteria(
           id: 'crt2',
           name: 'Criteria 2',
           weightPercent: 20,
           isBenefit: false,
+          maxValue: 100,
         ),
       ];
 
@@ -162,8 +168,18 @@ void main() {
 
     test('should assign IDs to criteria without IDs', () async {
       final criteriaWithoutIds = [
-        SawCriteria(name: 'Criteria 1', weightPercent: 50, isBenefit: true),
-        SawCriteria(name: 'Criteria 2', weightPercent: 50, isBenefit: false),
+        SawCriteria(
+          name: 'Criteria 1',
+          weightPercent: 50,
+          isBenefit: true,
+          maxValue: 100,
+        ),
+        SawCriteria(
+          name: 'Criteria 2',
+          weightPercent: 50,
+          isBenefit: false,
+          maxValue: 100,
+        ),
       ];
 
       // Act
@@ -195,6 +211,7 @@ void main() {
               name: 'Criteria 1',
               weightPercent: 60,
               isBenefit: true,
+              maxValue: 100,
             ),
             value: 100,
           ),
@@ -205,6 +222,7 @@ void main() {
               name: 'Criteria 2',
               weightPercent: 40,
               isBenefit: false,
+              maxValue: 100,
             ),
             value: 50,
           ),
@@ -221,6 +239,7 @@ void main() {
               name: 'Criteria 1',
               weightPercent: 60,
               isBenefit: true,
+              maxValue: 100,
             ),
             value: 80,
           ),
@@ -231,6 +250,7 @@ void main() {
               name: 'Criteria 2',
               weightPercent: 40,
               isBenefit: false,
+              maxValue: 100,
             ),
             value: 60,
           ),
@@ -280,6 +300,7 @@ void main() {
                 name: 'Criteria 1',
                 weightPercent: 100,
                 isBenefit: false,
+                maxValue: 100,
               ),
               value: 0,
             ),
@@ -307,6 +328,7 @@ void main() {
                 name: 'Criteria 1',
                 weightPercent: 100,
                 isBenefit: true,
+                maxValue: 100,
               ),
               value: 50,
             ),
@@ -323,6 +345,7 @@ void main() {
                 name: 'Criteria 1',
                 weightPercent: 100,
                 isBenefit: true,
+                maxValue: 100,
               ),
               value: 50,
             ),
@@ -353,6 +376,7 @@ void main() {
                 name: 'Criteria 1',
                 weightPercent: 100,
                 isBenefit: true,
+                maxValue: 100,
               ),
               value: 100,
             ),
@@ -388,6 +412,7 @@ void main() {
                 name: 'Criteria 1',
                 weightPercent: 100,
                 isBenefit: true,
+                maxValue: 100,
               ),
               value: 100,
             ),
@@ -417,6 +442,7 @@ void main() {
                 name: 'Criteria 1',
                 weightPercent: 30,
                 isBenefit: true,
+                maxValue: 100,
               ),
               value: 100,
             ),
@@ -427,6 +453,7 @@ void main() {
                 name: 'Criteria 2',
                 weightPercent: 20,
                 isBenefit: true,
+                maxValue: 100,
               ),
               value: 80,
             ),
@@ -456,6 +483,7 @@ void main() {
                 name: 'Criteria 1',
                 weightPercent: 0,
                 isBenefit: true,
+                maxValue: 100,
               ),
               value: 100,
             ),
@@ -485,6 +513,7 @@ void main() {
                 name: 'Criteria 1',
                 weightPercent: -10,
                 isBenefit: true,
+                maxValue: 100,
               ),
               value: 100,
             ),
@@ -516,6 +545,7 @@ void main() {
                 name: 'Criteria 1',
                 weightPercent: 100,
                 isBenefit: true,
+                maxValue: 100,
               ),
               value: 100,
             ),
@@ -532,6 +562,7 @@ void main() {
                 name: 'Criteria 1',
                 weightPercent: 100,
                 isBenefit: true,
+                maxValue: 100,
               ),
               value: 50,
             ),
@@ -560,6 +591,7 @@ void main() {
                 name: 'Criteria 1',
                 weightPercent: 100,
                 isBenefit: false,
+                maxValue: 100,
               ),
               value: 50,
             ),
@@ -576,6 +608,7 @@ void main() {
                 name: 'Criteria 1',
                 weightPercent: 100,
                 isBenefit: false,
+                maxValue: 100,
               ),
               value: 100,
             ),

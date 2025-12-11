@@ -3,6 +3,7 @@ class SawCriteriaDto {
   final String name;
   final bool isBenefit;
   final double weightPercent;
+  final num maxValue;
   final String? description;
 
   SawCriteriaDto({
@@ -10,6 +11,7 @@ class SawCriteriaDto {
     required this.name,
     required this.isBenefit,
     required this.weightPercent,
+    required this.maxValue,
     this.description,
   });
 
@@ -19,6 +21,7 @@ class SawCriteriaDto {
       name: json['name'] as String,
       isBenefit: json['is_benefit'] as bool,
       weightPercent: (json['weight_percent'] as num).toDouble(),
+      maxValue: json['max_value'] as num,
       description: json['description'] as String?,
     );
   }
@@ -28,6 +31,7 @@ class SawCriteriaDto {
         'name': name,
         'is_benefit': isBenefit,
         'weight_percent': weightPercent,
+        'max_value': maxValue,
         'description': description,
       };
 
@@ -36,6 +40,7 @@ class SawCriteriaDto {
     String? name,
     bool? isBenefit,
     double? weightPercent,
+    num? maxValue,
     String? description,
   }) {
     return SawCriteriaDto(
@@ -43,6 +48,7 @@ class SawCriteriaDto {
       name: name ?? this.name,
       isBenefit: isBenefit ?? this.isBenefit,
       weightPercent: weightPercent ?? this.weightPercent,
+      maxValue: maxValue ?? this.maxValue,
       description: description ?? this.description,
     );
   }
