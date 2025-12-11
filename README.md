@@ -1,4 +1,4 @@
-[![pub version](https://img.shields.io/pub/v/flutter_decision_making.svg)](https://pub.dev/packages/flutter_decision_making)
+[![pub version](https://img.shields.io/pub/v/flutter_decision_making.svg)](https://pub.dev/packages/flutter_decision_making) [![GitHub](https://badgen.net/badge/icon/ko-fi?icon=kofi&color=red&label)](https://ko-fi.com/hendriari) [![Saweria](./assets/saweria_icon.svg)](https://saweria.co/hendriarii)
 
 ## ✨ About
 
@@ -84,6 +84,9 @@ Major method logs:
 
 > Useful for debugging and optimization during development.
 
+---
+## Support Me
+[![Ko-Fi](https://badgen.net/badge/icon/ko-fi?icon=kofi&color=red&label)](https://ko-fi.com/hendriari) [![Saweria](./assets/saweria_icon.svg)](https://saweria.co/hendriarii) 
 ---
 
 ## 🙋‍♂️ Contributing

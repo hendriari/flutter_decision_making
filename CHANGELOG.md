@@ -54,3 +54,8 @@ update docs
 * main isolate manager, make to multi-command isolate
 * minimum flutter version
 * minor update AHP
+
+## 1.1.2
+
+### Updated
+* add support me on ko-fi, saweria to readme

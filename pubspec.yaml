@@ -26,3 +26,7 @@ topics:
 
 funding:
   - https://github.com/hendriari/flutter_decision_making
+
+flutter:
+  assets:
+    - assets/
