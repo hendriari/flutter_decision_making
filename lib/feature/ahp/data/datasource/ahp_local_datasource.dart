@@ -26,30 +26,106 @@ import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_result.d
 import 'package:flutter_decision_making/feature/ahp/domain/entities/pairwise_alternative_input.dart';
 import 'package:flutter_decision_making/feature/ahp/domain/entities/pairwise_comparison_input.dart';
 
+/// Abstract class defining the contract for AHP (Analytic Hierarchy Process) local data operations.
+///
+/// This datasource handles the complete AHP algorithm workflow including:
+/// - Criteria and alternative identification
+/// - Hierarchy structure generation
+/// - Pairwise comparison matrix generation
+/// - Eigenvalue/eigenvector calculation
+/// - Consistency ratio checking
+/// - Final score calculation with ranking
 abstract class AhpLocalDatasource {
-  /// TO IDENTIFICATION CRITERIA AND ALTERNATIVE
+  /// Identifies and validates criteria and alternatives for AHP analysis.
+  ///
+  /// This is the first step in the AHP process. It ensures all items
+  /// have unique IDs and validates input constraints.
+  ///
+  /// **Parameters:**
+  /// - [criteria]: List of decision criteria
+  /// - [alternative]: List of decision alternatives
+  ///
+  /// **Returns:** [AhpIdentification] containing validated criteria and alternatives
+  ///
+  /// **Throws:**
+  /// - Exception if criteria or alternatives are empty
+  /// - Exception if count exceeds 100 items
   Future<AhpIdentification> identification(
     List<AhpItem> criteria,
     List<AhpItem> alternative,
   );
 
-  /// TO GENERATE HIERARCHY STRUCTURE
+  /// Generates the hierarchical structure for AHP analysis.
+  ///
+  /// Creates a hierarchy where each criteria is linked to all alternatives,
+  /// representing the decision structure for pairwise comparisons.
+  ///
+  /// **Parameters:**
+  /// - [criteria]: List of validated criteria
+  /// - [alternative]: List of validated alternatives
+  ///
+  /// **Returns:** List of [AhpHierarchy] nodes
+  ///
+  /// **Throws:**
+  /// - Exception if hierarchy generation fails
   Future<List<AhpHierarchy>> generateHierarchy(
     List<AhpItem> criteria,
     List<AhpItem> alternative,
   );
 
-  /// TO GENERATE PAIRWISE INPUTS
+  /// Generates pairwise comparison templates for criteria.
+  ///
+  /// Creates all possible pairwise combinations of criteria that need
+  /// to be compared. Each comparison will be filled with preference values
+  /// during the decision-making process.
+  ///
+  /// **Parameters:**
+  /// - [criteria]: List of criteria to compare
+  ///
+  /// **Returns:** List of [PairwiseComparisonInput] templates
+  ///
+  /// **Throws:**
+  /// - Exception if generation fails
   Future<List<PairwiseComparisonInput>> generatePairwiseCriteria(
     List<AhpItem> criteria,
   );
 
-  /// GENERATE PAIRWISE ALTERNATIVE INPUTS
+  /// Generates pairwise comparison templates for alternatives under each criteria.
+  ///
+  /// For each criteria in the hierarchy, creates pairwise combinations
+  /// of alternatives that need to be compared.
+  ///
+  /// **Parameters:**
+  /// - [nodes]: Hierarchy structure containing criteria and alternatives
+  ///
+  /// **Returns:** List of [PairwiseAlternativeInput] templates
+  ///
+  /// **Throws:**
+  /// - Exception if generation fails
   Future<List<PairwiseAlternativeInput>> generatePairwiseAlternative(
     List<AhpHierarchy> nodes,
   );
 
-  /// GET RESULT AHP
+  /// Calculates the final AHP scores and rankings.
+  ///
+  /// This is the main computation method that:
+  /// 1. Generates pairwise comparison matrices for criteria and alternatives
+  /// 2. Calculates eigenvectors (priority vectors) for each matrix
+  /// 3. Checks consistency ratios to validate comparisons
+  /// 4. Computes final weighted scores for each alternative
+  /// 5. Ranks alternatives based on their scores
+  ///
+  /// **Parameters:**
+  /// - [hierarchy]: The decision hierarchy structure
+  /// - [inputsCriteria]: Completed pairwise comparisons for criteria
+  /// - [inputsAlternative]: Completed pairwise comparisons for alternatives
+  ///
+  /// **Returns:** [AhpResult] containing scores, rankings, and consistency information
+  ///
+  /// **Throws:**
+  /// - Exception if any comparison values are missing
+  /// - Exception if consistency ratios are unacceptable
+  /// - Exception if calculation fails at any step
   Future<AhpResult> calculateFinalScore(
     List<AhpHierarchy> hierarchy,
     List<PairwiseComparisonInput> inputsCriteria,
@@ -57,16 +133,68 @@ abstract class AhpLocalDatasource {
   );
 }
 
+/// Implementation of [AhpLocalDatasource] that handles AHP algorithm operations.
+///
+/// This implementation supports:
+/// - Automatic ID generation for all entities
+/// - Isolate-based processing for large datasets (>15 criteria or alternatives)
+/// - Performance profiling for optimization
+/// - Comprehensive validation and error handling
+/// - Consistency ratio checking for result validation
+///
+/// **AHP Process Flow:**
+/// 1. Identification → validates and assigns IDs
+/// 2. Generate Hierarchy → creates decision structure
+/// 3. Generate Pairwise Inputs → creates comparison templates
+/// 4. User fills in comparisons (external to this class)
+/// 5. Calculate Final Score → computes results
+///
+/// **Example usage:**
+/// ```dart
+/// final datasource = AhpLocalDatasourceImpl();
+///
+/// // Step 1: Identify
+/// final identification = await datasource.identification(criteria, alternatives);
+///
+/// // Step 2: Generate hierarchy
+/// final hierarchy = await datasource.generateHierarchy(
+///   identification.criteria,
+///   identification.alternative,
+/// );
+///
+/// // Step 3: Generate comparison templates
+/// final criteriaInputs = await datasource.generatePairwiseCriteria(
+///   identification.criteria,
+/// );
+/// final alternativeInputs = await datasource.generatePairwiseAlternative(hierarchy);
+///
+/// // Step 4: User fills in comparisons (your UI logic here)
+///
+/// // Step 5: Calculate results
+/// final result = await datasource.calculateFinalScore(
+///   hierarchy,
+///   criteriaInputs,
+///   alternativeInputs,
+/// );
+/// ```
 class AhpLocalDatasourceImpl extends AhpLocalDatasource {
   final DecisionMakingHelper _helper;
   final DecisionIsolateMain _isolateMain;
 
+  /// Creates an instance of [AhpLocalDatasourceImpl].
+  ///
+  /// **Parameters:**
+  /// - [helper]: Helper for utility functions like ID generation (defaults to new instance)
+  /// - [isolateMain]: Isolate manager for heavy computations (defaults to new instance)
   AhpLocalDatasourceImpl({
     DecisionMakingHelper? helper,
     DecisionIsolateMain? isolateMain,
   })  : _helper = helper ?? DecisionMakingHelper(),
         _isolateMain = isolateMain ?? DecisionIsolateMain();
 
+  /// Flag indicating whether isolate processing is being used.
+  ///
+  /// Set to true when processing large datasets to prevent UI blocking.
   bool _useIsolate = false;
 
   /// IDENTIFICATION DETAIL
@@ -216,6 +344,31 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
   /// *************************************************************************
 
   /// GET AHP RESULT
+  ///
+  /// This method orchestrates the complete AHP calculation process:
+  ///
+  /// **Step 1: Validation**
+  /// - Ensures all pairwise comparison values are filled
+  /// - Checks that importance flags are set
+  ///
+  /// **Step 2: Criteria Analysis**
+  /// - Generates pairwise comparison matrix for criteria
+  /// - Calculates eigenvector (priority vector) for criteria weights
+  /// - Checks consistency ratio to validate criteria comparisons
+  ///
+  /// **Step 3: Alternative Analysis (for each criteria)**
+  /// - Generates pairwise comparison matrix for alternatives
+  /// - Calculates eigenvector for alternative priorities
+  /// - Checks consistency ratio for each criteria's comparisons
+  ///
+  /// **Step 4: Final Score Calculation**
+  /// - Combines criteria weights with alternative priorities
+  /// - Calculates weighted scores for each alternative
+  /// - Ranks alternatives based on final scores
+  ///
+  /// **Consistency Ratio:**
+  /// A CR < 0.1 indicates acceptable consistency in comparisons.
+  /// Higher values suggest inconsistent judgments that should be reviewed.
   @override
   Future<AhpResult> calculateFinalScore(
     List<AhpHierarchy> hierarchy,
@@ -248,6 +401,9 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
 
       /// [CRITERIA]
       /// GENERATE RESULT MATRIX CRITERIA
+      ///
+      /// Converts pairwise comparisons into a square matrix where
+      /// matrix[i][j] represents how much criteria i is preferred over criteria j.
       List<List<double>> resultMatrixCriteria = [[]];
       final itemCriteria =
           hierarchy.map((e) => e.criteria).toList(growable: false);
@@ -280,6 +436,9 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
           name: 'DECISION MAKING');
 
       /// CALCULATE EIGEN VECTOR CRITERIA
+      ///
+      /// Computes the principal eigenvector of the criteria matrix.
+      /// This vector represents the relative weights/priorities of each criteria.
       final eigenCrMatrixRaw = resultMatrixCriteria
           .map((e) => e.cast<dynamic>())
           .toList(growable: false);
@@ -304,6 +463,13 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
           name: 'DECISION MAKING');
 
       /// CHECK CRITERIA CONSISTENCY RATIO
+      ///
+      /// Calculates the Consistency Ratio (CR) to measure the consistency
+      /// of the pairwise comparisons. CR should be < 0.1 for acceptable results.
+      ///
+      /// CR = CI / RI where:
+      /// - CI (Consistency Index) = (λmax - n) / (n - 1)
+      /// - RI (Random Index) = predefined value based on matrix size
       Map<String, dynamic> criteriaConsistencyRatio = {};
 
       if (withIsolate) {
@@ -325,6 +491,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
           name: 'DECISION MAKING');
 
       /// [ALTERNATIVE]
+      /// Process each criteria's alternative comparisons
       final allEigenVectorsAlternative = <List<double>>[];
       final allMatrixAlternatives = <List<List<double>>>[];
       final alternativeConsistencyRatio = <Map<String, dynamic>>[];
@@ -343,6 +510,8 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
             PairwiseAlternativeInputMapper.fromEntity(input).toMap();
 
         /// GENERATE RESULT MATRIX ALTERNATIVE
+        ///
+        /// Creates pairwise comparison matrix for alternatives under this criteria.
         List<List<double>> matrixAlt = [[]];
 
         if (withIsolate) {
@@ -362,10 +531,13 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
         }
 
         allMatrixAlternatives.add(matrixAlt);
-        dev.log('[AHP] ✅ matrix alternative (${input.criteria.name}): $matrixAlt \n',
+        dev.log(
+            '[AHP] ✅ matrix alternative (${input.criteria.name}): $matrixAlt \n',
             name: 'DECISION MAKING');
 
         /// CALCULATE EIGEN VECTOR ALTERNATIVE
+        ///
+        /// Computes priority vector for alternatives under this criteria.
         List<double> eigenVectorAlt = [];
 
         if (withIsolate) {
@@ -385,6 +557,8 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
             name: 'DECISION MAKING');
 
         /// CHECK ALTERNATIVE CONSISTENCY RATIO
+        ///
+        /// Validates the consistency of alternative comparisons for this criteria.
         Map<String, dynamic> altConsistencyRatio = {};
 
         if (withIsolate) {
@@ -416,6 +590,14 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
           .map((e) => AhpItemMapper.fromEntity(e))
           .toList(growable: false);
 
+      /// CALCULATE FINAL SCORE
+      ///
+      /// Combines criteria weights with alternative priorities to compute
+      /// final scores for each alternative:
+      ///
+      /// Score(alternative) = Σ(criteria_weight × alternative_priority_for_criteria)
+      ///
+      /// Alternatives are then ranked by their final scores.
       Map<String, dynamic> rawFinalScore = {};
 
       if (withIsolate) {

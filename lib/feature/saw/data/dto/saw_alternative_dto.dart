@@ -18,10 +18,8 @@ class SawAlternativeDto {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'name': name,
-    'note': note,
-  };
+        'id': id,
+        'name': name,
+        'note': note,
+      };
 }
-
-

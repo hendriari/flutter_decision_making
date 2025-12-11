@@ -499,139 +499,135 @@ class _SawExamplePageState extends State<SawExamplePage> {
   }
 
   /// SAW RESULT
-  Widget _buildSawResultWidget(){
-    return  _sawResult != null && _sawResult!.isNotEmpty
+  Widget _buildSawResultWidget() {
+    return _sawResult != null && _sawResult!.isNotEmpty
         ? Container(
-      margin: EdgeInsets.only(top: 20, bottom: 10),
-      padding: EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        border: Border.all(color: Colors.black),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          /// HEADER TABLE
-          Table(
-            columnWidths: {
-              0: FlexColumnWidth(2),
-              1: FlexColumnWidth(1),
-              2: FlexColumnWidth(1),
-            },
-            defaultVerticalAlignment:
-            TableCellVerticalAlignment.middle,
+          margin: EdgeInsets.only(top: 20, bottom: 10),
+          padding: EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            border: Border.all(color: Colors.black),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TableRow(
+              /// HEADER TABLE
+              Table(
+                columnWidths: {
+                  0: FlexColumnWidth(2),
+                  1: FlexColumnWidth(1),
+                  2: FlexColumnWidth(1),
+                },
+                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                 children: [
-                  /// CRITERIA
-                  TableCell(
-                    child: Text(
-                      'Alternative\nName',
-                      style: _textStyle.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-
-                  /// SCORE
-                  TableCell(
-                    child: Text(
-                      "Score",
-                      style: _textStyle.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-
-                  /// RANKING
-                  TableCell(
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        "Ranking",
-                        style: _textStyle.copyWith(
-                          fontWeight: FontWeight.bold,
+                  TableRow(
+                    children: [
+                      /// CRITERIA
+                      TableCell(
+                        child: Text(
+                          'Alternative\nName',
+                          style: _textStyle.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
+
+                      /// SCORE
+                      TableCell(
+                        child: Text(
+                          "Score",
+                          style: _textStyle.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+
+                      /// RANKING
+                      TableCell(
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            "Ranking",
+                            style: _textStyle.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
 
-          /// LIST MATRIX
-          Container(
-            constraints: BoxConstraints(
-              maxHeight: 300,
-              minHeight: 100,
-            ),
-            color: Colors.grey.shade300,
-            child: Scrollbar(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: _sawResult?.length ?? 0,
-                padding: EdgeInsets.only(right: 10),
-                itemBuilder: (context, index) {
-                  final data = _sawResult?[index];
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      /// RESULT
-                      Table(
-                        columnWidths: {
-                          0: FlexColumnWidth(2),
-                          1: FlexColumnWidth(1),
-                          2: FlexColumnWidth(1),
-                        },
-                        defaultVerticalAlignment:
-                        TableCellVerticalAlignment.middle,
+              /// LIST MATRIX
+              Container(
+                constraints: BoxConstraints(maxHeight: 300, minHeight: 100),
+                color: Colors.grey.shade300,
+                child: Scrollbar(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _sawResult?.length ?? 0,
+                    padding: EdgeInsets.only(right: 10),
+                    itemBuilder: (context, index) {
+                      final data = _sawResult?[index];
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          TableRow(
+                          /// RESULT
+                          Table(
+                            columnWidths: {
+                              0: FlexColumnWidth(2),
+                              1: FlexColumnWidth(1),
+                              2: FlexColumnWidth(1),
+                            },
+                            defaultVerticalAlignment:
+                                TableCellVerticalAlignment.middle,
                             children: [
-                              /// CRITERIA
-                              TableCell(
-                                child: Text(
-                                  data?.alternative.name ?? '-',
-                                  style: _textStyle,
-                                ),
-                              ),
-
-                              /// SCORE
-                              TableCell(
-                                child: Text(
-                                  "${data?.score}",
-                                  style: _textStyle,
-                                ),
-                              ),
-
-                              /// RANKING
-                              TableCell(
-                                child: Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    "${data?.rank}",
-                                    style: _textStyle,
+                              TableRow(
+                                children: [
+                                  /// CRITERIA
+                                  TableCell(
+                                    child: Text(
+                                      data?.alternative.name ?? '-',
+                                      style: _textStyle,
+                                    ),
                                   ),
-                                ),
+
+                                  /// SCORE
+                                  TableCell(
+                                    child: Text(
+                                      "${data?.score}",
+                                      style: _textStyle,
+                                    ),
+                                  ),
+
+                                  /// RANKING
+                                  TableCell(
+                                    child: Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Text(
+                                        "${data?.rank}",
+                                        style: _textStyle,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
 
-                      Divider(color: Colors.white, thickness: 2),
-                    ],
-                  );
-                },
+                          Divider(color: Colors.white, thickness: 2),
+                        ],
+                      );
+                    },
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
-    )
+        )
         : const SizedBox();
   }
 

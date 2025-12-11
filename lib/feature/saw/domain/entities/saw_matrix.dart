@@ -1,6 +1,7 @@
 import 'package:flutter_decision_making/feature/saw/domain/entities/saw_alternative.dart';
 import 'package:flutter_decision_making/feature/saw/domain/entities/saw_rating.dart';
 
+/// MATRIX
 class SawMatrix {
   final String? id;
   final SawAlternative alternative;

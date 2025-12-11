@@ -4,18 +4,18 @@ import 'package:flutter_decision_making/feature/saw/domain/entities/saw_result.d
 
 extension SawResultMapper on SawResultDto {
   SawResult toEntity() => SawResult(
-    id: id,
-    alternative: alternative.toEntity(),
-    score: score,
-    rank: rank,
-  );
+        id: id,
+        alternative: alternative.toEntity(),
+        score: score,
+        rank: rank,
+      );
 }
 
 extension SawResultEntityMapper on SawResult {
   SawResultDto toDto() => SawResultDto(
-    id: id,
-    alternative: alternative.toDto(),
-    score: score,
-    rank: rank,
-  );
+        id: id,
+        alternative: alternative.toDto(),
+        score: score,
+        rank: rank,
+      );
 }

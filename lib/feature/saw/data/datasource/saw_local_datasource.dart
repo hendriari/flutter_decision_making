@@ -15,25 +15,99 @@ import 'package:flutter_decision_making/feature/saw/domain/entities/saw_matrix.d
 import 'package:flutter_decision_making/feature/saw/domain/entities/saw_rating.dart';
 import 'package:flutter_decision_making/feature/saw/domain/entities/saw_result.dart';
 
+/// Abstract class defining the contract for SAW (Simple Additive Weighting) local data operations.
+///
+/// This datasource handles the core SAW algorithm operations including:
+/// - Matrix generation from alternatives and criteria
+/// - Matrix normalization
+/// - Result calculation with ranking
 abstract class SawLocalDatasource {
+  /// Generates a SAW decision matrix from the given alternatives and criteria.
+  ///
+  /// The matrix represents all alternatives evaluated against all criteria,
+  /// with each cell containing a rating value.
+  ///
+  /// **Parameters:**
+  /// - [listAlternative]: List of alternatives to be evaluated
+  /// - [listCriteria]: List of criteria for evaluation
+  ///
+  /// **Returns:** A list of [SawMatrix] objects, one for each alternative
+  ///
+  /// **Throws:**
+  /// - Exception if alternatives or criteria lists are empty
+  /// - Exception if criteria weights are invalid
   Future<List<SawMatrix>> generateSawMatrix({
     required List<SawAlternative> listAlternative,
     required List<SawCriteria> listCriteria,
   });
 
+  /// Calculates the final SAW results from a decision matrix.
+  ///
+  /// This method performs the complete SAW calculation:
+  /// 1. Validates input values
+  /// 2. Normalizes the matrix
+  /// 3. Calculates weighted scores
+  /// 4. Ranks alternatives
+  ///
+  /// **Parameters:**
+  /// - [matrix]: The decision matrix containing ratings for all alternatives
+  ///
+  /// **Returns:** A ranked list of [SawResult] objects
+  ///
+  /// **Throws:**
+  /// - Exception if matrix is empty or contains invalid values
   Future<List<SawResult>> calculateSawResult({
     required List<SawMatrix> matrix,
   });
 
+  /// Calculates results using an existing matrix with validation and fixing.
+  ///
+  /// This method is useful when working with pre-existing matrices that may
+  /// need validation or weight normalization before calculation.
+  ///
+  /// **Parameters:**
+  /// - [matrix]: The existing decision matrix to calculate from
+  ///
+  /// **Returns:** A ranked list of [SawResult] objects
+  ///
+  /// **Throws:**
+  /// - Exception if matrix is empty or contains invalid data
   Future<List<SawResult>> calculateResultWithExistingMatrix({
     required List<SawMatrix> matrix,
   });
 }
 
+/// Implementation of [SawLocalDatasource] that handles SAW algorithm operations.
+///
+/// This implementation supports:
+/// - Automatic weight normalization
+/// - Isolate-based processing for large datasets
+/// - Performance profiling
+/// - Comprehensive input validation
+///
+/// **Example usage:**
+/// ```dart
+/// final datasource = SawLocalDatasourceImpl();
+///
+/// // Generate matrix
+/// final matrix = await datasource.generateSawMatrix(
+///   listAlternative: alternatives,
+///   listCriteria: criteria,
+/// );
+///
+/// // Calculate results
+/// final results = await datasource.calculateSawResult(matrix: matrix);
+/// ```
 class SawLocalDatasourceImpl extends SawLocalDatasource {
   final DecisionMakingHelper _helper;
   final DecisionIsolateMain _isolate;
 
+  /// Creates an instance of [SawLocalDatasourceImpl].
+  ///
+  /// **Parameters:**
+  /// - [helper]: Helper for utility functions (defaults to new instance)
+  /// - [stopwatch]: Stopwatch for performance measurement (currently unused)
+  /// - [isolate]: Isolate manager for heavy computations (defaults to new instance)
   SawLocalDatasourceImpl({
     DecisionMakingHelper? helper,
     Stopwatch? stopwatch,
@@ -78,7 +152,15 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
     }
   }
 
-  /// Validate inputs for matrix generation
+  /// Validates input data for matrix generation.
+  ///
+  /// Ensures that:
+  /// - Alternative and criteria lists are not empty
+  /// - All criteria weights are non-negative
+  /// - Total weight is not zero
+  ///
+  /// **Throws:**
+  /// - Exception with descriptive message if validation fails
   void _validateInputs(
     List<SawAlternative> alternatives,
     List<SawCriteria> criteria,
@@ -103,7 +185,15 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
     }
   }
 
-  /// Normalize criteria weights to sum to 100%
+  /// Normalizes criteria weights to sum to exactly 100%.
+  ///
+  /// If weights already sum to 100, returns the original list.
+  /// Otherwise, proportionally adjusts all weights to sum to 100%.
+  ///
+  /// **Parameters:**
+  /// - [criteria]: List of criteria to normalize
+  ///
+  /// **Returns:** List of criteria with normalized weights
   List<SawCriteria> _normalizeCriteriaWeights(List<SawCriteria> criteria) {
     final totalWeight = criteria.fold<num>(0, (a, b) => a + b.weightPercent);
 
@@ -122,7 +212,14 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
     }).toList();
   }
 
-  /// Ensure all alternatives have IDs
+  /// Ensures all alternatives have unique IDs.
+  ///
+  /// Generates new IDs for alternatives that are missing them.
+  ///
+  /// **Parameters:**
+  /// - [alternatives]: List of alternatives to process
+  ///
+  /// **Returns:** List of alternatives with guaranteed IDs
   List<SawAlternative> _ensureIdsForAlternatives(
       List<SawAlternative> alternatives) {
     return alternatives.map((e) {
@@ -132,7 +229,14 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
     }).toList();
   }
 
-  /// Ensure all criteria have IDs
+  /// Ensures all criteria have unique IDs.
+  ///
+  /// Generates new IDs for criteria that are missing them.
+  ///
+  /// **Parameters:**
+  /// - [criteria]: List of criteria to process
+  ///
+  /// **Returns:** List of criteria with guaranteed IDs
   List<SawCriteria> _ensureIdsForCriteria(List<SawCriteria> criteria) {
     return criteria.map((e) {
       return (e.id == null || e.id!.isEmpty)
@@ -141,7 +245,16 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
     }).toList();
   }
 
-  /// Generate matrix using isolate for large datasets
+  /// Generates matrix using isolate for large datasets.
+  ///
+  /// Uses a separate isolate to prevent blocking the main thread
+  /// when processing large numbers of alternatives or criteria.
+  ///
+  /// **Parameters:**
+  /// - [alternatives]: List of alternatives
+  /// - [criteria]: List of criteria
+  ///
+  /// **Returns:** Generated matrix
   Future<List<SawMatrix>> _generateMatrixWithIsolate(
     List<SawAlternative> alternatives,
     List<SawCriteria> criteria,
@@ -162,7 +275,16 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
         .toList();
   }
 
-  /// Generate matrix directly without isolate
+  /// Generates matrix directly without using isolate.
+  ///
+  /// Used for smaller datasets where isolate overhead is not justified.
+  /// Creates a matrix with initialized ratings (all set to 0).
+  ///
+  /// **Parameters:**
+  /// - [alternatives]: List of alternatives
+  /// - [criteria]: List of criteria
+  ///
+  /// **Returns:** Generated matrix with empty ratings
   List<SawMatrix> _generateMatrixDirectly(
     List<SawAlternative> alternatives,
     List<SawCriteria> criteria,
@@ -187,7 +309,20 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   /// ==========================================================================
   /// [NORMALIZE]
 
-  /// NORMALIZE MATRIX
+  /// Normalizes the decision matrix.
+  ///
+  /// Normalization converts all ratings to a comparable scale (0-1).
+  /// For benefit criteria: normalized = value / max_value
+  /// For cost criteria: normalized = min_value / value
+  ///
+  /// **Parameters:**
+  /// - [listMatrix]: The matrix to normalize
+  ///
+  /// **Returns:** Normalized matrix
+  ///
+  /// **Throws:**
+  /// - Exception if matrix is empty
+  /// - Exception if cost criteria contain zero values
   Future<List<SawMatrix>> _normalizeMatrix(List<SawMatrix> listMatrix) async {
     startPerformanceProfiling('normalize matrix saw');
     try {
@@ -213,7 +348,12 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
     }
   }
 
-  /// Normalize matrix using isolate
+  /// Normalizes matrix using isolate for large datasets.
+  ///
+  /// **Parameters:**
+  /// - [listMatrix]: Matrix to normalize
+  ///
+  /// **Returns:** Normalized matrix
   Future<List<SawMatrix>> _normalizeMatrixWithIsolate(
       List<SawMatrix> listMatrix) async {
     final rawData = await _isolate.runTask(
@@ -230,7 +370,15 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
     return parsed.map((e) => e.toEntity()).toList();
   }
 
-  /// Normalize matrix directly
+  /// Normalizes matrix directly without using isolate.
+  ///
+  /// Calculates min/max values for each criteria, then normalizes
+  /// each rating based on whether the criteria is benefit or cost type.
+  ///
+  /// **Parameters:**
+  /// - [listMatrix]: Matrix to normalize
+  ///
+  /// **Returns:** Normalized matrix
   List<SawMatrix> _normalizeMatrixDirectly(List<SawMatrix> listMatrix) {
     final criteriaStats = _calculateCriteriaStats(listMatrix);
 
@@ -243,7 +391,17 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
     }).toList();
   }
 
-  /// Calculate min/max statistics for each criteria
+  /// Calculates minimum and maximum values for each criteria across all alternatives.
+  ///
+  /// These statistics are needed for normalization calculations.
+  ///
+  /// **Parameters:**
+  /// - [listMatrix]: Matrix to analyze
+  ///
+  /// **Returns:** Map of criteria ID to their min/max statistics
+  ///
+  /// **Throws:**
+  /// - Exception if a rating is found without criteria ID
   Map<String, _CriteriaStats> _calculateCriteriaStats(
       List<SawMatrix> listMatrix) {
     final stats = <String, _CriteriaStats>{};
@@ -271,8 +429,21 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
     return stats;
   }
 
-  /// Normalize a single rating based on criteria statistics
-  /// Normalize a single rating based on criteria statistics
+  /// Normalizes a single rating value based on its criteria type and statistics.
+  ///
+  /// **Normalization formulas:**
+  /// - Benefit criteria: normalized = value / max_value
+  /// - Cost criteria: normalized = min_value / value
+  /// - If all values are equal: normalized = 1
+  ///
+  /// **Parameters:**
+  /// - [rating]: The rating to normalize
+  /// - [stats]: Statistics for all criteria
+  ///
+  /// **Returns:** Normalized rating
+  ///
+  /// **Throws:**
+  /// - Exception if zero value found in cost criteria
   SawRating _normalizeRating(
     SawRating rating,
     Map<String, _CriteriaStats> stats,
@@ -310,7 +481,20 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   /// ==========================================================================
   /// [RESULT]
 
-  /// CALCULATE SAW RESULT
+  /// Calculates final SAW scores and ranks alternatives.
+  ///
+  /// For each alternative, calculates:
+  /// - Weighted sum: Σ(normalized_value × weight)
+  /// - Rank based on scores (highest score = rank 1)
+  ///
+  /// **Parameters:**
+  /// - [normalizedMatrix]: The normalized decision matrix
+  ///
+  /// **Returns:** Sorted list of results with scores and ranks
+  ///
+  /// **Throws:**
+  /// - Exception if matrix is empty
+  /// - Exception if rating without criteria is found
   Future<List<SawResult>> _calculateSawScore(
       List<SawMatrix> normalizedMatrix) async {
     startPerformanceProfiling('Calculate SAW result');
@@ -405,7 +589,15 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
     }
   }
 
-  /// VALIDATE INPUT VALUE
+  /// Validates that all rating values do not exceed their criteria's maximum value.
+  ///
+  /// **Parameters:**
+  /// - [matrix]: Matrix to validate
+  ///
+  /// **Throws:**
+  /// - Exception if any rating is missing criteria
+  /// - Exception if any rating value is null
+  /// - Exception if any value exceeds its criteria's maximum
   Future<void> _validateMaxInputValue(List<SawMatrix> matrix) async {
     for (var e in matrix) {
       for (var r in e.ratings) {
@@ -431,7 +623,17 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
     }
   }
 
-  /// Validate and fix matrix data structure
+  /// Validates and repairs matrix data structure.
+  ///
+  /// This method ensures:
+  /// - All entities have IDs
+  /// - Criteria weights are normalized
+  /// - Data structure is consistent
+  ///
+  /// **Parameters:**
+  /// - [matrix]: Matrix to validate and fix
+  ///
+  /// **Returns:** Validated and fixed matrix
   List<SawMatrix> _validateAndFixMatrix(List<SawMatrix> matrix) {
     return matrix.map((m) {
       var updatedMatrix = _ensureMatrixId(m);
@@ -446,7 +648,12 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
     }).toList();
   }
 
-  /// Ensure matrix has ID
+  /// Ensures the matrix has a unique ID.
+  ///
+  /// **Parameters:**
+  /// - [matrix]: Matrix to check
+  ///
+  /// **Returns:** Matrix with guaranteed ID
   SawMatrix _ensureMatrixId(SawMatrix matrix) {
     if (matrix.id == null || matrix.id!.isEmpty) {
       return matrix.copyWith(id: _helper.getCustomUniqueId());
@@ -454,7 +661,12 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
     return matrix;
   }
 
-  /// Ensure alternative has ID
+  /// Ensures the alternative in the matrix has a unique ID.
+  ///
+  /// **Parameters:**
+  /// - [matrix]: Matrix to check
+  ///
+  /// **Returns:** Matrix with alternative having guaranteed ID
   SawMatrix _ensureAlternativeId(SawMatrix matrix) {
     if (matrix.alternative.id == null || matrix.alternative.id!.isEmpty) {
       final updatedAlternative =
@@ -464,7 +676,12 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
     return matrix;
   }
 
-  /// Ensure all ratings have IDs
+  /// Ensures all ratings and their criteria have unique IDs.
+  ///
+  /// **Parameters:**
+  /// - [matrix]: Matrix to check
+  ///
+  /// **Returns:** Matrix with all ratings having guaranteed IDs
   SawMatrix _ensureRatingIds(SawMatrix matrix) {
     final needsUpdate = matrix.ratings.any((d) =>
         d.id == null ||
@@ -495,7 +712,18 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
     return matrix.copyWith(ratings: updatedRatings);
   }
 
-  /// Normalize weights in matrix if necessary
+  /// Normalizes criteria weights within the matrix to sum to 100%.
+  ///
+  /// Ensures all criteria weights are consistent and properly normalized.
+  ///
+  /// **Parameters:**
+  /// - [matrix]: Matrix to normalize
+  ///
+  /// **Returns:** Matrix with normalized criteria weights
+  ///
+  /// **Throws:**
+  /// - Exception if total weight is zero
+  /// - Exception if any weight is negative
   SawMatrix _normalizeMatrixWeights(SawMatrix matrix) {
     final totalWeight = matrix.ratings
         .fold<double>(0, (a, b) => a + (b.criteria?.weightPercent ?? 0));
@@ -533,9 +761,15 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   }
 }
 
-/// Helper class to store criteria statistics
+/// Helper class to store minimum and maximum statistics for a criteria.
+///
+/// Used during the normalization process to calculate normalized values
+/// based on the range of values for each criteria.
 class _CriteriaStats {
+  /// Maximum value found for this criteria across all alternatives
   final num max;
+
+  /// Minimum value found for this criteria across all alternatives
   final num min;
 
   _CriteriaStats({required this.max, required this.min});

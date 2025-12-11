@@ -1,5 +1,6 @@
 import 'package:flutter_decision_making/feature/saw/domain/entities/saw_alternative.dart';
 
+/// SAW RESULT
 class SawResult {
   final String? id;
   final SawAlternative alternative;

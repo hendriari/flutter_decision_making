@@ -58,13 +58,13 @@ class SAW {
     }
 
     var updatedRatings = List<SawRating>.from(matrix.ratings);
-    updatedRatings[ratingIndex] = updatedRatings[ratingIndex].copyWith(value: value);
+    updatedRatings[ratingIndex] =
+        updatedRatings[ratingIndex].copyWith(value: value);
 
     updatedList[matrixIndex] = matrix.copyWith(ratings: updatedRatings);
 
     return updatedList;
   }
-
 
   /// CALCULATE SAW RESULT
   Future<List<SawResult>> calculateSawResult({

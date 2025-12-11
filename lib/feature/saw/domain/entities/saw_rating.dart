@@ -1,5 +1,6 @@
 import 'package:flutter_decision_making/feature/saw/domain/entities/saw_criteria.dart';
 
+/// RATINGS
 class SawRating {
   final String? id;
   final SawCriteria? criteria;
