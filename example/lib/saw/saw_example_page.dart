@@ -472,7 +472,6 @@ class _SawExamplePageState extends State<SawExamplePage> {
     return _sawMatrix != null && _sawMatrix!.isNotEmpty
         ? ElevatedButton(
           onPressed: () async {
-            /// TODO : CHECK VALUE BEFORE CALCULATE RESULT
             _sawResult = await _saw
                 .calculateSawResult(matrix: _sawMatrix!)
                 .catchError((e) {
