@@ -85,7 +85,7 @@ Major method logs:
 > Useful for debugging and optimization during development.
 
 ---
-## Support Me
+## 🎁 Support Me
 [![Ko-Fi](https://badgen.net/badge/icon/ko-fi?icon=kofi&color=red&label)](https://ko-fi.com/hendriari) [![Saweria Badge](https://img.shields.io/badge/Saweria-Donate-orange?style=flat&logo=buymeacoffee&logoColor=white)](https://saweria.co/hendriarii)
  
 ---
