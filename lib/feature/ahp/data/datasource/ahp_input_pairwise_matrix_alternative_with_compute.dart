@@ -6,12 +6,14 @@ import 'package:flutter_decision_making/feature/ahp/data/dto/pairwise_comparison
 import 'package:flutter_decision_making/feature/ahp/data/dto/pairwise_comparison_input_dto.dart';
 
 Future<List<Map<String, dynamic>>> generateInputPairwiseAlternative(
-  List<Map<String, dynamic>> rawDtoList,
+  Map<String, dynamic> data,
 ) async {
   startPerformanceProfiling('generate pairwise alternative');
 
   try {
-    final dtoList = rawDtoList.map((e) => AhpHierarchyDto.fromMap(e)).toList();
+    final rawList = List<Map<String, dynamic>>.from(data['data'] ?? []);
+
+    final dtoList = rawList.map((e) => AhpHierarchyDto.fromMap(e)).toList();
 
     final result = <PairwiseAlternativeInputDto>[];
 

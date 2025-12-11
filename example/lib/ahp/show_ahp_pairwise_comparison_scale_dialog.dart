@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_decision_making/flutter_decision_making.dart';
 
-class PairwiseComparisonScaleWidget extends StatefulWidget {
+class AhpPairwiseComparisonScaleWidget extends StatefulWidget {
   final List<AhpComparisonScale> comparison;
   final Function(AhpComparisonScale?, bool?) onSelected;
   final String leftItemName;
   final String rightItemName;
 
-  const PairwiseComparisonScaleWidget({
+  const AhpPairwiseComparisonScaleWidget({
     super.key,
     required this.comparison,
     required this.onSelected,
@@ -16,12 +16,12 @@ class PairwiseComparisonScaleWidget extends StatefulWidget {
   });
 
   @override
-  State<PairwiseComparisonScaleWidget> createState() =>
-      _PairwiseComparisonScaleWidgetState();
+  State<AhpPairwiseComparisonScaleWidget> createState() =>
+      _AhpPairwiseComparisonScaleWidgetState();
 }
 
-class _PairwiseComparisonScaleWidgetState
-    extends State<PairwiseComparisonScaleWidget> {
+class _AhpPairwiseComparisonScaleWidgetState
+    extends State<AhpPairwiseComparisonScaleWidget> {
   final ValueNotifier<AhpComparisonScale?> _selectedScale = ValueNotifier(null);
   final ValueNotifier<bool?> _isLeftMoreImportant = ValueNotifier(null);
   String? _message;
@@ -95,50 +95,40 @@ class _PairwiseComparisonScaleWidgetState
               SizedBox(height: 20),
 
               /// SELECT IMPORTANT
+              Text(
+                'Which is more important?',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+
               ValueListenableBuilder(
                 valueListenable: _isLeftMoreImportant,
-                builder:
-                    (context, v, c) => Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
+                builder: (context, value, _) {
+                  return RadioGroup<bool?>(
+                    onChanged: (newValue) {
+                      _isLeftMoreImportant.value = newValue;
+                    },
+                    groupValue: _isLeftMoreImportant.value,
+                    child: Column(
                       children: [
-                        Text(
-                          'Which is more important?',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-
-                        ListTile(
+                        RadioListTile<bool?>(
+                          value: true,
                           title: Text(
                             widget.leftItemName,
                             style: TextStyle(fontSize: 16),
                           ),
-                          leading: Radio<bool?>(
-                            value: true,
-                            groupValue: _isLeftMoreImportant.value,
-                            onChanged: (value) {
-                              _isLeftMoreImportant.value = value;
-                            },
-                          ),
                         ),
 
-                        ListTile(
+                        RadioListTile<bool?>(
+                          value: false,
                           title: Text(
                             widget.rightItemName,
                             style: TextStyle(fontSize: 16),
                           ),
-                          leading: Radio<bool?>(
-                            value: false,
-                            groupValue: _isLeftMoreImportant.value,
-                            onChanged: (value) {
-                              _isLeftMoreImportant.value = value;
-                            },
-                          ),
                         ),
                       ],
                     ),
+                  );
+                },
               ),
 
               SizedBox(height: 10),
@@ -190,7 +180,7 @@ class _PairwiseComparisonScaleWidgetState
   }
 }
 
-Future<bool?> showPairwiseComparisonScaleDialog(
+Future<bool?> showAhpPairwiseComparisonScaleDialog(
   BuildContext context, {
   required List<AhpComparisonScale> comparison,
   required Function(AhpComparisonScale?, bool?) onSelected,
@@ -202,7 +192,7 @@ Future<bool?> showPairwiseComparisonScaleDialog(
     barrierLabel: 'PAIRWISE COMPARISON SCALE',
     barrierDismissible: true,
     pageBuilder:
-        (context, anim1, anim2) => PairwiseComparisonScaleWidget(
+        (context, anim1, anim2) => AhpPairwiseComparisonScaleWidget(
           comparison: comparison,
           onSelected: onSelected,
           leftItemName: leftItemName,
