@@ -47,7 +47,7 @@ update docs
     - `checkConsistencyRatio`
     - `ahpFinalScore`
 
-## 1.1.0
+## 1.1.1
 
 ### Updated
 * adding Simple Additive Weighting (SAW) algorithm
