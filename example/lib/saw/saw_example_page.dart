@@ -16,10 +16,10 @@ class _SawExamplePageState extends State<SawExamplePage> {
   final _criteriaController = TextEditingController();
   final _alternativeController = TextEditingController();
   late TextStyle _textStyle;
-  late List<SawAlternative> _listSawAlternative;
-  late List<SawCriteria> _listSawCriteria;
-  List<SawMatrix>? _sawMatrix;
-  List<SawResult>? _sawResult;
+  late List<WeightedDecisionAlternative> _listSawAlternative;
+  late List<WeightedDecisionCriteria> _listSawCriteria;
+  List<WeightedDecisionMatrix>? _sawMatrix;
+  List<WeightedDecisionResult>? _sawResult;
   late SAW _saw;
   late Helper _helper;
 
@@ -60,7 +60,7 @@ class _SawExamplePageState extends State<SawExamplePage> {
                     () => _addItem(
                       _alternativeController,
                       _listSawAlternative,
-                      (name) => SawAlternative(name: name),
+                      (name) => WeightedDecisionAlternative(name: name),
                     ),
               ),
 
@@ -250,7 +250,7 @@ class _SawExamplePageState extends State<SawExamplePage> {
                 );
               }
 
-              return <SawMatrix>[];
+              return <WeightedDecisionMatrix>[];
             });
 
         Future.delayed(Duration(milliseconds: 300), () {
@@ -482,7 +482,7 @@ class _SawExamplePageState extends State<SawExamplePage> {
                     );
                   }
 
-                  return <SawResult>[];
+                  return <WeightedDecisionResult>[];
                 });
 
             Future.delayed(Duration(milliseconds: 300), () {

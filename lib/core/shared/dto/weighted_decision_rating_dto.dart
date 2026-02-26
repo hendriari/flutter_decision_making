@@ -1,21 +1,21 @@
-import 'package:flutter_decision_making/feature/saw/data/dto/saw_criteria_dto.dart';
+import 'package:flutter_decision_making/core/shared/dto/weighted_decision_criteria_dto.dart';
 
-class SawRatingDto {
+class WeightedDecisionRatingDto {
   final String? id;
-  final SawCriteriaDto? criteria;
+  final WeightedDecisionCriteriaDto? criteria;
   final num? value;
 
-  SawRatingDto({
+  WeightedDecisionRatingDto({
     this.id,
     required this.criteria,
     required this.value,
   });
 
-  factory SawRatingDto.fromJson(Map<String, dynamic> json) {
-    return SawRatingDto(
+  factory WeightedDecisionRatingDto.fromJson(Map<String, dynamic> json) {
+    return WeightedDecisionRatingDto(
       id: json['id'] as String?,
       criteria: json['criteria'] != null
-          ? SawCriteriaDto.fromJson(json['criteria'] as Map<String, dynamic>)
+          ? WeightedDecisionCriteriaDto.fromJson(json['criteria'] as Map<String, dynamic>)
           : null,
       value: json['value'] as num,
     );
@@ -27,12 +27,12 @@ class SawRatingDto {
         'value': value,
       };
 
-  SawRatingDto copyWith({
+  WeightedDecisionRatingDto copyWith({
     String? id,
-    SawCriteriaDto? criteria,
+    WeightedDecisionCriteriaDto? criteria,
     num? value,
   }) {
-    return SawRatingDto(
+    return WeightedDecisionRatingDto(
       id: id ?? this.id,
       criteria: criteria ?? this.criteria,
       value: value ?? this.value,

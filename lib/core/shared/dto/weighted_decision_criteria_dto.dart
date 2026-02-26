@@ -1,12 +1,12 @@
-class SawCriteriaDto {
+class WeightedDecisionCriteriaDto {
   final String? id;
   final String name;
   final bool isBenefit;
   final double weightPercent;
-  final num maxValue;
+  final double maxValue;
   final String? description;
 
-  SawCriteriaDto({
+  WeightedDecisionCriteriaDto({
     this.id,
     required this.name,
     required this.isBenefit,
@@ -15,13 +15,13 @@ class SawCriteriaDto {
     this.description,
   });
 
-  factory SawCriteriaDto.fromJson(Map<String, dynamic> json) {
-    return SawCriteriaDto(
+  factory WeightedDecisionCriteriaDto.fromJson(Map<String, dynamic> json) {
+    return WeightedDecisionCriteriaDto(
       id: json['id'] as String?,
       name: json['name'] as String,
       isBenefit: json['is_benefit'] as bool,
       weightPercent: (json['weight_percent'] as num).toDouble(),
-      maxValue: json['max_value'] as num,
+      maxValue: json['max_value'] as double,
       description: json['description'] as String?,
     );
   }
@@ -35,15 +35,15 @@ class SawCriteriaDto {
         'description': description,
       };
 
-  SawCriteriaDto copyWith({
+  WeightedDecisionCriteriaDto copyWith({
     String? id,
     String? name,
     bool? isBenefit,
     double? weightPercent,
-    num? maxValue,
+    double? maxValue,
     String? description,
   }) {
-    return SawCriteriaDto(
+    return WeightedDecisionCriteriaDto(
       id: id ?? this.id,
       name: name ?? this.name,
       isBenefit: isBenefit ?? this.isBenefit,

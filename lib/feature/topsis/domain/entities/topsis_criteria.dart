@@ -1,5 +1,5 @@
 /// CRITERIA
-class SawCriteria {
+class TopsisCriteria {
   final String? id;
   final String name;
   final bool isBenefit;
@@ -7,7 +7,7 @@ class SawCriteria {
   final num maxValue;
   final String? description;
 
-  SawCriteria({
+  TopsisCriteria({
     this.id,
     required this.name,
     required this.isBenefit,
@@ -16,7 +16,7 @@ class SawCriteria {
     this.description,
   });
 
-  SawCriteria copyWith({
+  TopsisCriteria copyWith({
     String? id,
     String? name,
     bool? isBenefit,
@@ -24,7 +24,7 @@ class SawCriteria {
     num? maxValue,
     String? description,
   }) =>
-      SawCriteria(
+      TopsisCriteria(
         id: id ?? this.id,
         name: name ?? this.name,
         isBenefit: isBenefit ?? this.isBenefit,
@@ -36,9 +36,9 @@ class SawCriteria {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is SawCriteria &&
-          runtimeType == other.runtimeType &&
-          id == other.id;
+          other is TopsisCriteria &&
+              runtimeType == other.runtimeType &&
+              id == other.id;
 
   @override
   int get hashCode => id.hashCode;

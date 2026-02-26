@@ -130,8 +130,8 @@ class DecisionIsolateMessage {
   /// The specific command/operation to perform within the algorithm.
   ///
   /// Type varies based on [algorithm]:
-  /// - For AHP: [AhpProcessingCommand]
-  /// - For SAW: [SawProcessingCommand]
+  /// - For AHP: [AhpProcessingIsolateCommand]
+  /// - For SAW: [SawProcessingIsolateCommand]
   final dynamic command;
 
   /// Input data required for the operation.

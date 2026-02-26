@@ -1,5 +1,5 @@
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_matrix.dart';
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_result.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_matrix.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_result.dart';
 import 'package:flutter_decision_making/feature/saw/domain/repository/saw_repository.dart';
 
 class SawCalculateResultUsecase {
@@ -7,8 +7,8 @@ class SawCalculateResultUsecase {
 
   SawCalculateResultUsecase(this._repository);
 
-  Future<List<SawResult>> execute({
-    required List<SawMatrix> matrix,
+  Future<List<WeightedDecisionResult>> execute({
+    required List<WeightedDecisionMatrix> matrix,
   }) async =>
       await _repository.calculateSawResult(matrix: matrix);
 }

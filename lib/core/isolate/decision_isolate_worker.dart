@@ -8,7 +8,7 @@ import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_final_sc
 import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_input_pairwise_matrix_alternative_with_compute.dart';
 import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_result_pairwise_matrix_alternative_isolated.dart';
 import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_result_pairwise_matrix_criteria_isolated.dart';
-import 'package:flutter_decision_making/feature/saw/data/datasource/generate_saw_matrix_isolate.dart';
+import 'package:flutter_decision_making/core/shared/interface/generate_weighted_decision_matrix_isolate.dart';
 import 'package:flutter_decision_making/feature/saw/data/datasource/normalize_saw_matrix_isolate.dart';
 
 import 'decision_isolate_message.dart';
@@ -204,9 +204,11 @@ Future<dynamic> _handleDecisionTask(
 ) async {
   switch (algorithm) {
     case DecisionAlgorithm.ahp:
-      return _handleAhpTask(command as AhpProcessingCommand, data);
+      return _handleAhpTask(command as AhpProcessingIsolateCommand, data);
     case DecisionAlgorithm.saw:
-      return _handleSawTask(command as SawProcessingCommand, data);
+      return _handleSawTask(command as SawProcessingIsolateCommand, data);
+    case DecisionAlgorithm.topsis:
+      return _handleTopsisTask(command as TopsisProcessingIsolateCommand, data);
   }
 }
 
@@ -271,23 +273,23 @@ Future<dynamic> _handleDecisionTask(
 /// );
 /// ```
 Future<dynamic> _handleAhpTask(
-  AhpProcessingCommand command,
+  AhpProcessingIsolateCommand command,
   Map<String, dynamic> data,
 ) async {
   switch (command) {
-    case AhpProcessingCommand.generateInputPairwiseAlternative:
+    case AhpProcessingIsolateCommand.generateInputPairwiseAlternative:
       return generateInputPairwiseAlternative(data);
-    case AhpProcessingCommand.generateResultPairwiseMatrixCriteria:
+    case AhpProcessingIsolateCommand.generateResultPairwiseMatrixCriteria:
       return ahpGenerateResultPairwiseMatrixCriteria(data);
-    case AhpProcessingCommand.generateResultPairwiseMatrixAlternative:
+    case AhpProcessingIsolateCommand.generateResultPairwiseMatrixAlternative:
       return ahpGenerateResultPairwiseMatrixAlternative(data);
-    case AhpProcessingCommand.calculateEigenVectorCriteria:
+    case AhpProcessingIsolateCommand.calculateEigenVectorCriteria:
       return ahpCalculateEigenVectorCriteria(data);
-    case AhpProcessingCommand.calculateEigenVectorAlternative:
+    case AhpProcessingIsolateCommand.calculateEigenVectorAlternative:
       return ahpCalculateEigenVectorAlternative(data);
-    case AhpProcessingCommand.checkConsistencyRatio:
+    case AhpProcessingIsolateCommand.checkConsistencyRatio:
       return ahpCheckConsistencyRatio(data);
-    case AhpProcessingCommand.calculateFinalScore:
+    case AhpProcessingIsolateCommand.calculateFinalScore:
       return ahpFinalScore(data);
   }
 }
@@ -348,13 +350,25 @@ Future<dynamic> _handleAhpTask(
 ///
 /// For smaller datasets, SAW operations run on the main thread.
 Future<dynamic> _handleSawTask(
-  SawProcessingCommand command,
+  SawProcessingIsolateCommand command,
   Map<String, dynamic> data,
 ) async {
   switch (command) {
-    case SawProcessingCommand.generateSawMatrix:
-      return generateSawMatrixIsolate(data: data);
-    case SawProcessingCommand.normalizeMatrix:
+    case SawProcessingIsolateCommand.generateMatrix:
+      return generateWeightedDecisionMatrixIsolate(data: data);
+    case SawProcessingIsolateCommand.normalizeMatrix:
+      return normalizeSawMatrixIsolate(data: data);
+  }
+}
+
+Future<dynamic> _handleTopsisTask(
+  TopsisProcessingIsolateCommand command,
+  Map<String, dynamic> data,
+) async {
+  switch (command) {
+    case TopsisProcessingIsolateCommand.generateMatrix:
+      return generateWeightedDecisionMatrixIsolate(data: data);
+    case TopsisProcessingIsolateCommand.normalizeMatrix:
       return normalizeSawMatrixIsolate(data: data);
   }
 }

@@ -1,22 +1,22 @@
-import 'package:flutter_decision_making/feature/saw/data/dto/saw_alternative_dto.dart';
+import 'package:flutter_decision_making/core/shared/dto/weighted_decision_alternative_dto.dart';
 
-class SawResultDto {
+class WeightedDecisionResultDto {
   final String? id;
-  final SawAlternativeDto alternative;
+  final WeightedDecisionAlternativeDto alternative;
   final double score;
   final int rank;
 
-  SawResultDto({
+  WeightedDecisionResultDto({
     this.id,
     required this.alternative,
     required this.score,
     required this.rank,
   });
 
-  factory SawResultDto.fromJson(Map<String, dynamic> json) {
-    return SawResultDto(
+  factory WeightedDecisionResultDto.fromJson(Map<String, dynamic> json) {
+    return WeightedDecisionResultDto(
       id: json['id'] as String?,
-      alternative: SawAlternativeDto.fromJson(json['alternative']),
+      alternative: WeightedDecisionAlternativeDto.fromJson(json['alternative']),
       score: (json['score'] as num).toDouble(),
       rank: json['rank'] as int,
     );

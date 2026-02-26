@@ -1,21 +1,21 @@
 /// ALTERNATIVE
-class SawAlternative {
+class TopsisAlternative {
   final String? id;
   final String name;
   final String? note;
 
-  SawAlternative({
+  TopsisAlternative({
     this.id,
     required this.name,
     this.note,
   });
 
-  SawAlternative copyWith({
+  TopsisAlternative copyWith({
     String? id,
     String? name,
     String? note,
   }) =>
-      SawAlternative(
+      TopsisAlternative(
         id: id ?? this.id,
         name: name ?? this.name,
         note: note ?? this.note,
@@ -24,9 +24,9 @@ class SawAlternative {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is SawAlternative &&
-          runtimeType == other.runtimeType &&
-          id == other.id;
+          other is TopsisAlternative &&
+              runtimeType == other.runtimeType &&
+              id == other.id;
 
   @override
   int get hashCode => id.hashCode;

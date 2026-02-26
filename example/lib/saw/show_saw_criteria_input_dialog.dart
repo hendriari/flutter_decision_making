@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_criteria.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_criteria.dart';
 
 class SawCriteriaInputWidget extends StatefulWidget {
-  final Function(SawCriteria) onSave;
+  final Function(WeightedDecisionCriteria) onSave;
 
   const SawCriteriaInputWidget({super.key, required this.onSave});
 
@@ -178,7 +178,7 @@ class _SawCriteriaInputWidgetState extends State<SawCriteriaInputWidget> {
                         );
                       } else {
                         final weightParsed = double.tryParse(weight);
-                        final maxValueParsed = num.tryParse(maxValue);
+                        final maxValueParsed = double.tryParse(maxValue);
 
                         if (weightParsed == null) {
                           _updateErrorMessage("Please input valid a number");
@@ -197,7 +197,7 @@ class _SawCriteriaInputWidgetState extends State<SawCriteriaInputWidget> {
                             "The total weight must not be a negative number",
                           );
                         } else {
-                          final criteria = SawCriteria(
+                          final criteria = WeightedDecisionCriteria(
                             name: name,
                             isBenefit: _isBenefit.value!,
                             weightPercent: weightParsed,
@@ -225,7 +225,7 @@ class _SawCriteriaInputWidgetState extends State<SawCriteriaInputWidget> {
 
 Future<bool?> showSawCriteriaInputDialog(
   BuildContext context, {
-  required Function(SawCriteria) onSave,
+  required Function(WeightedDecisionCriteria) onSave,
 }) async {
   return showGeneralDialog(
     context: context,

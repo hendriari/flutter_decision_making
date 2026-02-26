@@ -1,19 +1,17 @@
 import 'package:flutter_decision_making/core/shared/entity/weighted_decision_alternative.dart';
 import 'package:flutter_decision_making/core/shared/entity/weighted_decision_criteria.dart';
 import 'package:flutter_decision_making/core/shared/entity/weighted_decision_matrix.dart';
-import 'package:flutter_decision_making/feature/saw/domain/repository/saw_repository.dart';
+import 'package:flutter_decision_making/feature/topsis/domain/repository/topsis_repository.dart';
 
-class SawGenerateMatrixUsecase {
-  final SawRepository _sawRepository;
+class GenerateTopsisMatrixUsecase {
+  final TopsisRepository _repository;
 
-  SawGenerateMatrixUsecase(this._sawRepository);
+  GenerateTopsisMatrixUsecase(this._repository);
 
   Future<List<WeightedDecisionMatrix>> execute({
     required List<WeightedDecisionAlternative> listAlternative,
     required List<WeightedDecisionCriteria> listCriteria,
   }) async =>
-      await _sawRepository.generateSawMatrix(
-        listAlternative: listAlternative,
-        listCriteria: listCriteria,
-      );
+      _repository.generateSawMatrix(
+          listAlternative: listAlternative, listCriteria: listCriteria);
 }

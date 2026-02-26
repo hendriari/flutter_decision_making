@@ -1,26 +1,26 @@
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_alternative.dart';
+import 'package:flutter_decision_making/feature/topsis/domain/entities/topsis_alternative.dart';
 
-/// SAW RESULT
-class SawResult {
+/// RESULT
+class TopsisResult {
   final String? id;
-  final SawAlternative alternative;
+  final TopsisAlternative alternative;
   final double score;
   final int rank;
 
-  SawResult({
+  TopsisResult({
     this.id,
     required this.alternative,
     required this.score,
     required this.rank,
   });
 
-  SawResult copyWith({
+  TopsisResult copyWith({
     String? id,
-    SawAlternative? alternative,
+    TopsisAlternative? alternative,
     double? score,
     int? rank,
   }) =>
-      SawResult(
+      TopsisResult(
         id: id ?? this.id,
         alternative: alternative ?? this.alternative,
         score: score ?? this.score,
@@ -30,7 +30,9 @@ class SawResult {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is SawResult && runtimeType == other.runtimeType && id == other.id;
+      other is TopsisResult &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
 
   @override
   int get hashCode => id.hashCode;

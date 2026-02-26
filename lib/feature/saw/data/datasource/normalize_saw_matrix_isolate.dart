@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
-import 'package:flutter_decision_making/feature/saw/data/dto/saw_matrix_dto.dart';
-import 'package:flutter_decision_making/feature/saw/data/dto/saw_rating_dto.dart';
+import 'package:flutter_decision_making/core/shared/dto/weighted_decision_matrix_dto.dart';
+import 'package:flutter_decision_making/core/shared/dto/weighted_decision_rating_dto.dart';
 
 /// Normalizes SAW (Simple Additive Weighting) matrix in an isolate.
 ///
@@ -41,7 +41,7 @@ Future<List<Map<String, dynamic>>> normalizeSawMatrixIsolate({
 
     // Parse JSON into DTO objects
     final listMatrix =
-        rawListMatrix.map((e) => SawMatrixDto.fromJson(e)).toList();
+        rawListMatrix.map((e) => WeightedDecisionMatrixDto.fromJson(e)).toList();
 
     // Calculate statistics (min/max) for each criteria
     final criteriaStats = _calculateCriteriaStatsIsolate(listMatrix);
@@ -75,7 +75,7 @@ Future<List<Map<String, dynamic>>> normalizeSawMatrixIsolate({
 ///
 /// Throws [Exception] if a rating without criteria ID is found
 Map<String, _CriteriaStats> _calculateCriteriaStatsIsolate(
-  List<SawMatrixDto> listMatrix,
+  List<WeightedDecisionMatrixDto> listMatrix,
 ) {
   final stats = <String, _CriteriaStats>{};
 
@@ -125,8 +125,8 @@ Map<String, _CriteriaStats> _calculateCriteriaStatsIsolate(
 /// - No statistics found for the criteria
 /// - Zero value found in cost criteria (invalid for cost normalization)
 /// - Minimum value is zero in cost criteria (makes normalization impossible)
-SawRatingDto _normalizeRatingIsolate(
-  SawRatingDto rating,
+WeightedDecisionRatingDto _normalizeRatingIsolate(
+  WeightedDecisionRatingDto rating,
   Map<String, _CriteriaStats> stats,
 ) {
   final cid = rating.criteria?.id;

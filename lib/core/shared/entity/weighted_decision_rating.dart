@@ -1,23 +1,23 @@
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_criteria.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_criteria.dart';
 
 /// RATINGS
-class SawRating {
+class WeightedDecisionRating {
   final String? id;
-  final SawCriteria? criteria;
+  final WeightedDecisionCriteria? criteria;
   final num? value;
 
-  SawRating({
+  WeightedDecisionRating({
     this.id,
     required this.criteria,
     required this.value,
   });
 
-  SawRating copyWith({
+  WeightedDecisionRating copyWith({
     String? id,
-    SawCriteria? criteria,
+    WeightedDecisionCriteria? criteria,
     num? value,
   }) =>
-      SawRating(
+      WeightedDecisionRating(
         id: id ?? this.id,
         criteria: criteria ?? this.criteria,
         value: value ?? this.value,
@@ -26,7 +26,7 @@ class SawRating {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is SawRating && runtimeType == other.runtimeType && id == other.id;
+      other is WeightedDecisionRating && runtimeType == other.runtimeType && id == other.id;
 
   @override
   int get hashCode => id.hashCode;

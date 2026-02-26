@@ -1,16 +1,16 @@
-class SawAlternativeDto {
+class WeightedDecisionAlternativeDto {
   final String? id;
   final String name;
   final String? note;
 
-  SawAlternativeDto({
+  WeightedDecisionAlternativeDto({
     this.id,
     required this.name,
     this.note,
   });
 
-  factory SawAlternativeDto.fromJson(Map<String, dynamic> json) {
-    return SawAlternativeDto(
+  factory WeightedDecisionAlternativeDto.fromJson(Map<String, dynamic> json) {
+    return WeightedDecisionAlternativeDto(
       id: json['id'] as String?,
       name: json['name'] as String,
       note: json['note'] as String?,

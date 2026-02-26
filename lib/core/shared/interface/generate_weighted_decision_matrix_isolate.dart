@@ -1,10 +1,10 @@
-import 'package:flutter_decision_making/feature/saw/data/dto/saw_alternative_dto.dart';
-import 'package:flutter_decision_making/feature/saw/data/dto/saw_criteria_dto.dart';
-import 'package:flutter_decision_making/feature/saw/data/dto/saw_matrix_dto.dart';
-import 'package:flutter_decision_making/feature/saw/data/dto/saw_rating_dto.dart';
+import 'package:flutter_decision_making/core/shared/dto/weighted_decision_alternative_dto.dart';
+import 'package:flutter_decision_making/core/shared/dto/weighted_decision_criteria_dto.dart';
+import 'package:flutter_decision_making/core/shared/dto/weighted_decision_matrix_dto.dart';
+import 'package:flutter_decision_making/core/shared/dto/weighted_decision_rating_dto.dart';
 import 'package:uuid/uuid.dart';
 
-/// Generates SAW (Simple Additive Weighting) decision matrix in an isolate.
+/// Generates decision matrix in an isolate.
 ///
 /// This function creates an initial decision matrix structure where each alternative
 /// is evaluated against all criteria. The matrix is generated in a separate isolate
@@ -27,7 +27,7 @@ import 'package:uuid/uuid.dart';
 /// - Criteria or alternative data is null
 /// - Validation fails
 /// - An error occurs during matrix generation
-Future<List<Map<String, dynamic>>> generateSawMatrixIsolate({
+Future<List<Map<String, dynamic>>> generateWeightedDecisionMatrixIsolate({
   required Map<String, dynamic> data,
 }) async {
   try {
@@ -51,10 +51,12 @@ Future<List<Map<String, dynamic>>> generateSawMatrixIsolate({
     final listAlternative = List<Map<String, dynamic>>.from(rawAlternative);
 
     // Parse JSON data into DTO objects
-    final criteriaParsed =
-        listCriteria.map((e) => SawCriteriaDto.fromJson(e)).toList();
-    final alternativeParsed =
-        listAlternative.map((e) => SawAlternativeDto.fromJson(e)).toList();
+    final criteriaParsed = listCriteria
+        .map((e) => WeightedDecisionCriteriaDto.fromJson(e))
+        .toList();
+    final alternativeParsed = listAlternative
+        .map((e) => WeightedDecisionAlternativeDto.fromJson(e))
+        .toList();
 
     // Validate parsed inputs
     _validateInputsIsolate(alternativeParsed, criteriaParsed);
@@ -71,8 +73,7 @@ Future<List<Map<String, dynamic>>> generateSawMatrixIsolate({
     // Convert result to JSON format for returning to main isolate
     return result.map((e) => e.toJson()).toList();
   } catch (e, stackTrace) {
-    throw Exception(
-        'Failed to generate SAW matrix in isolate: $e\n$stackTrace');
+    throw Exception('Failed to generate matrix in isolate: $e\n$stackTrace');
   }
 }
 
@@ -89,8 +90,8 @@ Future<List<Map<String, dynamic>>> generateSawMatrixIsolate({
 ///
 /// Throws [ArgumentError] if any validation fails
 void _validateInputsIsolate(
-  List<SawAlternativeDto> alternatives,
-  List<SawCriteriaDto> criteria,
+  List<WeightedDecisionAlternativeDto> alternatives,
+  List<WeightedDecisionCriteriaDto> criteria,
 ) {
   // Validate alternatives list is not empty
   if (alternatives.isEmpty) {
@@ -130,8 +131,8 @@ void _validateInputsIsolate(
 /// [criteria] List of criteria to normalize
 ///
 /// Returns List of criteria with normalized weights
-List<SawCriteriaDto> _normalizeCriteriaWeightsIsolate(
-  List<SawCriteriaDto> criteria,
+List<WeightedDecisionCriteriaDto> _normalizeCriteriaWeightsIsolate(
+  List<WeightedDecisionCriteriaDto> criteria,
 ) {
   // Calculate total weight
   final totalWeight = criteria.fold<num>(0, (a, b) => a + b.weightPercent);
@@ -161,16 +162,16 @@ List<SawCriteriaDto> _normalizeCriteriaWeightsIsolate(
 /// [alternatives] List of alternatives to include in the matrix
 /// [criteria] List of normalized criteria
 ///
-/// Returns List of SawMatrixDto representing the complete matrix structure
-List<SawMatrixDto> _generateMatrixDataIsolate(
-  List<SawAlternativeDto> alternatives,
-  List<SawCriteriaDto> criteria,
+/// Returns List of WeightedDecisionMatrix representing the complete matrix structure
+List<WeightedDecisionMatrixDto> _generateMatrixDataIsolate(
+  List<WeightedDecisionAlternativeDto> alternatives,
+  List<WeightedDecisionCriteriaDto> criteria,
 ) {
   // Create matrix entry for each alternative
   return alternatives.map((alt) {
     // Create a rating entry for each criterion
     final ratings = criteria.map((crt) {
-      return SawRatingDto(
+      return WeightedDecisionRatingDto(
         id: Uuid().v4(),
         criteria: crt,
         value: 0, // Initial value, to be filled by user
@@ -178,7 +179,7 @@ List<SawMatrixDto> _generateMatrixDataIsolate(
     }).toList();
 
     // Create matrix entry with unique ID, alternative, and all ratings
-    return SawMatrixDto(
+    return WeightedDecisionMatrixDto(
       id: Uuid().v4(),
       alternative: alt,
       ratings: ratings,

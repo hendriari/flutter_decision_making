@@ -1,8 +1,8 @@
 import 'package:flutter_decision_making/feature/saw/data/datasource/saw_local_datasource.dart';
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_alternative.dart';
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_criteria.dart';
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_matrix.dart';
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_result.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_alternative.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_criteria.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_matrix.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_result.dart';
 import 'package:flutter_decision_making/feature/saw/domain/repository/saw_repository.dart';
 
 class SawRepositoryImpl extends SawRepository {
@@ -11,9 +11,9 @@ class SawRepositoryImpl extends SawRepository {
   SawRepositoryImpl(this._localDatasource);
 
   @override
-  Future<List<SawMatrix>> generateSawMatrix({
-    required List<SawAlternative> listAlternative,
-    required List<SawCriteria> listCriteria,
+  Future<List<WeightedDecisionMatrix>> generateSawMatrix({
+    required List<WeightedDecisionAlternative> listAlternative,
+    required List<WeightedDecisionCriteria> listCriteria,
   }) async {
     return await _localDatasource.generateSawMatrix(
       listAlternative: listAlternative,
@@ -22,14 +22,14 @@ class SawRepositoryImpl extends SawRepository {
   }
 
   @override
-  Future<List<SawResult>> calculateSawResult(
-      {required List<SawMatrix> matrix}) async {
+  Future<List<WeightedDecisionResult>> calculateSawResult(
+      {required List<WeightedDecisionMatrix> matrix}) async {
     return await _localDatasource.calculateSawResult(matrix: matrix);
   }
 
   @override
-  Future<List<SawResult>> calculateResultWithExistingMatrix(
-      {required List<SawMatrix> sawMatrix}) async {
+  Future<List<WeightedDecisionResult>> calculateResultWithExistingMatrix(
+      {required List<WeightedDecisionMatrix> sawMatrix}) async {
     return await _localDatasource.calculateResultWithExistingMatrix(
       matrix: sawMatrix,
     );

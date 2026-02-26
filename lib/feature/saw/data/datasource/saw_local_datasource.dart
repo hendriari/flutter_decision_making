@@ -5,15 +5,14 @@ import 'package:flutter_decision_making/core/decision_making_enums.dart';
 import 'package:flutter_decision_making/core/decision_making_helper.dart';
 import 'package:flutter_decision_making/core/decision_making_performance_profiling.dart';
 import 'package:flutter_decision_making/core/isolate/decision_isolate_main.dart';
-import 'package:flutter_decision_making/feature/saw/data/dto/saw_matrix_dto.dart';
-import 'package:flutter_decision_making/feature/saw/data/mapper/saw_alternative_mapper.dart';
-import 'package:flutter_decision_making/feature/saw/data/mapper/saw_criteria_mapper.dart';
-import 'package:flutter_decision_making/feature/saw/data/mapper/saw_matrix_mapper.dart';
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_alternative.dart';
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_criteria.dart';
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_matrix.dart';
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_rating.dart';
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_result.dart';
+import 'package:flutter_decision_making/core/shared/dto/weighted_decision_matrix_dto.dart';
+import 'package:flutter_decision_making/core/shared/interface/weighted_decision_matrix_mixin.dart';
+import 'package:flutter_decision_making/core/shared/mapper/weighted_decision_matrix_mapper.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_alternative.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_criteria.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_matrix.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_rating.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_result.dart';
 
 /// Abstract class defining the contract for SAW (Simple Additive Weighting) local data operations.
 ///
@@ -21,7 +20,7 @@ import 'package:flutter_decision_making/feature/saw/domain/entities/saw_result.d
 /// - Matrix generation from alternatives and criteria
 /// - Matrix normalization
 /// - Result calculation with ranking
-abstract class SawLocalDatasource {
+abstract interface class SawLocalDatasource {
   /// Generates a SAW decision matrix from the given alternatives and criteria.
   ///
   /// The matrix represents all alternatives evaluated against all criteria,
@@ -31,14 +30,14 @@ abstract class SawLocalDatasource {
   /// - [listAlternative]: List of alternatives to be evaluated
   /// - [listCriteria]: List of criteria for evaluation
   ///
-  /// **Returns:** A list of [SawMatrix] objects, one for each alternative
+  /// **Returns:** A list of [WeightedDecisionMatrix] objects, one for each alternative
   ///
   /// **Throws:**
   /// - Exception if alternatives or criteria lists are empty
   /// - Exception if criteria weights are invalid
-  Future<List<SawMatrix>> generateSawMatrix({
-    required List<SawAlternative> listAlternative,
-    required List<SawCriteria> listCriteria,
+  Future<List<WeightedDecisionMatrix>> generateSawMatrix({
+    required List<WeightedDecisionAlternative> listAlternative,
+    required List<WeightedDecisionCriteria> listCriteria,
   });
 
   /// Calculates the final SAW results from a decision matrix.
@@ -52,12 +51,12 @@ abstract class SawLocalDatasource {
   /// **Parameters:**
   /// - [matrix]: The decision matrix containing ratings for all alternatives
   ///
-  /// **Returns:** A ranked list of [SawResult] objects
+  /// **Returns:** A ranked list of [WeightedDecisionResult] objects
   ///
   /// **Throws:**
   /// - Exception if matrix is empty or contains invalid values
-  Future<List<SawResult>> calculateSawResult({
-    required List<SawMatrix> matrix,
+  Future<List<WeightedDecisionResult>> calculateSawResult({
+    required List<WeightedDecisionMatrix> matrix,
   });
 
   /// Calculates results using an existing matrix with validation and fixing.
@@ -68,12 +67,12 @@ abstract class SawLocalDatasource {
   /// **Parameters:**
   /// - [matrix]: The existing decision matrix to calculate from
   ///
-  /// **Returns:** A ranked list of [SawResult] objects
+  /// **Returns:** A ranked list of [WeightedDecisionResult] objects
   ///
   /// **Throws:**
   /// - Exception if matrix is empty or contains invalid data
-  Future<List<SawResult>> calculateResultWithExistingMatrix({
-    required List<SawMatrix> matrix,
+  Future<List<WeightedDecisionResult>> calculateResultWithExistingMatrix({
+    required List<WeightedDecisionMatrix> matrix,
   });
 }
 
@@ -98,9 +97,15 @@ abstract class SawLocalDatasource {
 /// // Calculate results
 /// final results = await datasource.calculateSawResult(matrix: matrix);
 /// ```
-class SawLocalDatasourceImpl extends SawLocalDatasource {
+class SawLocalDatasourceImpl with WeightedDecisionMatrixInterface implements SawLocalDatasource {
   final DecisionMakingHelper _helper;
   final DecisionIsolateMain _isolate;
+
+  @override
+  DecisionMakingHelper get helper => _helper;
+
+  @override
+  DecisionIsolateMain get isolate => _isolate;
 
   /// Creates an instance of [SawLocalDatasourceImpl].
   ///
@@ -118,29 +123,32 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   /// [MATRIX]
   /// GENERATE SAW MATRIX
   @override
-  Future<List<SawMatrix>> generateSawMatrix({
-    required List<SawAlternative> listAlternative,
-    required List<SawCriteria> listCriteria,
+  Future<List<WeightedDecisionMatrix>> generateSawMatrix({
+    required List<WeightedDecisionAlternative> listAlternative,
+    required List<WeightedDecisionCriteria> listCriteria,
   }) async {
     startPerformanceProfiling('Generate SAW pairwise matrix');
     try {
-      _validateInputs(listAlternative, listCriteria);
+      validateInputs(listAlternative, listCriteria);
 
-      final normalizedCriteria = _normalizeCriteriaWeights(listCriteria);
-      final updateAlternative = _ensureIdsForAlternatives(listAlternative);
-      final updateCriteria = _ensureIdsForCriteria(normalizedCriteria);
+      final normalizedCriteria = normalizeCriteriaWeights(listCriteria);
+      final updateAlternative = ensureIdsForAlternatives(listAlternative);
+      final updateCriteria = ensureIdsForCriteria(normalizedCriteria);
 
-      List<SawMatrix> result = [];
+      List<WeightedDecisionMatrix> result = [];
       final canUseIsolate = !kIsWeb &&
-          (updateAlternative.length > 80 || updateCriteria.length > 25);
+          (updateAlternative.length > 10 || updateCriteria.length > 25);
+          // (updateAlternative.length > 80 || updateCriteria.length > 25);
 
       if (canUseIsolate) {
-        result = await _generateMatrixWithIsolate(
+        result = await generateMatrixWithIsolate(
+          DecisionAlgorithm.saw,
+          SawProcessingIsolateCommand.generateMatrix,
           updateAlternative,
           updateCriteria,
         );
       } else {
-        result = _generateMatrixDirectly(updateAlternative, updateCriteria);
+        result = generateMatrixDirectly(updateAlternative, updateCriteria);
       }
 
       return result;
@@ -150,160 +158,6 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
     } finally {
       endPerformanceProfiling('Generate SAW pairwise matrix');
     }
-  }
-
-  /// Validates input data for matrix generation.
-  ///
-  /// Ensures that:
-  /// - Alternative and criteria lists are not empty
-  /// - All criteria weights are non-negative
-  /// - Total weight is not zero
-  ///
-  /// **Throws:**
-  /// - Exception with descriptive message if validation fails
-  void _validateInputs(
-    List<SawAlternative> alternatives,
-    List<SawCriteria> criteria,
-  ) {
-    if (alternatives.isEmpty) {
-      throw Exception("Alternatives list cannot be empty!");
-    }
-
-    if (criteria.isEmpty) {
-      throw Exception("Criteria list cannot be empty!");
-    }
-
-    for (var c in criteria) {
-      if (c.weightPercent < 0) {
-        throw Exception("Criteria weight cannot be negative: ${c.name}");
-      }
-    }
-
-    final totalWeight = criteria.fold<num>(0, (a, b) => a + b.weightPercent);
-    if (totalWeight == 0) {
-      throw Exception("Total criteria weight cannot be zero.");
-    }
-  }
-
-  /// Normalizes criteria weights to sum to exactly 100%.
-  ///
-  /// If weights already sum to 100, returns the original list.
-  /// Otherwise, proportionally adjusts all weights to sum to 100%.
-  ///
-  /// **Parameters:**
-  /// - [criteria]: List of criteria to normalize
-  ///
-  /// **Returns:** List of criteria with normalized weights
-  List<SawCriteria> _normalizeCriteriaWeights(List<SawCriteria> criteria) {
-    final totalWeight = criteria.fold<num>(0, (a, b) => a + b.weightPercent);
-
-    if (totalWeight == 100) {
-      return List<SawCriteria>.from(criteria);
-    }
-
-    dev.log(
-      "[SAW] Total weight = $totalWeight, auto-normalizing to 100%.",
-      name: "DECISION MAKING",
-    );
-
-    return criteria.map((c) {
-      final normalized = (c.weightPercent / totalWeight) * 100;
-      return c.copyWith(weightPercent: normalized);
-    }).toList();
-  }
-
-  /// Ensures all alternatives have unique IDs.
-  ///
-  /// Generates new IDs for alternatives that are missing them.
-  ///
-  /// **Parameters:**
-  /// - [alternatives]: List of alternatives to process
-  ///
-  /// **Returns:** List of alternatives with guaranteed IDs
-  List<SawAlternative> _ensureIdsForAlternatives(
-      List<SawAlternative> alternatives) {
-    return alternatives.map((e) {
-      return (e.id == null || e.id!.isEmpty)
-          ? e.copyWith(id: _helper.getCustomUniqueId())
-          : e;
-    }).toList();
-  }
-
-  /// Ensures all criteria have unique IDs.
-  ///
-  /// Generates new IDs for criteria that are missing them.
-  ///
-  /// **Parameters:**
-  /// - [criteria]: List of criteria to process
-  ///
-  /// **Returns:** List of criteria with guaranteed IDs
-  List<SawCriteria> _ensureIdsForCriteria(List<SawCriteria> criteria) {
-    return criteria.map((e) {
-      return (e.id == null || e.id!.isEmpty)
-          ? e.copyWith(id: _helper.getCustomUniqueId())
-          : e;
-    }).toList();
-  }
-
-  /// Generates matrix using isolate for large datasets.
-  ///
-  /// Uses a separate isolate to prevent blocking the main thread
-  /// when processing large numbers of alternatives or criteria.
-  ///
-  /// **Parameters:**
-  /// - [alternatives]: List of alternatives
-  /// - [criteria]: List of criteria
-  ///
-  /// **Returns:** Generated matrix
-  Future<List<SawMatrix>> _generateMatrixWithIsolate(
-    List<SawAlternative> alternatives,
-    List<SawCriteria> criteria,
-  ) async {
-    final rawResult = await _isolate.runTask(
-      DecisionAlgorithm.saw,
-      SawProcessingCommand.generateSawMatrix,
-      {
-        "list_criteria": criteria.map((e) => e.toDto().toJson()).toList(),
-        "list_alternative":
-            alternatives.map((e) => e.toDto().toJson()).toList(),
-      },
-    );
-
-    return (rawResult as List)
-        .map((e) =>
-            SawMatrixDto.fromJson(Map<String, dynamic>.from(e)).toEntity())
-        .toList();
-  }
-
-  /// Generates matrix directly without using isolate.
-  ///
-  /// Used for smaller datasets where isolate overhead is not justified.
-  /// Creates a matrix with initialized ratings (all set to 0).
-  ///
-  /// **Parameters:**
-  /// - [alternatives]: List of alternatives
-  /// - [criteria]: List of criteria
-  ///
-  /// **Returns:** Generated matrix with empty ratings
-  List<SawMatrix> _generateMatrixDirectly(
-    List<SawAlternative> alternatives,
-    List<SawCriteria> criteria,
-  ) {
-    return alternatives.map((alt) {
-      final ratings = criteria.map((crt) {
-        return SawRating(
-          id: _helper.getCustomUniqueId(),
-          criteria: crt,
-          value: 0,
-        );
-      }).toList();
-
-      return SawMatrix(
-        id: _helper.getCustomUniqueId(),
-        alternative: alt,
-        ratings: ratings,
-      );
-    }).toList();
   }
 
   /// ==========================================================================
@@ -323,14 +177,14 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   /// **Throws:**
   /// - Exception if matrix is empty
   /// - Exception if cost criteria contain zero values
-  Future<List<SawMatrix>> _normalizeMatrix(List<SawMatrix> listMatrix) async {
+  Future<List<WeightedDecisionMatrix>> _normalizeMatrix(List<WeightedDecisionMatrix> listMatrix) async {
     startPerformanceProfiling('normalize matrix saw');
     try {
       if (listMatrix.isEmpty) {
         throw Exception('Matrix cannot be empty!');
       }
 
-      var normalized = <SawMatrix>[];
+      var normalized = <WeightedDecisionMatrix>[];
       final canUseIsolate = !kIsWeb &&
           (listMatrix.length > 80 || listMatrix.first.ratings.length > 25);
 
@@ -354,18 +208,18 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   /// - [listMatrix]: Matrix to normalize
   ///
   /// **Returns:** Normalized matrix
-  Future<List<SawMatrix>> _normalizeMatrixWithIsolate(
-      List<SawMatrix> listMatrix) async {
+  Future<List<WeightedDecisionMatrix>> _normalizeMatrixWithIsolate(
+      List<WeightedDecisionMatrix> listMatrix) async {
     final rawData = await _isolate.runTask(
       DecisionAlgorithm.saw,
-      SawProcessingCommand.normalizeMatrix,
+      SawProcessingIsolateCommand.normalizeMatrix,
       {
         "matrix": listMatrix.map((e) => e.toDto().toJson()).toList(),
       },
     );
 
     final parsed =
-        (rawData as List).map((e) => SawMatrixDto.fromJson(e)).toList();
+        (rawData as List).map((e) => WeightedDecisionMatrixDto.fromJson(e)).toList();
 
     return parsed.map((e) => e.toEntity()).toList();
   }
@@ -379,7 +233,7 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   /// - [listMatrix]: Matrix to normalize
   ///
   /// **Returns:** Normalized matrix
-  List<SawMatrix> _normalizeMatrixDirectly(List<SawMatrix> listMatrix) {
+  List<WeightedDecisionMatrix> _normalizeMatrixDirectly(List<WeightedDecisionMatrix> listMatrix) {
     final criteriaStats = _calculateCriteriaStats(listMatrix);
 
     return listMatrix.map((matrix) {
@@ -403,7 +257,7 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   /// **Throws:**
   /// - Exception if a rating is found without criteria ID
   Map<String, _CriteriaStats> _calculateCriteriaStats(
-      List<SawMatrix> listMatrix) {
+      List<WeightedDecisionMatrix> listMatrix) {
     final stats = <String, _CriteriaStats>{};
 
     for (var matrix in listMatrix) {
@@ -444,8 +298,8 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   ///
   /// **Throws:**
   /// - Exception if zero value found in cost criteria
-  SawRating _normalizeRating(
-    SawRating rating,
+  WeightedDecisionRating _normalizeRating(
+    WeightedDecisionRating rating,
     Map<String, _CriteriaStats> stats,
   ) {
     final cid = rating.criteria?.id;
@@ -495,15 +349,15 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   /// **Throws:**
   /// - Exception if matrix is empty
   /// - Exception if rating without criteria is found
-  Future<List<SawResult>> _calculateSawScore(
-      List<SawMatrix> normalizedMatrix) async {
+  Future<List<WeightedDecisionResult>> _calculateSawScore(
+      List<WeightedDecisionMatrix> normalizedMatrix) async {
     startPerformanceProfiling('Calculate SAW result');
     try {
       if (normalizedMatrix.isEmpty) {
         throw Exception('Normalized matrix cannot be empty!');
       }
 
-      var sawResult = <SawResult>[];
+      var sawResult = <WeightedDecisionResult>[];
 
       for (var matrix in normalizedMatrix) {
         double totalScore = 0;
@@ -521,7 +375,7 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
           totalScore += value * weight;
         }
 
-        sawResult.add(SawResult(
+        sawResult.add(WeightedDecisionResult(
           alternative: matrix.alternative,
           score: totalScore,
           rank: 0,
@@ -543,8 +397,8 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   }
 
   @override
-  Future<List<SawResult>> calculateSawResult({
-    required List<SawMatrix> matrix,
+  Future<List<WeightedDecisionResult>> calculateSawResult({
+    required List<WeightedDecisionMatrix> matrix,
   }) async {
     startPerformanceProfiling('Combined all method SAW algorithm');
     try {
@@ -565,8 +419,8 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   /// [RESULT WITH CRITERIA]
 
   @override
-  Future<List<SawResult>> calculateResultWithExistingMatrix({
-    required List<SawMatrix> matrix,
+  Future<List<WeightedDecisionResult>> calculateResultWithExistingMatrix({
+    required List<WeightedDecisionMatrix> matrix,
   }) async {
     startPerformanceProfiling('Calculate result with existing matrix');
     try {
@@ -598,7 +452,7 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   /// - Exception if any rating is missing criteria
   /// - Exception if any rating value is null
   /// - Exception if any value exceeds its criteria's maximum
-  Future<void> _validateMaxInputValue(List<SawMatrix> matrix) async {
+  Future<void> _validateMaxInputValue(List<WeightedDecisionMatrix> matrix) async {
     for (var e in matrix) {
       for (var r in e.ratings) {
         final criteria = r.criteria;
@@ -634,7 +488,7 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   /// - [matrix]: Matrix to validate and fix
   ///
   /// **Returns:** Validated and fixed matrix
-  List<SawMatrix> _validateAndFixMatrix(List<SawMatrix> matrix) {
+  List<WeightedDecisionMatrix> _validateAndFixMatrix(List<WeightedDecisionMatrix> matrix) {
     return matrix.map((m) {
       var updatedMatrix = _ensureMatrixId(m);
 
@@ -654,7 +508,7 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   /// - [matrix]: Matrix to check
   ///
   /// **Returns:** Matrix with guaranteed ID
-  SawMatrix _ensureMatrixId(SawMatrix matrix) {
+  WeightedDecisionMatrix _ensureMatrixId(WeightedDecisionMatrix matrix) {
     if (matrix.id == null || matrix.id!.isEmpty) {
       return matrix.copyWith(id: _helper.getCustomUniqueId());
     }
@@ -667,7 +521,7 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   /// - [matrix]: Matrix to check
   ///
   /// **Returns:** Matrix with alternative having guaranteed ID
-  SawMatrix _ensureAlternativeId(SawMatrix matrix) {
+  WeightedDecisionMatrix _ensureAlternativeId(WeightedDecisionMatrix matrix) {
     if (matrix.alternative.id == null || matrix.alternative.id!.isEmpty) {
       final updatedAlternative =
           matrix.alternative.copyWith(id: _helper.getCustomUniqueId());
@@ -682,7 +536,7 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   /// - [matrix]: Matrix to check
   ///
   /// **Returns:** Matrix with all ratings having guaranteed IDs
-  SawMatrix _ensureRatingIds(SawMatrix matrix) {
+  WeightedDecisionMatrix _ensureRatingIds(WeightedDecisionMatrix matrix) {
     final needsUpdate = matrix.ratings.any((d) =>
         d.id == null ||
         d.id!.isEmpty ||
@@ -724,7 +578,7 @@ class SawLocalDatasourceImpl extends SawLocalDatasource {
   /// **Throws:**
   /// - Exception if total weight is zero
   /// - Exception if any weight is negative
-  SawMatrix _normalizeMatrixWeights(SawMatrix matrix) {
+  WeightedDecisionMatrix _normalizeMatrixWeights(WeightedDecisionMatrix matrix) {
     final totalWeight = matrix.ratings
         .fold<double>(0, (a, b) => a + (b.criteria?.weightPercent ?? 0));
 
