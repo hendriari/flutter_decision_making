@@ -59,3 +59,9 @@ update docs
 
 ### Updated
 * add support me on ko-fi, saweria to readme
+
+## 1.2.0
+
+### Updated
+* make shared function to generate matrix for SAW and TOPSIS
+* added algorithm TOPSIS (Technique for Order Preference by Similarity to Ideal Solution)

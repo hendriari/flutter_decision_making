@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter_decision_making/core/shared/dto/weighted_decision_matrix_dto.dart';
 import 'package:flutter_decision_making/core/shared/dto/weighted_decision_rating_dto.dart';
 
-/// Normalizes SAW (Simple Additive Weighting) matrix in an isolate.
+/// Normalizes weighted decision matrix in an isolate.
 ///
 /// This function runs in a separate isolate to avoid blocking the UI thread
 /// when performing calculations on large datasets.
@@ -19,14 +19,14 @@ import 'package:flutter_decision_making/core/shared/dto/weighted_decision_rating
 /// - X_min is the minimum value for that criteria
 ///
 /// [data] Map containing key 'matrix' with value `List<Map<String, dynamic>>`
-///        which is the JSON representation of list of SawMatrixDto
+///        which is the JSON representation of list of WeightedDecisionMatrixDto
 ///
 /// Returns `List<Map<String, dynamic>>` normalized result in JSON format
 ///
 /// Throws [Exception] if:
 /// - Matrix is empty
 /// - An error occurs during normalization
-Future<List<Map<String, dynamic>>> normalizeSawMatrixIsolate({
+Future<List<Map<String, dynamic>>> normalizeWeightedMatrixIsolate({
   required Map<String, dynamic> data,
 }) async {
   try {
@@ -68,7 +68,7 @@ Future<List<Map<String, dynamic>>> normalizeSawMatrixIsolate({
 /// and maximum values for each criteria. These statistics are required
 /// for the rating normalization process.
 ///
-/// [listMatrix] List of SawMatrixDto to calculate statistics from
+/// [listMatrix] List of WeightedDecisionMatrixDto to calculate statistics from
 ///
 /// Returns Map with key as criteria ID and value as _CriteriaStats object
 ///         containing min and max values
@@ -115,10 +115,10 @@ Map<String, _CriteriaStats> _calculateCriteriaStatsIsolate(
 /// - If max equals min: normalized value is set to 1.0
 /// - If max is 0 for benefit criteria: normalized value is 0
 ///
-/// [rating] The SawRatingDto to be normalized
+/// [rating] The WeightedDecisionRatingDto to be normalized
 /// [stats] Map containing min/max statistics for each criteria
 ///
-/// Returns A new SawRatingDto with the normalized value
+/// Returns A new WeightedDecisionRatingDto with the normalized value
 ///
 /// Throws [Exception] if:
 /// - Rating or criteria ID is null
@@ -145,7 +145,7 @@ WeightedDecisionRatingDto _normalizeRatingIsolate(
   final maxV = stats[cid]!.max;
   final minV = stats[cid]!.min;
 
-  num newValue;
+  double newValue;
 
   // Handle edge case: all values are the same
   if (maxV == minV) {

@@ -1,4 +1,4 @@
-import 'package:flutter_decision_making/feature/saw/data/datasource/saw_local_datasource.dart';
+import 'package:flutter_decision_making/feature/saw/data/datasource/saw_local_datasource_impl.dart';
 import 'package:flutter_decision_making/feature/saw/data/repository_impl/saw_repository_impl.dart';
 import 'package:flutter_decision_making/core/shared/entity/weighted_decision_alternative.dart';
 import 'package:flutter_decision_making/core/shared/entity/weighted_decision_criteria.dart';
@@ -41,7 +41,7 @@ class SAW {
     required List<WeightedDecisionMatrix> currentMatrix,
     required String? matrixId,
     required String? ratingsId,
-    required num value,
+    required double value,
   }) async {
     var updatedList = List<WeightedDecisionMatrix>.from(currentMatrix);
 

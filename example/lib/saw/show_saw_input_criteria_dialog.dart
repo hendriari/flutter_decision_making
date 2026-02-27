@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SawInputValueCriteriaWidget extends StatefulWidget {
-  final Function(num) onSave;
+  final Function(double) onSave;
 
   const SawInputValueCriteriaWidget({super.key, required this.onSave});
 
@@ -86,7 +86,7 @@ class _SawInputValueCriteriaWidgetState
                     onPressed: () {
                       final value = _valueController.text.trim();
 
-                      final valueParsed = num.tryParse(value);
+                      final valueParsed = double.tryParse(value);
 
                       if (valueParsed == null) {
                         _updateErrorMessage('Please input a valid number!');
@@ -109,7 +109,7 @@ class _SawInputValueCriteriaWidgetState
 
 Future<bool?> showSawInputValueCriteriaDialog(
   BuildContext context, {
-  required Function(num) onSave,
+  required Function(double) onSave,
 }) async {
   return showGeneralDialog(
     context: context,

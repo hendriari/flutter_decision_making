@@ -25,7 +25,7 @@ Each item should have a unique ID. If not provided, the package auto-generates i
 
 ```dart
 final criteria = [
-  SawCriteria(
+  WeightedDecisionCriteria(
     id: 'c1',
     name: 'Price',
     weightPercent: 30,
@@ -33,7 +33,7 @@ final criteria = [
     maxValue: 1000,
     // description: optional,
   ),
-  SawCriteria(
+  WeightedDecisionCriteria(
     id: 'c2',
     name: 'Quality',
     weightPercent: 50,
@@ -41,7 +41,7 @@ final criteria = [
     maxValue: 10,
     // description: optional,
   ),
-  SawCriteria(
+  WeightedDecisionCriteria(
     id: 'c3',
     name: 'Durability',
     weightPercent: 20,
@@ -52,17 +52,17 @@ final criteria = [
 ];
 
 final alternatives = [
-  SawAlternative(
+  WeightedDecisionAlternative(
     id: 'a1', 
     name: 'Product A', 
     // note: optional,
     ),
-  SawAlternative(
+  WeightedDecisionAlternative(
     id: 'a2', 
     name: 'Product B',
     // note: optional,
     ),
-  SawAlternative(
+  WeightedDecisionAlternative(
     id: 'a3', 
     name: 'Product C',
     // note: optional,
@@ -76,7 +76,7 @@ final alternatives = [
 Create the SAW matrix structure that will hold ratings for each alternative against each criterion.
 
 ```dart
-List<SawMatrix> matrix = await _saw.generateSawMatrix(
+List<WeightedDecisionMatrix> matrix = await _saw.generateSawMatrix(
   listAlternative: alternatives,
   listCriteria: criteria,
 );
@@ -108,7 +108,7 @@ matrix = await _saw.updateSawMatrix(
 Once all ratings are filled, calculate the final scores and rankings.
 
 ```dart
-List<SawResult> results = await datasource.calculateSawResult(
+List<WeightedDecisionResult> results = await datasource.calculateSawResult(
   matrix: matrix,
 );
 
@@ -121,7 +121,7 @@ for (var result in results) {
 **Alternative: Calculate with Existing Matrix**
 
 ```dart
-List<SawResult> results = await datasource.calculateResultWithExistingMatrix(
+List<WeightedDecisionResult> results = await datasource.calculateResultWithExistingMatrix(
   matrix: existingMatrix,
 );
 ```
@@ -162,13 +162,13 @@ This method will:
 - Assigns ranks (1 = highest score)
 
 ```dart
-class SawResult {
+class WeightedDecisionResult {
   final String? id;
-  final SawAlternative alternative;
+  final WeightedDecisionAlternative alternative;
   final double score;           // Weighted sum (0.0 to 1.0)
   final int rank;               // Position in ranking (1 = best)
 
-  SawResult({
+  WeightedDecisionResult({
     this.id,
     required this.alternative,
     required this.score,

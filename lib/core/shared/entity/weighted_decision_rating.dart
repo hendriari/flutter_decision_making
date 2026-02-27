@@ -4,7 +4,7 @@ import 'package:flutter_decision_making/core/shared/entity/weighted_decision_cri
 class WeightedDecisionRating {
   final String? id;
   final WeightedDecisionCriteria? criteria;
-  final num? value;
+  final double? value;
 
   WeightedDecisionRating({
     this.id,
@@ -15,7 +15,7 @@ class WeightedDecisionRating {
   WeightedDecisionRating copyWith({
     String? id,
     WeightedDecisionCriteria? criteria,
-    num? value,
+    double? value,
   }) =>
       WeightedDecisionRating(
         id: id ?? this.id,

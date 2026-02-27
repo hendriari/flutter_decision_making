@@ -1,17 +1,17 @@
 import 'package:flutter_decision_making/core/shared/dto/weighted_decision_criteria_dto.dart';
 import 'package:flutter_decision_making/core/shared/dto/weighted_decision_matrix_dto.dart';
 
-class TopsisSessionDto {
+class TopsisMatrixDto {
   final List<WeightedDecisionCriteriaDto> criterias;
   final List<WeightedDecisionMatrixDto> matrixs;
 
-  TopsisSessionDto({
+  TopsisMatrixDto({
     required this.criterias,
     required this.matrixs,
   });
 
-  factory TopsisSessionDto.fromJson(Map<String, dynamic> json) {
-    return TopsisSessionDto(
+  factory TopsisMatrixDto.fromJson(Map<String, dynamic> json) {
+    return TopsisMatrixDto(
       criterias: (json["criterias"] as List)
           .map((e) => WeightedDecisionCriteriaDto.fromJson(e))
           .toList(),
@@ -26,11 +26,11 @@ class TopsisSessionDto {
         "matrixs": matrixs.map((e) => e.toJson()).toList(),
       };
 
-  TopsisSessionDto copyWith({
+  TopsisMatrixDto copyWith({
     List<WeightedDecisionCriteriaDto>? criterias,
     List<WeightedDecisionMatrixDto>? matrixs,
   }) {
-    return TopsisSessionDto(
+    return TopsisMatrixDto(
         criterias: criterias ?? this.criterias,
         matrixs: matrixs ?? this.matrixs);
   }

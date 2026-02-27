@@ -1,37 +1,12 @@
-import 'package:flutter_decision_making/feature/topsis/domain/entities/topsis_alternative.dart';
-import 'package:flutter_decision_making/feature/topsis/domain/entities/topsis_rating.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_matrix.dart';
 
-/// MATRIX
-class TopsisMatrix {
-  final String? id;
-  final TopsisAlternative alternative;
-  final List<TopsisRating> ratings;
-
+class TopsisMatrix extends WeightedDecisionMatrix {
   TopsisMatrix({
-    this.id,
-    required this.alternative,
-    required this.ratings,
+    required super.alternative,
+    required super.ratings,
+    required this.distanceMinus,
+    required this.distancePlus,
   });
 
-  TopsisMatrix copyWith({
-    String? id,
-    TopsisAlternative? alternative,
-    List<TopsisRating>? ratings,
-  }) {
-    return TopsisMatrix(
-      id: id ?? this.id,
-      alternative: alternative ?? this.alternative,
-      ratings: ratings ?? this.ratings,
-    );
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is TopsisMatrix &&
-          runtimeType == other.runtimeType &&
-          id == other.id;
-
-  @override
-  int get hashCode => id.hashCode;
+  final double distancePlus, distanceMinus;
 }

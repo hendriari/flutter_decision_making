@@ -357,7 +357,7 @@ Future<dynamic> _handleSawTask(
     case SawProcessingIsolateCommand.generateMatrix:
       return generateWeightedDecisionMatrixIsolate(data: data);
     case SawProcessingIsolateCommand.normalizeMatrix:
-      return normalizeSawMatrixIsolate(data: data);
+      return normalizeWeightedMatrixIsolate(data: data);
   }
 }
 
@@ -369,6 +369,8 @@ Future<dynamic> _handleTopsisTask(
     case TopsisProcessingIsolateCommand.generateMatrix:
       return generateWeightedDecisionMatrixIsolate(data: data);
     case TopsisProcessingIsolateCommand.normalizeMatrix:
-      return normalizeSawMatrixIsolate(data: data);
+      return normalizeWeightedMatrixIsolate(data: data);
+    case TopsisProcessingIsolateCommand.normalizeEuclidean:
+      return;
   }
 }

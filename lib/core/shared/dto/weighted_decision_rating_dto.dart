@@ -3,7 +3,7 @@ import 'package:flutter_decision_making/core/shared/dto/weighted_decision_criter
 class WeightedDecisionRatingDto {
   final String? id;
   final WeightedDecisionCriteriaDto? criteria;
-  final num? value;
+  final double? value;
 
   WeightedDecisionRatingDto({
     this.id,
@@ -15,9 +15,10 @@ class WeightedDecisionRatingDto {
     return WeightedDecisionRatingDto(
       id: json['id'] as String?,
       criteria: json['criteria'] != null
-          ? WeightedDecisionCriteriaDto.fromJson(json['criteria'] as Map<String, dynamic>)
+          ? WeightedDecisionCriteriaDto.fromJson(
+              json['criteria'] as Map<String, dynamic>)
           : null,
-      value: json['value'] as num,
+      value: json['value'] as double,
     );
   }
 
@@ -30,7 +31,7 @@ class WeightedDecisionRatingDto {
   WeightedDecisionRatingDto copyWith({
     String? id,
     WeightedDecisionCriteriaDto? criteria,
-    num? value,
+    double? value,
   }) {
     return WeightedDecisionRatingDto(
       id: id ?? this.id,

@@ -24,4 +24,5 @@ enum SawProcessingIsolateCommand implements DecisionProcessingIsolateCommand {
 enum TopsisProcessingIsolateCommand implements DecisionProcessingIsolateCommand {
   generateMatrix,
   normalizeMatrix,
+  normalizeEuclidean,
 }
