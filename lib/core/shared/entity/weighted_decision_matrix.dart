@@ -28,7 +28,9 @@ class WeightedDecisionMatrix {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is WeightedDecisionMatrix && runtimeType == other.runtimeType && id == other.id;
+      other is WeightedDecisionMatrix &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
 
   @override
   int get hashCode => id.hashCode;

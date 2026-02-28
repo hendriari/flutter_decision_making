@@ -221,7 +221,8 @@ void main() {
     final testMatrix = [
       WeightedDecisionMatrix(
         id: 'matrix1',
-        alternative: WeightedDecisionAlternative(id: 'alt1', name: 'Alternative 1'),
+        alternative:
+            WeightedDecisionAlternative(id: 'alt1', name: 'Alternative 1'),
         ratings: [
           WeightedDecisionRating(
             id: 'rating1',
@@ -237,7 +238,8 @@ void main() {
       ),
       WeightedDecisionMatrix(
         id: 'matrix2',
-        alternative: WeightedDecisionAlternative(id: 'alt2', name: 'Alternative 2'),
+        alternative:
+            WeightedDecisionAlternative(id: 'alt2', name: 'Alternative 2'),
         ratings: [
           WeightedDecisionRating(
             id: 'rating3',
@@ -284,7 +286,8 @@ void main() {
       final equalValueMatrix = [
         WeightedDecisionMatrix(
           id: 'matrix1',
-          alternative: WeightedDecisionAlternative(id: 'alt1', name: 'Alternative 1'),
+          alternative:
+              WeightedDecisionAlternative(id: 'alt1', name: 'Alternative 1'),
           ratings: [
             WeightedDecisionRating(
               id: 'rating1',
@@ -295,7 +298,8 @@ void main() {
         ),
         WeightedDecisionMatrix(
           id: 'matrix2',
-          alternative: WeightedDecisionAlternative(id: 'alt2', name: 'Alternative 2'),
+          alternative:
+              WeightedDecisionAlternative(id: 'alt2', name: 'Alternative 2'),
           ratings: [
             WeightedDecisionRating(
               id: 'rating2',
@@ -334,7 +338,8 @@ void main() {
     final testMatrix = [
       WeightedDecisionMatrix(
         id: 'matrix1',
-        alternative: WeightedDecisionAlternative(id: 'alt1', name: 'Alternative 1'),
+        alternative:
+            WeightedDecisionAlternative(id: 'alt1', name: 'Alternative 1'),
         ratings: [
           WeightedDecisionRating(
             id: 'rating1',
@@ -397,7 +402,8 @@ void main() {
       final invalidMatrix = [
         WeightedDecisionMatrix(
           id: 'matrix1',
-          alternative: WeightedDecisionAlternative(id: 'alt1', name: 'Alternative 1'),
+          alternative:
+              WeightedDecisionAlternative(id: 'alt1', name: 'Alternative 1'),
           ratings: [
             WeightedDecisionRating(
               id: 'rating1',
@@ -421,7 +427,8 @@ void main() {
 
       // Act & Assert
       expect(
-        () => repo.calculateResultWithExistingMatrix(rawMatrix: invalidRawMatrix),
+        () =>
+            repo.calculateResultWithExistingMatrix(rawMatrix: invalidRawMatrix),
         throwsException,
       );
     });

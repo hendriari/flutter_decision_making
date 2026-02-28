@@ -365,9 +365,10 @@ class TopsisLocalDatasourceImpl
       await validateMaxInputValue(rawMatrix.matrixs);
 
       final validatedMatrix = validateAndFixMatrix(rawMatrix.matrixs);
-      
+
       // Update criterias from validated matrix to ensure ID consistency
-      final updatedCriterias = validatedMatrix.first.ratings.map((r) => r.criteria!).toList();
+      final updatedCriterias =
+          validatedMatrix.first.ratings.map((r) => r.criteria!).toList();
 
       /// NORMALIZE EUCLIDEAN
       var normalizeEuclidean = await _normalizeEuclidean(

@@ -40,8 +40,9 @@ Future<List<Map<String, dynamic>>> normalizeWeightedMatrixIsolate({
     }
 
     // Parse JSON into DTO objects
-    final listMatrix =
-        rawListMatrix.map((e) => WeightedDecisionMatrixDto.fromJson(e)).toList();
+    final listMatrix = rawListMatrix
+        .map((e) => WeightedDecisionMatrixDto.fromJson(e))
+        .toList();
 
     // Calculate statistics (min/max) for each criteria
     final criteriaStats = _calculateCriteriaStatsIsolate(listMatrix);

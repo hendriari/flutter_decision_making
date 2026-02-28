@@ -114,6 +114,7 @@ Future<bool?> showDecisionInputValueCriteriaDialog(
   return showGeneralDialog(
     context: context,
     barrierLabel: 'SAW INPUT VALUE CRITERIA',
-    pageBuilder: (context, _, _) => DecisionInputValueCriteriaWidget(onSave: onSave),
+    pageBuilder:
+        (context, _, _) => DecisionInputValueCriteriaWidget(onSave: onSave),
   );
 }

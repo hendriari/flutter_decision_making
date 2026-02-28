@@ -7,10 +7,12 @@ class DecisionInputCriteriaWidget extends StatefulWidget {
   const DecisionInputCriteriaWidget({super.key, required this.onSave});
 
   @override
-  State<DecisionInputCriteriaWidget> createState() => _DecisionInputCriteriaWidgetState();
+  State<DecisionInputCriteriaWidget> createState() =>
+      _DecisionInputCriteriaWidgetState();
 }
 
-class _DecisionInputCriteriaWidgetState extends State<DecisionInputCriteriaWidget> {
+class _DecisionInputCriteriaWidgetState
+    extends State<DecisionInputCriteriaWidget> {
   final _nameController = TextEditingController();
   final ValueNotifier<bool?> _isBenefit = ValueNotifier(null);
   final _weightController = TextEditingController();

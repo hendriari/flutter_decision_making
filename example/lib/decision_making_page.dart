@@ -17,7 +17,6 @@ class DecisionMakingPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-
             /// TITLE
             Text(
               "Choose algorithm:",
