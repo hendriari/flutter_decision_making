@@ -35,3 +35,5 @@ export '../data/datasource/ahp_input_pairwise_matrix_alternative_with_compute.da
 export '../data/datasource/ahp_local_datasource.dart';
 export '../data/datasource/ahp_result_pairwise_matrix_alternative_isolated.dart';
 export '../data/datasource/ahp_result_pairwise_matrix_criteria_isolated.dart';
+export 'package:flutter_decision_making/feature/ahp/domain/usecase/ahp_generate_hierarchy_usecase.dart';
+

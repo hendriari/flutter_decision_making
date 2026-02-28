@@ -324,7 +324,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
           _useIsolate = true;
           result = await _isolateMain.runTask(
             DecisionAlgorithm.ahp,
-            AhpProcessingCommand.generateInputPairwiseAlternative,
+            AhpProcessingIsolateCommand.generateInputPairwiseAlternative,
             {
               "data": hierarchyList,
             },
@@ -424,7 +424,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
       } else {
         resultMatrixCriteria = await _isolateMain.runTask(
           DecisionAlgorithm.ahp,
-          AhpProcessingCommand.generateResultPairwiseMatrixCriteria,
+          AhpProcessingIsolateCommand.generateResultPairwiseMatrixCriteria,
           {
             'items': crItemList,
             'inputs': crComparisonInput,
@@ -452,7 +452,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
       } else {
         eigenVectorCriteria = await _isolateMain.runTask(
           DecisionAlgorithm.ahp,
-          AhpProcessingCommand.calculateEigenVectorCriteria,
+          AhpProcessingIsolateCommand.calculateEigenVectorCriteria,
           {
             'matrix': eigenCrMatrixRaw,
           },
@@ -480,7 +480,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
         });
       } else {
         criteriaConsistencyRatio = await _isolateMain.runTask(
-            DecisionAlgorithm.ahp, AhpProcessingCommand.checkConsistencyRatio, {
+            DecisionAlgorithm.ahp, AhpProcessingIsolateCommand.checkConsistencyRatio, {
           "matrix": resultMatrixCriteria,
           "priority_vector": eigenVectorCriteria,
           "source": 'criteria',
@@ -522,7 +522,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
         } else {
           matrixAlt = await _isolateMain.runTask(
             DecisionAlgorithm.ahp,
-            AhpProcessingCommand.generateResultPairwiseMatrixAlternative,
+            AhpProcessingIsolateCommand.generateResultPairwiseMatrixAlternative,
             {
               'items': altItemList,
               'inputs': [altInputs],
@@ -546,7 +546,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
           });
         } else {
           eigenVectorAlt = await _isolateMain.runTask(DecisionAlgorithm.ahp,
-              AhpProcessingCommand.calculateEigenVectorAlternative, {
+              AhpProcessingIsolateCommand.calculateEigenVectorAlternative, {
             'matrix': matrixAlt,
           });
         }
@@ -570,7 +570,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
         } else {
           altConsistencyRatio = await _isolateMain.runTask(
               DecisionAlgorithm.ahp,
-              AhpProcessingCommand.checkConsistencyRatio, {
+              AhpProcessingIsolateCommand.checkConsistencyRatio, {
             "matrix": matrixAlt,
             "priority_vector": eigenVectorAlt,
             "source": 'alternative',
@@ -611,7 +611,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
         });
       } else {
         rawFinalScore = await _isolateMain.runTask(
-            DecisionAlgorithm.ahp, AhpProcessingCommand.calculateFinalScore, {
+            DecisionAlgorithm.ahp, AhpProcessingIsolateCommand.calculateFinalScore, {
           "eigen_vector_criteria": eigenVectorCriteria,
           "eigen_vector_alternative": allEigenVectorsAlternative,
           "alternative_raw":

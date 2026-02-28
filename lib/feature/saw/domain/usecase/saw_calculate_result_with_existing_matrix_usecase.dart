@@ -1,5 +1,5 @@
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_matrix.dart';
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_result.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_matrix.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_result.dart';
 import 'package:flutter_decision_making/feature/saw/domain/repository/saw_repository.dart';
 
 class SawCalculateResultWithExistingMatrixUsecase {
@@ -7,6 +7,6 @@ class SawCalculateResultWithExistingMatrixUsecase {
 
   SawCalculateResultWithExistingMatrixUsecase(this._repository);
 
-  Future<List<SawResult>> execute({required List<SawMatrix> sawMatrix}) async =>
+  Future<List<WeightedDecisionResult>> execute({required List<WeightedDecisionMatrix> sawMatrix}) async =>
       await _repository.calculateResultWithExistingMatrix(sawMatrix: sawMatrix);
 }

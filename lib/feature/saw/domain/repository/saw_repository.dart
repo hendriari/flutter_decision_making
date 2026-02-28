@@ -1,19 +1,19 @@
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_alternative.dart';
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_criteria.dart';
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_matrix.dart';
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_result.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_alternative.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_criteria.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_matrix.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_result.dart';
 
 abstract class SawRepository {
-  Future<List<SawMatrix>> generateSawMatrix({
-    required List<SawAlternative> listAlternative,
-    required List<SawCriteria> listCriteria,
+  Future<List<WeightedDecisionMatrix>> generateSawMatrix({
+    required List<WeightedDecisionAlternative> listAlternative,
+    required List<WeightedDecisionCriteria> listCriteria,
   });
 
-  Future<List<SawResult>> calculateSawResult({
-    required List<SawMatrix> matrix,
+  Future<List<WeightedDecisionResult>> calculateSawResult({
+    required List<WeightedDecisionMatrix> matrix,
   });
 
-  Future<List<SawResult>> calculateResultWithExistingMatrix({
-    required List<SawMatrix> sawMatrix,
+  Future<List<WeightedDecisionResult>> calculateResultWithExistingMatrix({
+    required List<WeightedDecisionMatrix> sawMatrix,
   });
 }

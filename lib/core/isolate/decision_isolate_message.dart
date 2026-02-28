@@ -124,14 +124,14 @@ class DecisionIsolateMessage {
   /// The decision-making algorithm to execute.
   ///
   /// Determines which algorithm handler will process this message.
-  /// Currently supported: AHP (Analytic Hierarchy Process) and SAW (Simple Additive Weighting).
+  /// Currently supported: AHP (Analytic Hierarchy Process), SAW (Simple Additive Weighting). and TOPSIS (Technique for Order of Preference by Similarity to Ideal Solution)
   final DecisionAlgorithm algorithm;
 
   /// The specific command/operation to perform within the algorithm.
   ///
   /// Type varies based on [algorithm]:
-  /// - For AHP: [AhpProcessingCommand]
-  /// - For SAW: [SawProcessingCommand]
+  /// - For AHP: [AhpProcessingIsolateCommand]
+  /// - For SAW: [SawProcessingIsolateCommand]
   final dynamic command;
 
   /// Input data required for the operation.

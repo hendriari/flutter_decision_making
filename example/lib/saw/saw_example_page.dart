@@ -1,9 +1,9 @@
 import 'package:example/example_input_widget.dart';
 import 'package:example/helper.dart';
-import 'package:example/saw/show_saw_criteria_input_dialog.dart';
-import 'package:example/saw/show_saw_input_criteria_dialog.dart';
+import 'package:example/show_decision_input_criteria_dialog.dart';
+import 'package:example/show_decision_input_value_criteria_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_decision_making/feature/saw/presentation/saw.dart';
+import 'package:flutter_decision_making/flutter_decision_making.dart';
 
 class SawExamplePage extends StatefulWidget {
   const SawExamplePage({super.key});
@@ -16,10 +16,10 @@ class _SawExamplePageState extends State<SawExamplePage> {
   final _criteriaController = TextEditingController();
   final _alternativeController = TextEditingController();
   late TextStyle _textStyle;
-  late List<SawAlternative> _listSawAlternative;
-  late List<SawCriteria> _listSawCriteria;
-  List<SawMatrix>? _sawMatrix;
-  List<SawResult>? _sawResult;
+  late List<WeightedDecisionAlternative> _listSawAlternative;
+  late List<WeightedDecisionCriteria> _listSawCriteria;
+  List<WeightedDecisionMatrix>? _sawMatrix;
+  List<WeightedDecisionResult>? _sawResult;
   late SAW _saw;
   late Helper _helper;
 
@@ -60,7 +60,7 @@ class _SawExamplePageState extends State<SawExamplePage> {
                     () => _addItem(
                       _alternativeController,
                       _listSawAlternative,
-                      (name) => SawAlternative(name: name),
+                      (name) => WeightedDecisionAlternative(name: name),
                     ),
               ),
 
@@ -103,7 +103,7 @@ class _SawExamplePageState extends State<SawExamplePage> {
         Expanded(
           child: InkWell(
             onTap: () {
-              showSawCriteriaInputDialog(
+              showDecisionInputCriteriaDialog(
                 context,
                 onSave: (value) {
                   setState(() {
@@ -125,7 +125,7 @@ class _SawExamplePageState extends State<SawExamplePage> {
         /// ADD
         ElevatedButton(
           onPressed: () {
-            showSawCriteriaInputDialog(
+            showDecisionInputCriteriaDialog(
               context,
               onSave: (value) {
                 setState(() {
@@ -250,7 +250,7 @@ class _SawExamplePageState extends State<SawExamplePage> {
                 );
               }
 
-              return <SawMatrix>[];
+              return <WeightedDecisionMatrix>[];
             });
 
         Future.delayed(Duration(milliseconds: 300), () {
@@ -411,7 +411,7 @@ class _SawExamplePageState extends State<SawExamplePage> {
                                   TableCell(
                                     child: InkWell(
                                       onTap: () {
-                                        showSawInputValueCriteriaDialog(
+                                        showDecisionInputValueCriteriaDialog(
                                           context,
                                           onSave: (value) async {
                                             _sawMatrix = await _saw
@@ -473,7 +473,7 @@ class _SawExamplePageState extends State<SawExamplePage> {
         ? ElevatedButton(
           onPressed: () async {
             _sawResult = await _saw
-                .calculateSawResult(matrix: _sawMatrix!)
+                .getSawResult(matrix: _sawMatrix!)
                 .catchError((e) {
                   if (mounted) {
                     _helper.showScaffoldMessenger(
@@ -482,7 +482,7 @@ class _SawExamplePageState extends State<SawExamplePage> {
                     );
                   }
 
-                  return <SawResult>[];
+                  return <WeightedDecisionResult>[];
                 });
 
             Future.delayed(Duration(milliseconds: 300), () {

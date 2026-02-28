@@ -1,9 +1,9 @@
-import 'package:flutter_decision_making/feature/saw/data/datasource/saw_local_datasource.dart';
+import 'package:flutter_decision_making/feature/saw/data/datasource/saw_local_datasource_impl.dart';
 import 'package:flutter_decision_making/feature/saw/data/repository_impl/saw_repository_impl.dart';
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_alternative.dart';
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_criteria.dart';
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_matrix.dart';
-import 'package:flutter_decision_making/feature/saw/domain/entities/saw_rating.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_alternative.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_criteria.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_matrix.dart';
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_rating.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -17,19 +17,19 @@ void main() {
 
   group('generateSawMatrix', () {
     final testAlternatives = [
-      SawAlternative(id: 'alt1', name: 'Alternative 1'),
-      SawAlternative(id: 'alt2', name: 'Alternative 2'),
+      WeightedDecisionAlternative(id: 'alt1', name: 'Alternative 1'),
+      WeightedDecisionAlternative(id: 'alt2', name: 'Alternative 2'),
     ];
 
     final testCriteria = [
-      SawCriteria(
+      WeightedDecisionCriteria(
         id: 'crt1',
         name: 'Criteria 1',
         weightPercent: 50,
         isBenefit: true,
         maxValue: 100,
       ),
-      SawCriteria(
+      WeightedDecisionCriteria(
         id: 'crt2',
         name: 'Criteria 2',
         weightPercent: 50,
@@ -75,7 +75,7 @@ void main() {
 
     test('should throw exception when criteria weight is negative', () async {
       final invalidCriteria = [
-        SawCriteria(
+        WeightedDecisionCriteria(
           id: 'crt1',
           name: 'Criteria 1',
           weightPercent: -10,
@@ -96,7 +96,7 @@ void main() {
 
     test('should throw exception when total weight is zero', () async {
       final zeroCriteria = [
-        SawCriteria(
+        WeightedDecisionCriteria(
           id: 'crt1',
           name: 'Criteria 1',
           weightPercent: 0,
@@ -117,14 +117,14 @@ void main() {
 
     test('should normalize criteria weights when total is not 100', () async {
       final unnormalizedCriteria = [
-        SawCriteria(
+        WeightedDecisionCriteria(
           id: 'crt1',
           name: 'Criteria 1',
           weightPercent: 30,
           isBenefit: true,
           maxValue: 100,
         ),
-        SawCriteria(
+        WeightedDecisionCriteria(
           id: 'crt2',
           name: 'Criteria 2',
           weightPercent: 20,
@@ -149,8 +149,8 @@ void main() {
 
     test('should assign IDs to alternatives without IDs', () async {
       final alternativesWithoutIds = [
-        SawAlternative(name: 'Alternative 1'),
-        SawAlternative(name: 'Alternative 2'),
+        WeightedDecisionAlternative(name: 'Alternative 1'),
+        WeightedDecisionAlternative(name: 'Alternative 2'),
       ];
 
       // Act
@@ -168,13 +168,13 @@ void main() {
 
     test('should assign IDs to criteria without IDs', () async {
       final criteriaWithoutIds = [
-        SawCriteria(
+        WeightedDecisionCriteria(
           name: 'Criteria 1',
           weightPercent: 50,
           isBenefit: true,
           maxValue: 100,
         ),
-        SawCriteria(
+        WeightedDecisionCriteria(
           name: 'Criteria 2',
           weightPercent: 50,
           isBenefit: false,
@@ -200,13 +200,13 @@ void main() {
 
   group('calculateSawResult', () {
     final testMatrix = [
-      SawMatrix(
+      WeightedDecisionMatrix(
         id: 'matrix1',
-        alternative: SawAlternative(id: 'alt1', name: 'Alternative 1'),
+        alternative: WeightedDecisionAlternative(id: 'alt1', name: 'Alternative 1'),
         ratings: [
-          SawRating(
+          WeightedDecisionRating(
             id: 'rating1',
-            criteria: SawCriteria(
+            criteria: WeightedDecisionCriteria(
               id: 'crt1',
               name: 'Criteria 1',
               weightPercent: 60,
@@ -215,9 +215,9 @@ void main() {
             ),
             value: 100,
           ),
-          SawRating(
+          WeightedDecisionRating(
             id: 'rating2',
-            criteria: SawCriteria(
+            criteria: WeightedDecisionCriteria(
               id: 'crt2',
               name: 'Criteria 2',
               weightPercent: 40,
@@ -228,13 +228,13 @@ void main() {
           ),
         ],
       ),
-      SawMatrix(
+      WeightedDecisionMatrix(
         id: 'matrix2',
-        alternative: SawAlternative(id: 'alt2', name: 'Alternative 2'),
+        alternative: WeightedDecisionAlternative(id: 'alt2', name: 'Alternative 2'),
         ratings: [
-          SawRating(
+          WeightedDecisionRating(
             id: 'rating3',
-            criteria: SawCriteria(
+            criteria: WeightedDecisionCriteria(
               id: 'crt1',
               name: 'Criteria 1',
               weightPercent: 60,
@@ -243,9 +243,9 @@ void main() {
             ),
             value: 80,
           ),
-          SawRating(
+          WeightedDecisionRating(
             id: 'rating4',
-            criteria: SawCriteria(
+            criteria: WeightedDecisionCriteria(
               id: 'crt2',
               name: 'Criteria 2',
               weightPercent: 40,
@@ -289,13 +289,13 @@ void main() {
 
     test('should throw exception when cost criteria has zero value', () async {
       final invalidMatrix = [
-        SawMatrix(
+        WeightedDecisionMatrix(
           id: 'matrix1',
-          alternative: SawAlternative(id: 'alt1', name: 'Alternative 1'),
+          alternative: WeightedDecisionAlternative(id: 'alt1', name: 'Alternative 1'),
           ratings: [
-            SawRating(
+            WeightedDecisionRating(
               id: 'rating1',
-              criteria: SawCriteria(
+              criteria: WeightedDecisionCriteria(
                 id: 'crt1',
                 name: 'Criteria 1',
                 weightPercent: 100,
@@ -317,13 +317,13 @@ void main() {
 
     test('should handle equal min and max values', () async {
       final equalValueMatrix = [
-        SawMatrix(
+        WeightedDecisionMatrix(
           id: 'matrix1',
-          alternative: SawAlternative(id: 'alt1', name: 'Alternative 1'),
+          alternative: WeightedDecisionAlternative(id: 'alt1', name: 'Alternative 1'),
           ratings: [
-            SawRating(
+            WeightedDecisionRating(
               id: 'rating1',
-              criteria: SawCriteria(
+              criteria: WeightedDecisionCriteria(
                 id: 'crt1',
                 name: 'Criteria 1',
                 weightPercent: 100,
@@ -334,13 +334,13 @@ void main() {
             ),
           ],
         ),
-        SawMatrix(
+        WeightedDecisionMatrix(
           id: 'matrix2',
-          alternative: SawAlternative(id: 'alt2', name: 'Alternative 2'),
+          alternative: WeightedDecisionAlternative(id: 'alt2', name: 'Alternative 2'),
           ratings: [
-            SawRating(
+            WeightedDecisionRating(
               id: 'rating2',
-              criteria: SawCriteria(
+              criteria: WeightedDecisionCriteria(
                 id: 'crt1',
                 name: 'Criteria 1',
                 weightPercent: 100,
@@ -365,13 +365,13 @@ void main() {
   group('calculateResultWithExistingMatrix', () {
     test('should calculate result with valid existing matrix', () async {
       final testMatrix = [
-        SawMatrix(
+        WeightedDecisionMatrix(
           id: 'matrix1',
-          alternative: SawAlternative(id: 'alt1', name: 'Alternative 1'),
+          alternative: WeightedDecisionAlternative(id: 'alt1', name: 'Alternative 1'),
           ratings: [
-            SawRating(
+            WeightedDecisionRating(
               id: 'rating1',
-              criteria: SawCriteria(
+              criteria: WeightedDecisionCriteria(
                 id: 'crt1',
                 name: 'Criteria 1',
                 weightPercent: 100,
@@ -404,11 +404,11 @@ void main() {
 
     test('should assign missing IDs in matrix', () async {
       final matrixWithoutIds = [
-        SawMatrix(
-          alternative: SawAlternative(name: 'Alternative 1'),
+        WeightedDecisionMatrix(
+          alternative: WeightedDecisionAlternative(name: 'Alternative 1'),
           ratings: [
-            SawRating(
-              criteria: SawCriteria(
+            WeightedDecisionRating(
+              criteria: WeightedDecisionCriteria(
                 name: 'Criteria 1',
                 weightPercent: 100,
                 isBenefit: true,
@@ -431,13 +431,13 @@ void main() {
 
     test('should normalize weights when total is not 100', () async {
       final unnormalizedMatrix = [
-        SawMatrix(
+        WeightedDecisionMatrix(
           id: 'matrix1',
-          alternative: SawAlternative(id: 'alt1', name: 'Alternative 1'),
+          alternative: WeightedDecisionAlternative(id: 'alt1', name: 'Alternative 1'),
           ratings: [
-            SawRating(
+            WeightedDecisionRating(
               id: 'rating1',
-              criteria: SawCriteria(
+              criteria: WeightedDecisionCriteria(
                 id: 'crt1',
                 name: 'Criteria 1',
                 weightPercent: 30,
@@ -446,9 +446,9 @@ void main() {
               ),
               value: 100,
             ),
-            SawRating(
+            WeightedDecisionRating(
               id: 'rating2',
-              criteria: SawCriteria(
+              criteria: WeightedDecisionCriteria(
                 id: 'crt2',
                 name: 'Criteria 2',
                 weightPercent: 20,
@@ -472,13 +472,13 @@ void main() {
 
     test('should throw exception when total weight is zero', () async {
       final zeroWeightMatrix = [
-        SawMatrix(
+        WeightedDecisionMatrix(
           id: 'matrix1',
-          alternative: SawAlternative(id: 'alt1', name: 'Alternative 1'),
+          alternative: WeightedDecisionAlternative(id: 'alt1', name: 'Alternative 1'),
           ratings: [
-            SawRating(
+            WeightedDecisionRating(
               id: 'rating1',
-              criteria: SawCriteria(
+              criteria: WeightedDecisionCriteria(
                 id: 'crt1',
                 name: 'Criteria 1',
                 weightPercent: 0,
@@ -502,13 +502,13 @@ void main() {
 
     test('should throw exception when weight is negative', () async {
       final negativeWeightMatrix = [
-        SawMatrix(
+        WeightedDecisionMatrix(
           id: 'matrix1',
-          alternative: SawAlternative(id: 'alt1', name: 'Alternative 1'),
+          alternative: WeightedDecisionAlternative(id: 'alt1', name: 'Alternative 1'),
           ratings: [
-            SawRating(
+            WeightedDecisionRating(
               id: 'rating1',
-              criteria: SawCriteria(
+              criteria: WeightedDecisionCriteria(
                 id: 'crt1',
                 name: 'Criteria 1',
                 weightPercent: -10,
@@ -534,13 +534,13 @@ void main() {
   group('Normalization', () {
     test('should normalize benefit criteria correctly', () async {
       final testMatrix = [
-        SawMatrix(
+        WeightedDecisionMatrix(
           id: 'matrix1',
-          alternative: SawAlternative(id: 'alt1', name: 'Alternative 1'),
+          alternative: WeightedDecisionAlternative(id: 'alt1', name: 'Alternative 1'),
           ratings: [
-            SawRating(
+            WeightedDecisionRating(
               id: 'rating1',
-              criteria: SawCriteria(
+              criteria: WeightedDecisionCriteria(
                 id: 'crt1',
                 name: 'Criteria 1',
                 weightPercent: 100,
@@ -551,13 +551,13 @@ void main() {
             ),
           ],
         ),
-        SawMatrix(
+        WeightedDecisionMatrix(
           id: 'matrix2',
-          alternative: SawAlternative(id: 'alt2', name: 'Alternative 2'),
+          alternative: WeightedDecisionAlternative(id: 'alt2', name: 'Alternative 2'),
           ratings: [
-            SawRating(
+            WeightedDecisionRating(
               id: 'rating2',
-              criteria: SawCriteria(
+              criteria: WeightedDecisionCriteria(
                 id: 'crt1',
                 name: 'Criteria 1',
                 weightPercent: 100,
@@ -580,13 +580,13 @@ void main() {
 
     test('should normalize cost criteria correctly', () async {
       final testMatrix = [
-        SawMatrix(
+        WeightedDecisionMatrix(
           id: 'matrix1',
-          alternative: SawAlternative(id: 'alt1', name: 'Alternative 1'),
+          alternative: WeightedDecisionAlternative(id: 'alt1', name: 'Alternative 1'),
           ratings: [
-            SawRating(
+            WeightedDecisionRating(
               id: 'rating1',
-              criteria: SawCriteria(
+              criteria: WeightedDecisionCriteria(
                 id: 'crt1',
                 name: 'Criteria 1',
                 weightPercent: 100,
@@ -597,13 +597,13 @@ void main() {
             ),
           ],
         ),
-        SawMatrix(
+        WeightedDecisionMatrix(
           id: 'matrix2',
-          alternative: SawAlternative(id: 'alt2', name: 'Alternative 2'),
+          alternative: WeightedDecisionAlternative(id: 'alt2', name: 'Alternative 2'),
           ratings: [
-            SawRating(
+            WeightedDecisionRating(
               id: 'rating2',
-              criteria: SawCriteria(
+              criteria: WeightedDecisionCriteria(
                 id: 'crt1',
                 name: 'Criteria 1',
                 weightPercent: 100,

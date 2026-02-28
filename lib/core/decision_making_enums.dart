@@ -1,9 +1,12 @@
+import 'package:flutter_decision_making/core/isolate/decision_processing_isolate_command.dart';
+
 enum DecisionAlgorithm {
   ahp,
   saw,
+  topsis,
 }
 
-enum AhpProcessingCommand {
+enum AhpProcessingIsolateCommand {
   generateInputPairwiseAlternative,
   generateResultPairwiseMatrixCriteria,
   calculateEigenVectorCriteria,
@@ -13,7 +16,13 @@ enum AhpProcessingCommand {
   calculateFinalScore
 }
 
-enum SawProcessingCommand {
-  generateSawMatrix,
+enum SawProcessingIsolateCommand implements DecisionProcessingIsolateCommand {
+  generateMatrix,
   normalizeMatrix,
+}
+
+enum TopsisProcessingIsolateCommand implements DecisionProcessingIsolateCommand {
+  generateMatrix,
+  normalizeMatrix,
+  normalizeEuclidean,
 }

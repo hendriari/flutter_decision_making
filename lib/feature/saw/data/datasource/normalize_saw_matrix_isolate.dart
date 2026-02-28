@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 
-import 'package:flutter_decision_making/feature/saw/data/dto/saw_matrix_dto.dart';
-import 'package:flutter_decision_making/feature/saw/data/dto/saw_rating_dto.dart';
+import 'package:flutter_decision_making/core/shared/dto/weighted_decision_matrix_dto.dart';
+import 'package:flutter_decision_making/core/shared/dto/weighted_decision_rating_dto.dart';
 
-/// Normalizes SAW (Simple Additive Weighting) matrix in an isolate.
+/// Normalizes weighted decision matrix in an isolate.
 ///
 /// This function runs in a separate isolate to avoid blocking the UI thread
 /// when performing calculations on large datasets.
@@ -19,14 +19,14 @@ import 'package:flutter_decision_making/feature/saw/data/dto/saw_rating_dto.dart
 /// - X_min is the minimum value for that criteria
 ///
 /// [data] Map containing key 'matrix' with value `List<Map<String, dynamic>>`
-///        which is the JSON representation of list of SawMatrixDto
+///        which is the JSON representation of list of WeightedDecisionMatrixDto
 ///
 /// Returns `List<Map<String, dynamic>>` normalized result in JSON format
 ///
 /// Throws [Exception] if:
 /// - Matrix is empty
 /// - An error occurs during normalization
-Future<List<Map<String, dynamic>>> normalizeSawMatrixIsolate({
+Future<List<Map<String, dynamic>>> normalizeWeightedMatrixIsolate({
   required Map<String, dynamic> data,
 }) async {
   try {
@@ -41,7 +41,7 @@ Future<List<Map<String, dynamic>>> normalizeSawMatrixIsolate({
 
     // Parse JSON into DTO objects
     final listMatrix =
-        rawListMatrix.map((e) => SawMatrixDto.fromJson(e)).toList();
+        rawListMatrix.map((e) => WeightedDecisionMatrixDto.fromJson(e)).toList();
 
     // Calculate statistics (min/max) for each criteria
     final criteriaStats = _calculateCriteriaStatsIsolate(listMatrix);
@@ -68,14 +68,14 @@ Future<List<Map<String, dynamic>>> normalizeSawMatrixIsolate({
 /// and maximum values for each criteria. These statistics are required
 /// for the rating normalization process.
 ///
-/// [listMatrix] List of SawMatrixDto to calculate statistics from
+/// [listMatrix] List of WeightedDecisionMatrixDto to calculate statistics from
 ///
 /// Returns Map with key as criteria ID and value as _CriteriaStats object
 ///         containing min and max values
 ///
 /// Throws [Exception] if a rating without criteria ID is found
 Map<String, _CriteriaStats> _calculateCriteriaStatsIsolate(
-  List<SawMatrixDto> listMatrix,
+  List<WeightedDecisionMatrixDto> listMatrix,
 ) {
   final stats = <String, _CriteriaStats>{};
 
@@ -115,18 +115,18 @@ Map<String, _CriteriaStats> _calculateCriteriaStatsIsolate(
 /// - If max equals min: normalized value is set to 1.0
 /// - If max is 0 for benefit criteria: normalized value is 0
 ///
-/// [rating] The SawRatingDto to be normalized
+/// [rating] The WeightedDecisionRatingDto to be normalized
 /// [stats] Map containing min/max statistics for each criteria
 ///
-/// Returns A new SawRatingDto with the normalized value
+/// Returns A new WeightedDecisionRatingDto with the normalized value
 ///
 /// Throws [Exception] if:
 /// - Rating or criteria ID is null
 /// - No statistics found for the criteria
 /// - Zero value found in cost criteria (invalid for cost normalization)
 /// - Minimum value is zero in cost criteria (makes normalization impossible)
-SawRatingDto _normalizeRatingIsolate(
-  SawRatingDto rating,
+WeightedDecisionRatingDto _normalizeRatingIsolate(
+  WeightedDecisionRatingDto rating,
   Map<String, _CriteriaStats> stats,
 ) {
   final cid = rating.criteria?.id;
@@ -145,7 +145,7 @@ SawRatingDto _normalizeRatingIsolate(
   final maxV = stats[cid]!.max;
   final minV = stats[cid]!.min;
 
-  num newValue;
+  double newValue;
 
   // Handle edge case: all values are the same
   if (maxV == minV) {
