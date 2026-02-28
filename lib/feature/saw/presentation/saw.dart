@@ -1,17 +1,8 @@
 import 'package:flutter_decision_making/feature/saw/data/datasource/saw_local_datasource_impl.dart';
-import 'package:flutter_decision_making/feature/saw/data/repository_impl/saw_repository_impl.dart';
-import 'package:flutter_decision_making/core/shared/entity/weighted_decision_alternative.dart';
-import 'package:flutter_decision_making/core/shared/entity/weighted_decision_criteria.dart';
-import 'package:flutter_decision_making/core/shared/entity/weighted_decision_matrix.dart';
-import 'package:flutter_decision_making/core/shared/entity/weighted_decision_rating.dart';
-import 'package:flutter_decision_making/core/shared/entity/weighted_decision_result.dart';
-import 'package:flutter_decision_making/feature/saw/domain/repository/saw_repository.dart';
-import 'package:flutter_decision_making/feature/saw/domain/usecase/saw_calculate_result_usecase.dart';
-import 'package:flutter_decision_making/feature/saw/domain/usecase/saw_calculate_result_with_existing_matrix_usecase.dart';
-import 'package:flutter_decision_making/feature/saw/domain/usecase/saw_generate_pairwise_matrix_usecase.dart';
+import 'package:flutter_decision_making/core/decision_making_utils.dart';
+import 'saw_utils.dart';
 
 export 'saw_utils.dart';
-export 'package:flutter_decision_making/core/decision_making_utils.dart';
 
 class SAW {
   final SawRepository _sawRepository;
@@ -68,7 +59,7 @@ class SAW {
   }
 
   /// CALCULATE SAW RESULT
-  Future<List<WeightedDecisionResult>> calculateSawResult({
+  Future<List<WeightedDecisionResult>> getSawResult({
     required List<WeightedDecisionMatrix> matrix,
   }) async {
     try {
@@ -83,7 +74,7 @@ class SAW {
   }
 
   /// CALCULATE RESULT WITH EXISTING MATRIX
-  Future<List<WeightedDecisionResult>> calculateResultWithExistingMatrix({
+  Future<List<WeightedDecisionResult>> getResultWithExistingMatrix({
     required List<WeightedDecisionMatrix> sawMatrix,
   }) async {
     try {

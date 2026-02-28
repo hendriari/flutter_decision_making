@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_decision_making/core/shared/entity/weighted_decision_criteria.dart';
+import 'package:flutter_decision_making/flutter_decision_making.dart';
 
-class SawCriteriaInputWidget extends StatefulWidget {
+class DecisionInputCriteriaWidget extends StatefulWidget {
   final Function(WeightedDecisionCriteria) onSave;
 
-  const SawCriteriaInputWidget({super.key, required this.onSave});
+  const DecisionInputCriteriaWidget({super.key, required this.onSave});
 
   @override
-  State<SawCriteriaInputWidget> createState() => _SawCriteriaInputWidgetState();
+  State<DecisionInputCriteriaWidget> createState() => _DecisionInputCriteriaWidgetState();
 }
 
-class _SawCriteriaInputWidgetState extends State<SawCriteriaInputWidget> {
+class _DecisionInputCriteriaWidgetState extends State<DecisionInputCriteriaWidget> {
   final _nameController = TextEditingController();
   final ValueNotifier<bool?> _isBenefit = ValueNotifier(null);
   final _weightController = TextEditingController();
@@ -223,7 +223,7 @@ class _SawCriteriaInputWidgetState extends State<SawCriteriaInputWidget> {
   }
 }
 
-Future<bool?> showSawCriteriaInputDialog(
+Future<bool?> showDecisionInputCriteriaDialog(
   BuildContext context, {
   required Function(WeightedDecisionCriteria) onSave,
 }) async {
@@ -232,7 +232,7 @@ Future<bool?> showSawCriteriaInputDialog(
     barrierLabel: 'SAW CRITERIA INPUT DIALOG',
     barrierDismissible: false,
     pageBuilder: (context, _, _) {
-      return SawCriteriaInputWidget(onSave: onSave);
+      return DecisionInputCriteriaWidget(onSave: onSave);
     },
   );
 }

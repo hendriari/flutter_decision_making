@@ -15,7 +15,7 @@ import '../mapper/weighted_decision_criteria_mapper.dart';
 import '../mapper/weighted_decision_matrix_mapper.dart'
     show WeightedDecisionMatrixMapper;
 
-mixin WeightedDecisionMatrixInterface {
+mixin WeightedDecisionMatrixMixin {
   DecisionMakingHelper get helper;
 
   DecisionIsolateMain get isolate;

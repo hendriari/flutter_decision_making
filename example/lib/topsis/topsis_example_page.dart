@@ -3,33 +3,34 @@ import 'package:example/helper.dart';
 import 'package:example/show_decision_input_criteria_dialog.dart';
 import 'package:example/show_decision_input_value_criteria_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_decision_making/feature/topsis/presentation/topsis.dart';
 import 'package:flutter_decision_making/flutter_decision_making.dart';
 
-class SawExamplePage extends StatefulWidget {
-  const SawExamplePage({super.key});
+class TopsisExamplePage extends StatefulWidget {
+  const TopsisExamplePage({super.key});
 
   @override
-  State<SawExamplePage> createState() => _SawExamplePageState();
+  State<TopsisExamplePage> createState() => _TopsisExamplePageState();
 }
 
-class _SawExamplePageState extends State<SawExamplePage> {
+class _TopsisExamplePageState extends State<TopsisExamplePage> {
   final _criteriaController = TextEditingController();
   final _alternativeController = TextEditingController();
   late TextStyle _textStyle;
-  late List<WeightedDecisionAlternative> _listSawAlternative;
-  late List<WeightedDecisionCriteria> _listSawCriteria;
-  List<WeightedDecisionMatrix>? _sawMatrix;
-  List<WeightedDecisionResult>? _sawResult;
-  late SAW _saw;
+  late List<WeightedDecisionAlternative> _listTopsisAlternative;
+  late List<WeightedDecisionCriteria> _listTopsisCriteria;
+  TopsisRawMatrix? _topsisMatrix;
+  List<WeightedDecisionResult>? _topsisResult;
+  late TOPSIS _topsis;
   late Helper _helper;
 
   @override
   void initState() {
     super.initState();
-    _saw = SAW();
+    _topsis = TOPSIS();
     _textStyle = TextStyle(fontSize: 18);
-    _listSawAlternative = [];
-    _listSawCriteria = [];
+    _listTopsisAlternative = [];
+    _listTopsisCriteria = [];
     _helper = Helper();
   }
 
@@ -45,26 +46,26 @@ class _SawExamplePageState extends State<SawExamplePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('Sample Additive Weighting'),
+        title: Text('TOPSIS'),
       ),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
           child: ListView(
             children: [
-              /// ADD SAW ALTERNATIVE
+              /// ADD TOPSIS ALTERNATIVE
               ExampleInputWidget(
                 title: 'Alternative',
                 controller: _alternativeController,
                 onPressed:
                     () => _addItem(
                       _alternativeController,
-                      _listSawAlternative,
+                      _listTopsisAlternative,
                       (name) => WeightedDecisionAlternative(name: name),
                     ),
               ),
 
-              /// LIST SAW ALTERNATIVE
+              /// LIST TOPSIS ALTERNATIVE
               _buildListAlternativeWidget(),
 
               /// CRITERIA
@@ -73,17 +74,17 @@ class _SawExamplePageState extends State<SawExamplePage> {
               /// LIST CRITERIA
               _buildListCriteriaWidget(),
 
-              /// BUTTON GENERATE SAW MATRIX
+              /// BUTTON GENERATE TOPSIS MATRIX
               _buildButtonGenerateMatrixWidget(),
 
-              /// LIST SAW MATRIX
+              /// LIST TOPSIS MATRIX
               _buildListMatrixWidget(),
 
               /// BUTTON CALCULATE RESULT
               _buildButtonCalculateResultWidget(),
 
-              /// SAW RESULT
-              _buildSawResultWidget(),
+              /// TOPSIS RESULT
+              _buildTopsisResultWidget(),
             ],
           ),
         ),
@@ -107,7 +108,7 @@ class _SawExamplePageState extends State<SawExamplePage> {
                 context,
                 onSave: (value) {
                   setState(() {
-                    _listSawCriteria.add(value);
+                    _listTopsisCriteria.add(value);
                   });
                 },
               );
@@ -129,7 +130,7 @@ class _SawExamplePageState extends State<SawExamplePage> {
               context,
               onSave: (value) {
                 setState(() {
-                  _listSawCriteria.add(value);
+                  _listTopsisCriteria.add(value);
                 });
               },
             );
@@ -156,7 +157,7 @@ class _SawExamplePageState extends State<SawExamplePage> {
 
   /// BUILD LIST ALTERNATIVE
   Widget _buildListAlternativeWidget() {
-    return _listSawAlternative.isNotEmpty
+    return _listTopsisAlternative.isNotEmpty
         ? Container(
           constraints: BoxConstraints(maxHeight: 100),
           margin: EdgeInsets.only(bottom: 10, top: 10),
@@ -165,9 +166,9 @@ class _SawExamplePageState extends State<SawExamplePage> {
           width: double.infinity,
           child: Scrollbar(
             child: ListView.builder(
-              itemCount: _listSawAlternative.length,
+              itemCount: _listTopsisAlternative.length,
               itemBuilder: (context, index) {
-                final data = _listSawAlternative[index];
+                final data = _listTopsisAlternative[index];
                 return Text('${index + 1}. ${data.name}', style: _textStyle);
               },
             ),
@@ -178,7 +179,7 @@ class _SawExamplePageState extends State<SawExamplePage> {
 
   /// BUILD LIST CRITERIA
   Widget _buildListCriteriaWidget() {
-    return _listSawCriteria.isNotEmpty
+    return _listTopsisCriteria.isNotEmpty
         ? Container(
           constraints: BoxConstraints(maxHeight: 200),
           margin: EdgeInsets.only(bottom: 10, top: 10),
@@ -188,9 +189,9 @@ class _SawExamplePageState extends State<SawExamplePage> {
           child: Scrollbar(
             child: ListView.builder(
               shrinkWrap: true,
-              itemCount: _listSawCriteria.length,
+              itemCount: _listTopsisCriteria.length,
               itemBuilder: (context, index) {
-                final data = _listSawCriteria[index];
+                final data = _listTopsisCriteria[index];
                 return Column(
                   children: [
                     /// DETAIL CRITERIA
@@ -237,10 +238,10 @@ class _SawExamplePageState extends State<SawExamplePage> {
   Widget _buildButtonGenerateMatrixWidget() {
     return ElevatedButton(
       onPressed: () async {
-        _sawMatrix = await _saw
-            .generateSawMatrix(
-              listAlternative: _listSawAlternative,
-              listCriteria: _listSawCriteria,
+        _topsisMatrix = await _topsis
+            .generateTopsisMatrix(
+              listAlternative: _listTopsisAlternative,
+              listCriteria: _listTopsisCriteria,
             )
             .catchError((e) {
               if (mounted) {
@@ -250,7 +251,7 @@ class _SawExamplePageState extends State<SawExamplePage> {
                 );
               }
 
-              return <WeightedDecisionMatrix>[];
+              return TopsisRawMatrix(criterias: [], matrixs: []);
             });
 
         Future.delayed(Duration(milliseconds: 300), () {
@@ -258,7 +259,7 @@ class _SawExamplePageState extends State<SawExamplePage> {
         });
       },
       child: Text(
-        'Generate SAW Matrix',
+        'Generate TOPSIS Matrix',
         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         textAlign: TextAlign.center,
       ),
@@ -267,7 +268,9 @@ class _SawExamplePageState extends State<SawExamplePage> {
 
   /// BUILD LIST MATRIX WIDGET
   Widget _buildListMatrixWidget() {
-    return _sawMatrix != null && _sawMatrix!.isNotEmpty
+    return _topsisMatrix != null &&
+            (_topsisMatrix?.matrixs != null &&
+                _topsisMatrix!.matrixs.isNotEmpty)
         ? Container(
           margin: EdgeInsets.only(top: 20, bottom: 10),
           padding: EdgeInsets.all(8),
@@ -281,7 +284,7 @@ class _SawExamplePageState extends State<SawExamplePage> {
             children: [
               /// TITLE
               Text(
-                'SAW Matrix',
+                'TOPSIS Raw Matrix',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
               ),
 
@@ -291,10 +294,10 @@ class _SawExamplePageState extends State<SawExamplePage> {
                 color: Colors.grey.shade300,
                 child: Scrollbar(
                   child: ListView.builder(
-                    itemCount: _sawMatrix?.length ?? 0,
+                    itemCount: _topsisMatrix?.matrixs.length ?? 0,
                     padding: EdgeInsets.only(right: 10),
                     itemBuilder: (context, index) {
-                      final data = _sawMatrix?[index];
+                      final data = _topsisMatrix?.matrixs[index];
                       return Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -414,16 +417,18 @@ class _SawExamplePageState extends State<SawExamplePage> {
                                         showDecisionInputValueCriteriaDialog(
                                           context,
                                           onSave: (value) async {
-                                            _sawMatrix = await _saw
-                                                .updateSawMatrix(
-                                                  currentMatrix:
-                                                      _sawMatrix ?? [],
-                                                  matrixId: data?.id,
-                                                  ratingsId: ratings?.id,
-                                                  value: value,
-                                                );
+                                            if (_topsisMatrix != null) {
+                                              _topsisMatrix = await _topsis
+                                                  .updateTopsisMatrix(
+                                                    currentRawMatrix:
+                                                        _topsisMatrix!,
+                                                    matrixId: data?.id,
+                                                    ratingsId: ratings?.id,
+                                                    value: value,
+                                                  );
 
-                                            setState(() {});
+                                              setState(() {});
+                                            }
                                           },
                                         );
                                       },
@@ -469,11 +474,13 @@ class _SawExamplePageState extends State<SawExamplePage> {
 
   /// CALCULATE RESULT
   Widget _buildButtonCalculateResultWidget() {
-    return _sawMatrix != null && _sawMatrix!.isNotEmpty
+    return _topsisMatrix != null &&
+            (_topsisMatrix?.matrixs != null &&
+                _topsisMatrix!.matrixs.isNotEmpty)
         ? ElevatedButton(
           onPressed: () async {
-            _sawResult = await _saw
-                .getSawResult(matrix: _sawMatrix!)
+            _topsisResult = await _topsis
+                .getTopsisResult(matrix: _topsisMatrix!)
                 .catchError((e) {
                   if (mounted) {
                     _helper.showScaffoldMessenger(
@@ -490,7 +497,7 @@ class _SawExamplePageState extends State<SawExamplePage> {
             });
           },
           child: Text(
-            'Calculate SAW Result',
+            'Calculate TOPSIS Result',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
@@ -498,9 +505,9 @@ class _SawExamplePageState extends State<SawExamplePage> {
         : const SizedBox();
   }
 
-  /// SAW RESULT
-  Widget _buildSawResultWidget() {
-    return _sawResult != null && _sawResult!.isNotEmpty
+  /// TOPSIS RESULT
+  Widget _buildTopsisResultWidget() {
+    return _topsisResult != null && _topsisResult!.isNotEmpty
         ? Container(
           margin: EdgeInsets.only(top: 20, bottom: 10),
           padding: EdgeInsets.all(8),
@@ -567,10 +574,10 @@ class _SawExamplePageState extends State<SawExamplePage> {
                 child: Scrollbar(
                   child: ListView.builder(
                     shrinkWrap: true,
-                    itemCount: _sawResult?.length ?? 0,
+                    itemCount: _topsisResult?.length ?? 0,
                     padding: EdgeInsets.only(right: 10),
                     itemBuilder: (context, index) {
-                      final data = _sawResult?[index];
+                      final data = _topsisResult?[index];
                       return Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,

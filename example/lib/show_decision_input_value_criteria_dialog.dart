@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
-class SawInputValueCriteriaWidget extends StatefulWidget {
+class DecisionInputValueCriteriaWidget extends StatefulWidget {
   final Function(double) onSave;
 
-  const SawInputValueCriteriaWidget({super.key, required this.onSave});
+  const DecisionInputValueCriteriaWidget({super.key, required this.onSave});
 
   @override
-  State<SawInputValueCriteriaWidget> createState() =>
-      _SawInputValueCriteriaWidgetState();
+  State<DecisionInputValueCriteriaWidget> createState() =>
+      _DecisionInputValueCriteriaWidgetState();
 }
 
-class _SawInputValueCriteriaWidgetState
-    extends State<SawInputValueCriteriaWidget> {
+class _DecisionInputValueCriteriaWidgetState
+    extends State<DecisionInputValueCriteriaWidget> {
   final _valueController = TextEditingController();
   late TextStyle _textStyle;
   String? _errorMessage;
@@ -107,13 +107,13 @@ class _SawInputValueCriteriaWidgetState
   }
 }
 
-Future<bool?> showSawInputValueCriteriaDialog(
+Future<bool?> showDecisionInputValueCriteriaDialog(
   BuildContext context, {
   required Function(double) onSave,
 }) async {
   return showGeneralDialog(
     context: context,
     barrierLabel: 'SAW INPUT VALUE CRITERIA',
-    pageBuilder: (context, _, _) => SawInputValueCriteriaWidget(onSave: onSave),
+    pageBuilder: (context, _, _) => DecisionInputValueCriteriaWidget(onSave: onSave),
   );
 }

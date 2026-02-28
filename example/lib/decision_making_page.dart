@@ -1,5 +1,6 @@
 import 'package:example/ahp/ahp_example_page.dart';
 import 'package:example/saw/saw_example_page.dart';
+import 'package:example/topsis/topsis_example_page.dart';
 import 'package:flutter/material.dart';
 
 class DecisionMakingPage extends StatelessWidget {
@@ -16,6 +17,15 @@ class DecisionMakingPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+
+            /// TITLE
+            Text(
+              "Choose algorithm:",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+
+            const SizedBox(height: 20),
+
             /// USING AHP FEATURE
             ElevatedButton(
               onPressed:
@@ -41,6 +51,22 @@ class DecisionMakingPage extends StatelessWidget {
               child: Text(
                 'Sample Additive Weighting',
                 style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            /// USING TOPSIS FEATURE
+            ElevatedButton(
+              onPressed:
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => TopsisExamplePage()),
+                  ),
+              child: Text(
+                'TOPSIS',
+                style: TextStyle(fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
               ),
             ),
           ],

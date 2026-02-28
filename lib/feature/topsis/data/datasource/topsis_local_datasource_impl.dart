@@ -12,8 +12,31 @@ import 'dart:math' as math;
 import 'package:flutter_decision_making/feature/topsis/domain/entities/topsis_raw_matrix.dart';
 import 'package:flutter_decision_making/flutter_decision_making.dart';
 
+/// Implementation of [TopsisLocalDatasource] that handles TOPSIS algorithm operations.
+///
+/// This implementation supports:
+/// - Euclidean normalization
+/// - Identification of Positive (A+) and Negative (A-) Ideal Solutions
+/// - Separation measure calculations using Euclidean distance
+/// - Relative closeness coefficient calculation
+/// - Isolate-based processing for large datasets
+/// - Performance profiling
+///
+/// **Example usage:**
+/// ```dart
+/// final datasource = TopsisLocalDatasourceImpl();
+///
+/// // Generate matrix
+/// final rawMatrix = await datasource.generateTopsisMatrix(
+///   listAlternative: alternatives,
+///   listCriteria: criteria,
+/// );
+///
+/// // Calculate results
+/// final results = await datasource.calculateResult(rawMatrix: rawMatrix);
+/// ```
 class TopsisLocalDatasourceImpl
-    with WeightedDecisionMatrixInterface
+    with WeightedDecisionMatrixMixin
     implements TopsisLocalDatasource {
   final DecisionMakingHelper _helper;
   final DecisionIsolateMain _isolate;
@@ -24,6 +47,11 @@ class TopsisLocalDatasourceImpl
   @override
   DecisionIsolateMain get isolate => _isolate;
 
+  /// Creates an instance of [TopsisLocalDatasourceImpl].
+  ///
+  /// **Parameters:**
+  /// - [helper]: Helper for utility functions (defaults to new instance)
+  /// - [isolate]: Isolate manager for heavy computations (defaults to new instance)
   TopsisLocalDatasourceImpl({
     DecisionMakingHelper? helper,
     DecisionIsolateMain? isolate,
@@ -72,7 +100,15 @@ class TopsisLocalDatasourceImpl
     }
   }
 
-  /// NORMALIZE DECISION MATRIX
+  /// Normalizes the decision matrix using Euclidean normalization.
+  ///
+  /// Formula: r_ij = x_ij / sqrt(sum(x_ij^2))
+  ///
+  /// **Parameters:**
+  /// - [matrix]: The matrix to normalize
+  /// - [listCriteria]: The criteria to use for normalization
+  ///
+  /// **Returns:** Euclidean normalized matrix
   Future<List<WeightedDecisionMatrix>> _normalizeEuclidean({
     required List<WeightedDecisionMatrix> matrix,
     required List<WeightedDecisionCriteria> listCriteria,
@@ -129,7 +165,14 @@ class TopsisLocalDatasourceImpl
     }
   }
 
-  /// NORMALIZE WEIGHTING MATRIX
+  /// Calculates the weighted normalized decision matrix.
+  ///
+  /// Formula: v_ij = w_j * r_ij
+  ///
+  /// **Parameters:**
+  /// - [normalizeEuclideanMatrix]: Euclidean normalized matrix
+  ///
+  /// **Returns:** Weighted normalized matrix
   Future<List<WeightedDecisionMatrix>> _normalizeWeightedMatrix({
     required List<WeightedDecisionMatrix> normalizeEuclideanMatrix,
   }) async {
@@ -156,7 +199,16 @@ class TopsisLocalDatasourceImpl
     }
   }
 
-  /// IDEAL VALUE MIN & MAX
+  /// Identifies the positive and negative ideal solutions.
+  ///
+  /// For Benefit Criteria: A+ is Max, A- is Min
+  /// For Cost Criteria: A+ is Min, A- is Max
+  ///
+  /// **Parameters:**
+  /// - [normalizeMatrix]: Weighted normalized matrix
+  /// - [listCriteria]: Criteria list
+  ///
+  /// **Returns:** [TopsisIdealValue] containing A+ and A-
   Future<TopsisIdealValue> _getIdealValue({
     required List<WeightedDecisionMatrix> normalizeMatrix,
     required List<WeightedDecisionCriteria> listCriteria,
@@ -164,14 +216,12 @@ class TopsisLocalDatasourceImpl
     final name = "Get Ideal Value";
     startPerformanceProfiling(name);
     try {
-      // Map untuk menampung nilai ideal per criteria ID
       Map<String, double> positiveIdeal = {}; // A+
       Map<String, double> negativeIdeal = {}; // A-
 
       for (var crt in listCriteria) {
         final crtId = crt.id!;
 
-        // Ambil semua nilai dari semua alternatif untuk kriteria ini
         final values = normalizeMatrix.map((m) {
           final rating = m.ratings.firstWhere(
             (r) => r.criteria?.id == crtId,
@@ -186,8 +236,8 @@ class TopsisLocalDatasourceImpl
           positiveIdeal[crtId] = maxVal; // A+ = Max
           negativeIdeal[crtId] = minVal; // A- = Min
         } else {
-          positiveIdeal[crtId] = minVal; // A+ = Min (karena cost)
-          negativeIdeal[crtId] = maxVal; // A- = Max (karena cost)
+          positiveIdeal[crtId] = minVal; // A+ = Min (because is cost)
+          negativeIdeal[crtId] = maxVal; // A- = Max (because is cost)
         }
       }
 
@@ -203,7 +253,15 @@ class TopsisLocalDatasourceImpl
     }
   }
 
-  /// CALCULATE DISTANCE
+  /// Calculates the separation measures (Euclidean distance) from ideal solutions.
+  ///
+  /// Formula: D_i = sqrt(sum(v_ij - a_j)^2)
+  ///
+  /// **Parameters:**
+  /// - [weightedMatrix]: Weighted normalized matrix
+  /// - [idealValue]: Ideal solution values
+  ///
+  /// **Returns:** List of matrix objects with calculated distances
   Future<List<TopsisMatrix>> _calculateIdealDistance({
     required List<WeightedDecisionMatrix> weightedMatrix,
     required TopsisIdealValue idealValue,
@@ -243,7 +301,6 @@ class TopsisLocalDatasourceImpl
     }
   }
 
-  /// RESULT TOPSIS
   @override
   Future<List<WeightedDecisionResult>> calculateResult({
     required TopsisRawMatrix rawMatrix,

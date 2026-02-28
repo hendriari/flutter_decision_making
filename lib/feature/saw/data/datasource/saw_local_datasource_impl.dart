@@ -35,7 +35,7 @@ import 'package:flutter_decision_making/core/shared/entity/weighted_decision_res
 /// final results = await datasource.calculateSawResult(matrix: matrix);
 /// ```
 class SawLocalDatasourceImpl
-    with WeightedDecisionMatrixInterface
+    with WeightedDecisionMatrixMixin
     implements SawLocalDatasource {
   final DecisionMakingHelper _helper;
   final DecisionIsolateMain _isolate;

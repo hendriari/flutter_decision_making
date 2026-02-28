@@ -1,18 +1,4 @@
-import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_local_datasource.dart';
-import 'package:flutter_decision_making/feature/ahp/data/repository_impl/ahp_repository_impl.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_comparison_scale.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_hierarchy.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_identification.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_item.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_result.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/entities/pairwise_alternative_input.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/entities/pairwise_comparison_input.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/repository/ahp_repository.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/usecase/ahp_calculate_final_score_usecase.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/usecase/ahp_generate_hierarchy_usecase.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/usecase/ahp_generate_pairwise_alternative_input_usecase.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/usecase/ahp_generate_pairwise_criteria_input_usecase.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/usecase/ahp_identification_usecase.dart';
+import 'ahp_utils.dart';
 
 export 'ahp_utils.dart';
 
