@@ -1,20 +1,16 @@
-import 'package:flutter_decision_making/core/shared/entity/weighted_decision_alternative.dart';
-import 'package:flutter_decision_making/core/shared/entity/weighted_decision_criteria.dart';
-import 'package:flutter_decision_making/core/shared/entity/weighted_decision_matrix.dart';
-import 'package:flutter_decision_making/core/shared/entity/weighted_decision_result.dart';
 import 'package:flutter_decision_making/core/shared/interface/weighted_decision_matrix_mixin.dart';
 import 'package:flutter_decision_making/feature/topsis/data/datasource/topsis_local_datasource.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_decision_making/core/decision_making_enums.dart';
 import 'package:flutter_decision_making/core/decision_making_helper.dart';
 import 'package:flutter_decision_making/core/decision_making_performance_profiling.dart';
-import 'package:flutter_decision_making/core/isolate/decision_isolate_main.dart';
 import 'package:flutter_decision_making/feature/topsis/domain/entities/topsis_ideal_value.dart';
 import 'package:flutter_decision_making/feature/topsis/domain/entities/topsis_matrix.dart';
 
 import 'dart:math' as math;
 
 import 'package:flutter_decision_making/feature/topsis/domain/entities/topsis_raw_matrix.dart';
+import 'package:flutter_decision_making/flutter_decision_making.dart';
 
 class TopsisLocalDatasourceImpl
     with WeightedDecisionMatrixInterface
@@ -84,28 +80,49 @@ class TopsisLocalDatasourceImpl
     final name = "Normalize euclidean";
     startPerformanceProfiling(name);
     try {
-      Map<String, double> dividers = {};
+      if (!kIsWeb && (matrix.length > 80 || listCriteria.length > 25)) {
+        final data = await isolate.runTask(
+          DecisionAlgorithm.topsis,
+          TopsisProcessingIsolateCommand.normalizeEuclidean,
+          {
+            "criteria": listCriteria.map((e) => e.toDto().toJson()).toList(),
+            "matrix": matrix.map((e) => e.toDto().toJson()).toList(),
+          },
+        );
 
-      for (var crt in listCriteria) {
-        double sumSquared = 0;
-        for (var alt in matrix) {
-          var rating = alt.ratings.firstWhere((r) => r.criteria?.id == crt.id);
-          final ratingValue = (rating.value ?? 0).toDouble();
-          sumSquared += math.pow(ratingValue, 2);
+        var result = (data as List)
+            .map((e) => WeightedDecisionMatrixDto.fromJson(e))
+            .toList();
+
+        return result.map((e) => e.toEntity()).toList();
+      } else {
+        Map<String, double> dividers = {};
+
+        for (var crt in listCriteria) {
+          double sumSquared = 0;
+          for (var alt in matrix) {
+            final rating =
+                alt.ratings.cast<WeightedDecisionRating?>().firstWhere(
+                      (r) => r?.criteria?.id == crt.id,
+                      orElse: () => null,
+                    );
+            final ratingValue = (rating?.value ?? 0).toDouble();
+            sumSquared += math.pow(ratingValue, 2);
+          }
+          dividers[crt.id!] = math.sqrt(sumSquared);
         }
-        dividers[crt.id!] = math.sqrt(sumSquared);
-      }
 
-      return matrix.map((alt) {
-        final normalizedRatings = alt.ratings.map((r) {
-          double divider = dividers[r.criteria?.id] ?? 1.0;
-          return r.copyWith(
-            value: divider == 0 ? 0 : (r.value ?? 0) / divider,
-          );
+        return matrix.map((alt) {
+          final normalizedRatings = alt.ratings.map((r) {
+            double divider = dividers[r.criteria?.id] ?? 1.0;
+            return r.copyWith(
+              value: divider == 0 ? 0 : (r.value ?? 0) / divider,
+            );
+          }).toList();
+
+          return alt.copyWith(ratings: normalizedRatings);
         }).toList();
-
-        return alt.copyWith(ratings: normalizedRatings);
-      }).toList();
+      }
     } catch (e, s) {
       debugPrint("$name Error: $e\n$s");
       rethrow;
@@ -158,9 +175,11 @@ class TopsisLocalDatasourceImpl
 
         // Ambil semua nilai dari semua alternatif untuk kriteria ini
         final values = normalizeMatrix.map((m) {
-          return (m.ratings.firstWhere((r) => r.criteria?.id == crtId).value ??
-                  0)
-              .toDouble();
+          final rating = m.ratings.cast<WeightedDecisionRating?>().firstWhere(
+                (r) => r?.criteria?.id == crtId,
+                orElse: () => null,
+              );
+          return (rating?.value ?? 0).toDouble();
         }).toList();
 
         final maxVal = values.reduce(math.max);
@@ -238,6 +257,64 @@ class TopsisLocalDatasourceImpl
       /// NORMALIZE EUCLIDEAN
       var normalizeEuclidean = await _normalizeEuclidean(
           matrix: rawMatrix.matrixs, listCriteria: rawMatrix.criterias);
+
+      /// NORMALIZE WEIGHTED MATRIX
+      var normalizeWeightedMatrix = await _normalizeWeightedMatrix(
+          normalizeEuclideanMatrix: normalizeEuclidean);
+
+      /// GET IDEAL VALUE
+      var idealValue = await _getIdealValue(
+          normalizeMatrix: normalizeWeightedMatrix,
+          listCriteria: rawMatrix.criterias);
+
+      /// CALCULATE IDEAL DISTANCE
+      var distanceMatrix = await _calculateIdealDistance(
+          weightedMatrix: normalizeWeightedMatrix, idealValue: idealValue);
+
+      var result = distanceMatrix.map((alt) {
+        final dPlus = alt.distancePlus;
+        final dMinus = alt.distanceMinus;
+
+        final denominator = dPlus + dMinus;
+
+        final score = denominator == 0 ? 0.5 : dMinus / denominator;
+
+        return WeightedDecisionResult(
+          alternative: alt.alternative,
+          score: score.toDouble(),
+          rank: 0,
+        );
+      }).toList();
+
+      result.sort((a, b) => b.score.compareTo(a.score));
+
+      for (int i = 0; i < result.length; i++) {
+        result[i] = result[i].copyWith(rank: i + 1);
+      }
+
+      return result;
+    } catch (e, s) {
+      debugPrint("$name Error: $e\n$s");
+      rethrow;
+    } finally {
+      endPerformanceProfiling(name);
+    }
+  }
+
+  @override
+  Future<List<WeightedDecisionResult>> calculateResultWithExistingMatrix({
+    required TopsisRawMatrix rawMatrix,
+  }) async {
+    final name = "Calculate result from existing matrix";
+    startPerformanceProfiling(name);
+    try {
+      await validateMaxInputValue(rawMatrix.matrixs);
+
+      final validatedMatrix = validateAndFixMatrix(rawMatrix.matrixs);
+
+      /// NORMALIZE EUCLIDEAN
+      var normalizeEuclidean = await _normalizeEuclidean(
+          matrix: validatedMatrix, listCriteria: rawMatrix.criterias);
 
       /// NORMALIZE WEIGHTED MATRIX
       var normalizeWeightedMatrix = await _normalizeWeightedMatrix(

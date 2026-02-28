@@ -6,6 +6,7 @@ export 'package:flutter_decision_making/core/isolate/decision_isolate_message.da
 export 'package:flutter_decision_making/core/isolate/decision_isolate_worker.dart';
 export 'package:flutter_decision_making/feature/ahp/presentation/ahp.dart';
 export 'package:flutter_decision_making/feature/saw/presentation/saw.dart';
+export 'package:flutter_decision_making/core/decision_making_utils.dart';
 
 class FlutterDecisionMaking {
   static final FlutterDecisionMaking _instance =

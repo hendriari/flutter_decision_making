@@ -9,11 +9,11 @@ abstract interface class TopsisRepository {
     required List<WeightedDecisionCriteria> listCriteria,
   });
 
-  Future<List<WeightedDecisionResult>> calculateTopsisResult({
+  Future<List<WeightedDecisionResult>> calculateResult({
     required TopsisRawMatrix rawMatrix,
   });
 
-  Future<List<WeightedDecisionResult>> calculateTopsisResultWithExistingMatrix({
+  Future<List<WeightedDecisionResult>> calculateResultWithExistingMatrix({
     required TopsisRawMatrix rawMatrix,
   });
 }

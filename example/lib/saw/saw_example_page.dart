@@ -3,7 +3,7 @@ import 'package:example/helper.dart';
 import 'package:example/saw/show_saw_criteria_input_dialog.dart';
 import 'package:example/saw/show_saw_input_criteria_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_decision_making/feature/saw/presentation/saw.dart';
+import 'package:flutter_decision_making/flutter_decision_making.dart';
 
 class SawExamplePage extends StatefulWidget {
   const SawExamplePage({super.key});

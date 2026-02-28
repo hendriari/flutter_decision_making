@@ -1,6 +1,5 @@
 import 'dart:developer' as dev;
 
-// import 'package:flutter_decision_making/core/decision_making_enums.dart';
 import 'package:flutter_decision_making/core/decision_making_enums.dart';
 import 'package:flutter_decision_making/core/decision_making_helper.dart';
 import 'package:flutter_decision_making/core/isolate/decision_processing_isolate_command.dart';
@@ -178,5 +177,179 @@ mixin WeightedDecisionMatrixInterface {
         ratings: ratings,
       );
     }).toList();
+  }
+
+  /// Validates that all rating values do not exceed their criteria's maximum value.
+  ///
+  /// **Parameters:**
+  /// - [matrix]: Matrix to validate
+  ///
+  /// **Throws:**
+  /// - Exception if any rating is missing criteria
+  /// - Exception if any rating value is null
+  /// - Exception if any value exceeds its criteria's maximum
+  Future<void> validateMaxInputValue(
+      List<WeightedDecisionMatrix> matrix) async {
+    for (var e in matrix) {
+      for (var r in e.ratings) {
+        final criteria = r.criteria;
+
+        if (criteria == null) {
+          throw Exception("Rating on ${e.alternative.name} has no criteria.");
+        }
+
+        final value = r.value;
+
+        if (value == null) {
+          throw Exception(
+              "Empty value in ${e.alternative.name} for criteria ${criteria.name}");
+        }
+
+        if (value > criteria.maxValue) {
+          throw Exception(
+              "The value '$value' for alternative '${e.alternative.name}' in criteria '${criteria.name}' "
+              "is greater than the maximum (${criteria.maxValue}).");
+        }
+      }
+    }
+  }
+
+  /// Validates and repairs matrix data structure.
+  ///
+  /// This method ensures:
+  /// - All entities have IDs
+  /// - Criteria weights are normalized
+  /// - Data structure is consistent
+  ///
+  /// **Parameters:**
+  /// - [matrix]: Matrix to validate and fix
+  ///
+  /// **Returns:** Validated and fixed matrix
+  List<WeightedDecisionMatrix> validateAndFixMatrix(
+      List<WeightedDecisionMatrix> matrix) {
+    return matrix.map((m) {
+      var updatedMatrix = _ensureMatrixId(m);
+
+      updatedMatrix = _ensureAlternativeId(updatedMatrix);
+
+      updatedMatrix = _ensureRatingIds(updatedMatrix);
+
+      updatedMatrix = _normalizeMatrixWeights(updatedMatrix);
+
+      return updatedMatrix;
+    }).toList();
+  }
+
+  /// Ensures the matrix has a unique ID.
+  ///
+  /// **Parameters:**
+  /// - [matrix]: Matrix to check
+  ///
+  /// **Returns:** Matrix with guaranteed ID
+  WeightedDecisionMatrix _ensureMatrixId(WeightedDecisionMatrix matrix) {
+    if (matrix.id == null || matrix.id!.isEmpty) {
+      return matrix.copyWith(id: helper.getCustomUniqueId());
+    }
+    return matrix;
+  }
+
+  /// Ensures the alternative in the matrix has a unique ID.
+  ///
+  /// **Parameters:**
+  /// - [matrix]: Matrix to check
+  ///
+  /// **Returns:** Matrix with alternative having guaranteed ID
+  WeightedDecisionMatrix _ensureAlternativeId(WeightedDecisionMatrix matrix) {
+    if (matrix.alternative.id == null || matrix.alternative.id!.isEmpty) {
+      final updatedAlternative =
+          matrix.alternative.copyWith(id: helper.getCustomUniqueId());
+      return matrix.copyWith(alternative: updatedAlternative);
+    }
+    return matrix;
+  }
+
+  /// Ensures all ratings and their criteria have unique IDs.
+  ///
+  /// **Parameters:**
+  /// - [matrix]: Matrix to check
+  ///
+  /// **Returns:** Matrix with all ratings having guaranteed IDs
+  WeightedDecisionMatrix _ensureRatingIds(WeightedDecisionMatrix matrix) {
+    final needsUpdate = matrix.ratings.any((d) =>
+        d.id == null ||
+        d.id!.isEmpty ||
+        d.criteria?.id == null ||
+        d.criteria!.id!.isEmpty);
+
+    if (!needsUpdate) {
+      return matrix;
+    }
+
+    final updatedRatings = matrix.ratings.map((rating) {
+      var updatedRating = rating;
+
+      if (rating.id == null || rating.id!.isEmpty) {
+        updatedRating = rating.copyWith(id: helper.getCustomUniqueId());
+      }
+
+      if (rating.criteria?.id == null || rating.criteria!.id!.isEmpty) {
+        final updatedCriteria =
+            rating.criteria?.copyWith(id: helper.getCustomUniqueId());
+        updatedRating = updatedRating.copyWith(criteria: updatedCriteria);
+      }
+
+      return updatedRating;
+    }).toList();
+
+    return matrix.copyWith(ratings: updatedRatings);
+  }
+
+  /// Normalizes criteria weights within the matrix to sum to 100%.
+  ///
+  /// Ensures all criteria weights are consistent and properly normalized.
+  ///
+  /// **Parameters:**
+  /// - [matrix]: Matrix to normalize
+  ///
+  /// **Returns:** Matrix with normalized criteria weights
+  ///
+  /// **Throws:**
+  /// - Exception if total weight is zero
+  /// - Exception if any weight is negative
+  WeightedDecisionMatrix _normalizeMatrixWeights(
+      WeightedDecisionMatrix matrix) {
+    final totalWeight = matrix.ratings
+        .fold<double>(0, (a, b) => a + (b.criteria?.weightPercent ?? 0));
+
+    if (totalWeight == 0) {
+      throw Exception("Total criteria weight cannot be zero.");
+    }
+
+    if (totalWeight == 100) {
+      return matrix;
+    }
+
+    dev.log(
+      "[Normalize Matrix Weights] Total weight = $totalWeight, auto-normalizing to 100%.",
+      name: "DECISION MAKING",
+    );
+
+    final normalizedRatings = matrix.ratings.map((rating) {
+      final currentWeight = rating.criteria?.weightPercent ?? 0;
+
+      if (currentWeight < 0) {
+        throw Exception(
+          "Weight cannot be negative for criteria: ${rating.criteria?.name}",
+        );
+      }
+
+      final normalized = (currentWeight / totalWeight) * 100;
+      final updatedCriteria =
+          rating.criteria?.copyWith(weightPercent: normalized);
+
+      return rating.copyWith(criteria: updatedCriteria);
+    }).toList();
+
+    return matrix.copyWith(ratings: normalizedRatings);
   }
 }

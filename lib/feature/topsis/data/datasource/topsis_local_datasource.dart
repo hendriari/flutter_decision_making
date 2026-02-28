@@ -12,4 +12,8 @@ abstract interface class TopsisLocalDatasource {
   Future<List<WeightedDecisionResult>> calculateResult({
     required TopsisRawMatrix rawMatrix,
   });
+
+  Future<List<WeightedDecisionResult>> calculateResultWithExistingMatrix({
+    required TopsisRawMatrix rawMatrix,
+  });
 }

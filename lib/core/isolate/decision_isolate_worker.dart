@@ -371,6 +371,6 @@ Future<dynamic> _handleTopsisTask(
     case TopsisProcessingIsolateCommand.normalizeMatrix:
       return normalizeWeightedMatrixIsolate(data: data);
     case TopsisProcessingIsolateCommand.normalizeEuclidean:
-      return;
+      return normalizeWeightedMatrixIsolate(data: data);
   }
 }

@@ -11,6 +11,7 @@ import 'package:flutter_decision_making/feature/saw/domain/usecase/saw_calculate
 import 'package:flutter_decision_making/feature/saw/domain/usecase/saw_generate_pairwise_matrix_usecase.dart';
 
 export 'saw_utils.dart';
+export 'package:flutter_decision_making/core/decision_making_utils.dart';
 
 class SAW {
   final SawRepository _sawRepository;

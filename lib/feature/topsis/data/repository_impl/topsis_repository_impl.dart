@@ -20,16 +20,16 @@ class TopsisRepositoryImpl implements TopsisRepository {
   }
 
   @override
-  Future<List<WeightedDecisionResult>> calculateTopsisResult({
+  Future<List<WeightedDecisionResult>> calculateResult({
     required TopsisRawMatrix rawMatrix,
   }) async {
     return await _localDatasource.calculateResult(rawMatrix: rawMatrix);
   }
 
   @override
-  Future<List<WeightedDecisionResult>> calculateTopsisResultWithExistingMatrix(
+  Future<List<WeightedDecisionResult>> calculateResultWithExistingMatrix(
       {required TopsisRawMatrix rawMatrix}) async {
-    // TODO: implement calculateTopsisResultWithExistingMatrix
-    throw UnimplementedError();
+    return await _localDatasource.calculateResultWithExistingMatrix(
+        rawMatrix: rawMatrix);
   }
 }
