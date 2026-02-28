@@ -2,19 +2,26 @@
 
 ## ✨ About
 
-**Flutter package for practical multi-criteria decision-making, providing algorithms such as AHP, SAW, and TOPSIS (coming soon) to help developers perform weighting, evaluation, and ranking of alternatives easily and accurately within their Flutter applications.**
-
-**Development Status:**
-
-This package is currently under active development. We are committed to continuously enhancing the features and algorithms to support a broader range of decision-making methods. In upcoming versions, we plan to add several popular algorithms such as SAW, TOPSIS, and other methods to provide a richer selection of decision-making techniques.
+**Flutter package for practical Multi-Criteria Decision Making (MCDM). Providing algorithms such as AHP, SAW, and TOPSIS to help developers perform weighting, evaluation, and ranking of alternatives easily and accurately within their Flutter applications.**
 
 | Status | Algorithm                                                               | Available in version |
 |:-------|:------------------------------------------------------------------------|:---------------------|
 | ✅      | AHP (Analytic Hierarchy Process)                                        | 1.0.0                |
 | ✅     | SAW (Simple Additive Weighting)                                         | 1.1.0                |
-| 🔜     | TOPSIS (Technique for Order Preference by Similarity to Ideal Solution) | 1.2.0 (planned)      |
+| ✅     | TOPSIS (Technique for Order Preference by Similarity to Ideal Solution) | 1.2.0                |
 
-Thank you for your valuable feedback and continued support.
+---
+
+## 🎯 Typical Use Cases
+
+Suitable for building decision support features such as:
+
+- HR candidate or promotion selection
+- Vendor or project evaluation
+- Scholarship or student ranking
+- Feature prioritization in product management
+- Internal corporate decision-making systems
+- Recommendation or comparison apps
 
 ---
 
@@ -22,13 +29,13 @@ Thank you for your valuable feedback and continued support.
 You can use this package in two ways depending on your needs:
 
 1. Using all algorithms together  
-   Initialize the `FlutterDecisionMaking` class to access all available algorithms (currently AHP and SAW).  
-   More algorithms such as SAW and TOPSIS are planned for upcoming versions.
+   Initialize the `FlutterDecisionMaking` class to access all available algorithms.
 
 ```dart
 late FlutterDecisionMaking _decisionMaking;
 AhpResult? _ahpResult;
-List<SawResult>? _sawResult;
+List<WeightedDecisionResult>? _sawResult;
+List<WeightedDecisionResult>? _topsisResult;
 
 @override
 void initState() {
@@ -41,7 +48,10 @@ void initState() {
 _ahpResult = await _decisionMaking.ahp.getAhpResult(...);
 
 // for SAW
-_sawResult = await _decisionMaking.saw.calculateSawResult(...);
+_sawResult = await _decisionMaking.saw.getSawResult(...);
+
+// for TOPSIS
+_topsisResult = await _decisionMaking.topsis.getTopsisResult(...);
 ```
 
 This is the easiest way if you want to use multiple algorithms in your project.
@@ -70,10 +80,11 @@ _ahpResult = await _ahp.getAhpResult(...);
 ## 📖 Algorithm Docs
 For details on how to use the algorithm, you can visit the following documentation.
 
-| Link                                                                                                  | Description                                                                                                                                                                                      |
-|:------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [AHP Doc](https://github.com/hendriari/flutter_decision_making/wiki/Analytic-Hierarchy-Process-(AHP)) | If you need a method that is able to determine weights accurately through pairwise comparisons, validate the consistency of assessments, and work well on subjective or multilevel criteria.     |
-| [SAW Doc](https://github.com/hendriari/flutter_decision_making/wiki/Simple-Additive-Weighting-(SAW))  | If you need a simple, fast, easy to calculate, and easy to implement method for ranking alternatives based on criteria weights and values.                                                       |
+| Link                                                                                                    | Description                                                                                                                                                                                      |
+|:--------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [AHP Doc](https://github.com/hendriari/flutter_decision_making/wiki/Analytic-Hierarchy-Process-(AHP))   | If you need a method that is able to determine weights accurately through pairwise comparisons, validate the consistency of assessments, and work well on subjective or multilevel criteria.     |
+| [SAW Doc](https://github.com/hendriari/flutter_decision_making/wiki/Simple-Additive-Weighting-(SAW))    | If you need a simple, fast, easy to calculate, and easy to implement method for ranking alternatives based on criteria weights and values.                                                       |
+| [TOPSIS Doc](https://github.com/hendriari/flutter_decision_making/wiki/TOPSIS-(Technique-for-Order-Preference-by-Similarity-to-Ideal-Solution)) | If you need a method that ranks alternatives based on their distance to the ideal best and ideal worst solutions, providing a more discriminative and robust decision-making result.                                                      |
 ---
 
 ## 📈 Performance Profiling
@@ -83,6 +94,25 @@ Major method logs:
 - Execution duration (in milliseconds).
 
 > Useful for debugging and optimization during development.
+
+---
+
+## 💡 Want Another Algorithm?
+
+We are continuously improving this package 🚀
+
+If you would like to see a new algorithm (e.g., WP, ELECTRE, MOORA, PROMETHEE, etc.) added:
+
+👉 Please open a discussion:
+[![GitHub Discussions](https://img.shields.io/badge/Join-Discussion-2ea44f?logo=github&logoColor=white)](https://github.com/hendriari/flutter_decision_making/discussions)
+
+⚠️ Note:
+New algorithms will be prioritized based on:
+- Community interest
+- Contribution support (PRs are welcome!)
+- Maintainer availability
+
+Contributions are highly appreciated 🙌
 
 ---
 ## 🎁 Support Me

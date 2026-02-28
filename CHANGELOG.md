@@ -1,24 +1,42 @@
-## 1.0.0
+## 1.2.0
 
-* Flutter Decision Making with AHP algorithm initial release.
+### Updated
+* make shared function to generate matrix for SAW and TOPSIS
+* added algorithm TOPSIS (Technique for Order Preference by Similarity to Ideal Solution)
 
-## 1.0.1
-chore:
-* Provide documentation
-* Pass static analysis
+---
+
+## 1.1.2
+
+### Updated
+* add support me on ko-fi, saweria to readme
+
+---
+
+## 1.1.1
+
+### Updated
+* adding Simple Additive Weighting (SAW) algorithm
+* main isolate manager, make to multi-command isolate
+* minimum flutter version
+* minor update AHP
+
+---
+
+## 1.0.6
+
+### Updated
 * update README.md
+* Refactored AHP feature for improved maintainability and performance
+* On mobile and desktop platforms, replaced compute with Isolate.spawn for heavy processing tasks:
+    - `generateResultPairwiseMatrixCriteria`
+    - `generateResultPairwiseMatrixAlternative`
+    - `calculateEigenVectorCriteria`
+    - `calculateEigenVectorAlternative`
+    - `checkConsistencyRatio`
+    - `ahpFinalScore`
 
-## 1.0.2
-update docs
-
-## 1.0.3
-* update preference value: only return integer
-* update README.md
-* feature to reset all internal data and results to initial state
-
-## 1.0.4
-* updated README with development note about upcoming support for SAW, TOPSIS, and other algorithms.
-* Improved package description in pubspec.yaml to reflect ongoing development and future feature additions.
+---
 
 ## 1.0.5
 
@@ -34,34 +52,38 @@ update docs
     - `calculateEigenVectorAlternative`
     - `checkConsistencyRatio`
 
-## 1.0.6
+---
 
-### Updated
+## 1.0.4
+
+* updated README with development note about upcoming support for SAW, TOPSIS, and other algorithms.
+* Improved package description in pubspec.yaml to reflect ongoing development and future feature additions.
+
+---
+
+## 1.0.3
+
+* update preference value: only return integer
 * update README.md
-* Refactored AHP feature for improved maintainability and performance
-* On mobile and desktop platforms, replaced compute with Isolate.spawn for heavy processing tasks:
-    - `generateResultPairwiseMatrixCriteria`
-    - `generateResultPairwiseMatrixAlternative`
-    - `calculateEigenVectorCriteria`
-    - `calculateEigenVectorAlternative`
-    - `checkConsistencyRatio`
-    - `ahpFinalScore`
+* feature to reset all internal data and results to initial state
 
-## 1.1.1
+---
 
-### Updated
-* adding Simple Additive Weighting (SAW) algorithm
-* main isolate manager, make to multi-command isolate
-* minimum flutter version
-* minor update AHP
+## 1.0.2
 
-## 1.1.2
+update docs
 
-### Updated
-* add support me on ko-fi, saweria to readme
+---
 
-## 1.2.0
+## 1.0.1
 
-### Updated
-* make shared function to generate matrix for SAW and TOPSIS
-* added algorithm TOPSIS (Technique for Order Preference by Similarity to Ideal Solution)
+chore:
+* Provide documentation
+* Pass static analysis
+* update README.md
+
+---
+
+## 1.0.0
+
+* Flutter Decision Making with AHP algorithm initial release.
