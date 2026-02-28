@@ -61,7 +61,7 @@ class TopsisLocalDatasourceImpl
       }
 
       return TopsisRawMatrix(
-        criterias: listCriteria,
+        criterias: updateCriteria,
         matrixs: result,
       );
     } catch (e, s) {
@@ -101,12 +101,10 @@ class TopsisLocalDatasourceImpl
         for (var crt in listCriteria) {
           double sumSquared = 0;
           for (var alt in matrix) {
-            final rating =
-                alt.ratings.cast<WeightedDecisionRating?>().firstWhere(
-                      (r) => r?.criteria?.id == crt.id,
-                      orElse: () => null,
-                    );
-            final ratingValue = (rating?.value ?? 0).toDouble();
+            final rating = alt.ratings.firstWhere(
+              (r) => r.criteria?.id == crt.id,
+            );
+            final ratingValue = (rating.value ?? 0).toDouble();
             sumSquared += math.pow(ratingValue, 2);
           }
           dividers[crt.id!] = math.sqrt(sumSquared);
@@ -175,11 +173,10 @@ class TopsisLocalDatasourceImpl
 
         // Ambil semua nilai dari semua alternatif untuk kriteria ini
         final values = normalizeMatrix.map((m) {
-          final rating = m.ratings.cast<WeightedDecisionRating?>().firstWhere(
-                (r) => r?.criteria?.id == crtId,
-                orElse: () => null,
-              );
-          return (rating?.value ?? 0).toDouble();
+          final rating = m.ratings.firstWhere(
+            (r) => r.criteria?.id == crtId,
+          );
+          return (rating.value ?? 0).toDouble();
         }).toList();
 
         final maxVal = values.reduce(math.max);
@@ -311,10 +308,13 @@ class TopsisLocalDatasourceImpl
       await validateMaxInputValue(rawMatrix.matrixs);
 
       final validatedMatrix = validateAndFixMatrix(rawMatrix.matrixs);
+      
+      // Update criterias from validated matrix to ensure ID consistency
+      final updatedCriterias = validatedMatrix.first.ratings.map((r) => r.criteria!).toList();
 
       /// NORMALIZE EUCLIDEAN
       var normalizeEuclidean = await _normalizeEuclidean(
-          matrix: validatedMatrix, listCriteria: rawMatrix.criterias);
+          matrix: validatedMatrix, listCriteria: updatedCriterias);
 
       /// NORMALIZE WEIGHTED MATRIX
       var normalizeWeightedMatrix = await _normalizeWeightedMatrix(
@@ -323,7 +323,7 @@ class TopsisLocalDatasourceImpl
       /// GET IDEAL VALUE
       var idealValue = await _getIdealValue(
           normalizeMatrix: normalizeWeightedMatrix,
-          listCriteria: rawMatrix.criterias);
+          listCriteria: updatedCriterias);
 
       /// CALCULATE IDEAL DISTANCE
       var distanceMatrix = await _calculateIdealDistance(
