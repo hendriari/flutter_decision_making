@@ -11,7 +11,14 @@
     `import 'package:flutter_decision_making/core/isolate/decision_isolate_main.dart';`
 
 ### Added
+- **Pemisahan package `decision_making_core` (Pure Dart):** Dibuat package mandiri `packages/decision_making_core` tanpa dependensi Flutter (`dart test` dan `dart analyze` bersih, SDK `>=3.0.0 <4.0.0`). Mendukung eksekusi sinkron (`SawCalculator.calculate`, `TopsisCalculator.calculate`, `AhpCalculator.calculate`).
+- Export entity `decision_making_core` di barrel utama `package:flutter_decision_making/flutter_decision_making.dart` secara selektif (`show`) untuk interoperabilitas penuh tipe entitas tanpa mengekspos engine kalkulator mentah.
 - Export `TOPSIS` di barrel utama (`lib/flutter_decision_making.dart`): class `TOPSIS`, `TopsisRawMatrix`, dan tipe terkait kini dapat diimpor langsung dari `package:flutter_decision_making/flutter_decision_making.dart`.
+
+### Urutan Rilis / Publishing Workflow
+1. **Rilis Core Terlebih Dahulu:** Masuk ke direktori `packages/decision_making_core` dan terbitkan package ke pub.dev (`dart pub publish`). Versi awal adalah `0.1.0`.
+2. **Hapus Overrides di Root & Subproject:** Setelah `decision_making_core` terbit dan terindeks di pub.dev, hapus blok `dependency_overrides` pada `pubspec.yaml`, `example/pubspec.yaml`, dan `benchmark/pubspec.yaml`.
+3. **Rilis Root Package:** Jalankan `flutter test` dan `flutter pub publish` untuk merilis `flutter_decision_making` (diusulkan versi `1.3.0`).
 
 ### Fixed
 - Ranking TOPSIS salah di versi 1.2.0 untuk data > 80 alternatif atau > 25 kriteria karena worker memanggil normalisasi SAW (`normalizeWeightedMatrixIsolate`) alih-alih normalisasi Euclidean (`normalizeEuclideanMatrixIsolate`) pada `TopsisProcessingIsolateCommand.normalizeEuclidean`.

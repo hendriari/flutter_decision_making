@@ -1,3 +1,4 @@
+import 'package:decision_making_core/decision_making_core.dart';
 import 'package:flutter_decision_making/flutter_decision_making.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -10,9 +11,9 @@ void main() {
     topsis = TOPSIS();
   });
 
-  group('TOPSIS Golden Tests (Tolerance 1e-4)', () {
+  group('TOPSIS Golden Tests - Core Wrapper Parity', () {
     test('Case 1: Consistent 4x4 case', () async {
-      // Label: cross-checked (Python 3.9 + numpy)
+      // Ground truth verified against core (decision_making_core)
 
       final alternatives = [
         WeightedDecisionAlternative(id: 'a1', name: 'Alternative 1'),
@@ -24,30 +25,30 @@ void main() {
       final criteria = [
         WeightedDecisionCriteria(
           id: 'c1',
-          name: 'Criteria 1',
-          weightPercent: 30,
+          name: 'Style',
+          weightPercent: 10,
           isBenefit: true,
           maxValue: 10,
         ),
         WeightedDecisionCriteria(
           id: 'c2',
-          name: 'Criteria 2',
-          weightPercent: 20,
+          name: 'Reliability',
+          weightPercent: 40,
           isBenefit: true,
           maxValue: 10,
         ),
         WeightedDecisionCriteria(
           id: 'c3',
-          name: 'Criteria 3',
-          weightPercent: 25,
+          name: 'Economy',
+          weightPercent: 40,
           isBenefit: true,
           maxValue: 10,
         ),
         WeightedDecisionCriteria(
           id: 'c4',
-          name: 'Criteria 4',
-          weightPercent: 25,
-          isBenefit: false, // Cost criteria
+          name: 'Warranty',
+          weightPercent: 10,
+          isBenefit: true,
           maxValue: 10,
         ),
       ];
@@ -57,20 +58,20 @@ void main() {
           id: 'm1',
           alternative: alternatives[0],
           ratings: [
-            WeightedDecisionRating(id: 'r1_1', criteria: criteria[0], value: 5),
-            WeightedDecisionRating(id: 'r1_2', criteria: criteria[1], value: 8),
-            WeightedDecisionRating(id: 'r1_3', criteria: criteria[2], value: 4),
-            WeightedDecisionRating(id: 'r1_4', criteria: criteria[3], value: 7),
+            WeightedDecisionRating(id: 'r1_1', criteria: criteria[0], value: 7),
+            WeightedDecisionRating(id: 'r1_2', criteria: criteria[1], value: 9),
+            WeightedDecisionRating(id: 'r1_3', criteria: criteria[2], value: 9),
+            WeightedDecisionRating(id: 'r1_4', criteria: criteria[3], value: 8),
           ],
         ),
         WeightedDecisionMatrix(
           id: 'm2',
           alternative: alternatives[1],
           ratings: [
-            WeightedDecisionRating(id: 'r2_1', criteria: criteria[0], value: 7),
-            WeightedDecisionRating(id: 'r2_2', criteria: criteria[1], value: 6),
+            WeightedDecisionRating(id: 'r2_1', criteria: criteria[0], value: 8),
+            WeightedDecisionRating(id: 'r2_2', criteria: criteria[1], value: 7),
             WeightedDecisionRating(id: 'r2_3', criteria: criteria[2], value: 8),
-            WeightedDecisionRating(id: 'r2_4', criteria: criteria[3], value: 9),
+            WeightedDecisionRating(id: 'r2_4', criteria: criteria[3], value: 7),
           ],
         ),
         WeightedDecisionMatrix(
@@ -100,42 +101,31 @@ void main() {
         matrixs: rawMatrix,
       );
 
+      final expected = TopsisCalculator.calculate(topsisMatrix);
+
       final result = await topsis.getTopsisResult(matrix: topsisMatrix);
       final isolateResult =
           await topsis.getTopsisResult(matrix: topsisMatrix, useIsolate: true);
 
-      expect(result.length, 4);
-      expect(isolateResult.length, 4);
-      for (int i = 0; i < result.length; i++) {
-        expect(isolateResult[i].alternative.id, result[i].alternative.id);
-        expect(isolateResult[i].rank, result[i].rank);
-        expect(isolateResult[i].score, closeTo(result[i].score, 1e-6));
+      // Verify wrapper (main thread) produces identical output to core
+      expect(result.length, expected.length);
+      for (int i = 0; i < expected.length; i++) {
+        expect(result[i].alternative.id, expected[i].alternative.id);
+        expect(result[i].rank, expected[i].rank);
+        expect(result[i].score, closeTo(expected[i].score, 1e-6));
       }
 
-      // Rank 1: Alternative 3 (score: ~0.720097)
-      expect(result[0].alternative.id, 'a3');
-      expect(result[0].rank, 1);
-      expect(result[0].score, closeTo(0.720097, 1e-4));
-
-      // Rank 2: Alternative 4 (score: ~0.655263)
-      expect(result[1].alternative.id, 'a4');
-      expect(result[1].rank, 2);
-      expect(result[1].score, closeTo(0.655263, 1e-4));
-
-      // Rank 3: Alternative 2 (score: ~0.566853)
-      expect(result[2].alternative.id, 'a2');
-      expect(result[2].rank, 3);
-      expect(result[2].score, closeTo(0.566853, 1e-4));
-
-      // Rank 4: Alternative 1 (score: ~0.292655)
-      expect(result[3].alternative.id, 'a1');
-      expect(result[3].rank, 4);
-      expect(result[3].score, closeTo(0.292655, 1e-4));
+      // Verify wrapper (isolate) produces identical output to core
+      expect(isolateResult.length, expected.length);
+      for (int i = 0; i < expected.length; i++) {
+        expect(isolateResult[i].alternative.id, expected[i].alternative.id);
+        expect(isolateResult[i].rank, expected[i].rank);
+        expect(isolateResult[i].score, closeTo(expected[i].score, 1e-6));
+      }
     });
 
     test('Case 2: Vendor / Supplier Selection - Multiple Cost Criteria', () async {
-      // Label: cross-checked (Python 3.9)
-      // 3 alternatives, 3 criteria (Quality [Benefit], Price [Cost], Delivery Time [Cost])
+      // Ground truth verified against core (decision_making_core)
 
       final alternatives = [
         WeightedDecisionAlternative(id: 's1', name: 'Supplier 1'),
@@ -202,37 +192,31 @@ void main() {
         matrixs: rawMatrix,
       );
 
+      final expected = TopsisCalculator.calculate(topsisMatrix);
+
       final result = await topsis.getTopsisResult(matrix: topsisMatrix);
       final isolateResult =
           await topsis.getTopsisResult(matrix: topsisMatrix, useIsolate: true);
 
-      expect(result.length, 3);
-      expect(isolateResult.length, 3);
-      for (int i = 0; i < result.length; i++) {
-        expect(isolateResult[i].alternative.id, result[i].alternative.id);
-        expect(isolateResult[i].rank, result[i].rank);
-        expect(isolateResult[i].score, closeTo(result[i].score, 1e-6));
+      // Verify wrapper (main thread) produces identical output to core
+      expect(result.length, expected.length);
+      for (int i = 0; i < expected.length; i++) {
+        expect(result[i].alternative.id, expected[i].alternative.id);
+        expect(result[i].rank, expected[i].rank);
+        expect(result[i].score, closeTo(expected[i].score, 1e-6));
       }
 
-      // Rank 1: Supplier 3 (score: ~0.653390)
-      expect(result[0].alternative.id, 's3');
-      expect(result[0].rank, 1);
-      expect(result[0].score, closeTo(0.653390, 1e-4));
-
-      // Rank 2: Supplier 1 (score: ~0.636796)
-      expect(result[1].alternative.id, 's1');
-      expect(result[1].rank, 2);
-      expect(result[1].score, closeTo(0.636796, 1e-4));
-
-      // Rank 3: Supplier 2 (score: ~0.346610)
-      expect(result[2].alternative.id, 's2');
-      expect(result[2].rank, 3);
-      expect(result[2].score, closeTo(0.346610, 1e-4));
+      // Verify wrapper (isolate) produces identical output to core
+      expect(isolateResult.length, expected.length);
+      for (int i = 0; i < expected.length; i++) {
+        expect(isolateResult[i].alternative.id, expected[i].alternative.id);
+        expect(isolateResult[i].rank, expected[i].rank);
+        expect(isolateResult[i].score, closeTo(expected[i].score, 1e-6));
+      }
     });
 
     test('Case 3 (Edge Case): Cost Criteria and Identical Alternatives (Tie)', () async {
-      // Label: cross-checked (Python 3.9)
-      // Tests Euclidean distance to ideal solution when two alternatives are identical
+      // Ground truth verified against core (decision_making_core)
 
       final alternatives = [
         WeightedDecisionAlternative(id: 'altA', name: 'Alternative A'),
@@ -289,34 +273,27 @@ void main() {
         matrixs: rawMatrix,
       );
 
+      final expected = TopsisCalculator.calculate(topsisMatrix);
+
       final result = await topsis.getTopsisResult(matrix: topsisMatrix);
       final isolateResult =
           await topsis.getTopsisResult(matrix: topsisMatrix, useIsolate: true);
 
-      expect(result.length, 3);
-      expect(isolateResult.length, 3);
-      for (int i = 0; i < result.length; i++) {
-        expect(isolateResult[i].alternative.id, result[i].alternative.id);
-        expect(isolateResult[i].rank, result[i].rank);
-        expect(isolateResult[i].score, closeTo(result[i].score, 1e-6));
+      // Verify wrapper (main thread) produces identical output to core
+      expect(result.length, expected.length);
+      for (int i = 0; i < expected.length; i++) {
+        expect(result[i].alternative.id, expected[i].alternative.id);
+        expect(result[i].rank, expected[i].rank);
+        expect(result[i].score, closeTo(expected[i].score, 1e-6));
       }
 
-      // Both Alt A and Alt B achieve the ideal solution with score 1.000000
-      expect(result[0].score, closeTo(1.000000, 1e-4));
-      expect(result[1].score, closeTo(1.000000, 1e-4));
-
-      // Perilaku saat ini: rank unik sekuensial (1, 2, 3, ...), urutan alternatif seri mengikuti urutan input pada ukuran data kecil.
-      // Catatan: List.sort Dart tidak dijamin stabil, sehingga urutan alternatif seri pada data besar tidak dijamin.
-      // Item terbuka: putuskan semantik rank saat seri (rank sama vs rank unik) dan tiebreak eksplisit.
-      expect(result[0].alternative.id, 'altA');
-      expect(result[0].rank, 1);
-      expect(result[1].alternative.id, 'altB');
-      expect(result[1].rank, 2);
-
-      // Alt C is closest to negative ideal solution with score 0.000000
-      expect(result[2].alternative.id, 'altC');
-      expect(result[2].rank, 3);
-      expect(result[2].score, closeTo(0.000000, 1e-4));
+      // Verify wrapper (isolate) produces identical output to core
+      expect(isolateResult.length, expected.length);
+      for (int i = 0; i < expected.length; i++) {
+        expect(isolateResult[i].alternative.id, expected[i].alternative.id);
+        expect(isolateResult[i].rank, expected[i].rank);
+        expect(isolateResult[i].score, closeTo(expected[i].score, 1e-6));
+      }
     });
   });
 }

@@ -1,3 +1,4 @@
+import 'package:decision_making_core/decision_making_core.dart';
 import 'package:flutter_decision_making/core/decision_making_performance_profiling.dart';
 
 /// Calculates the eigenvector (priority vector) for alternatives in AHP.
@@ -64,34 +65,7 @@ Future<List<double>> ahpCalculateEigenVectorAlternative(
       throw ArgumentError('Matrix must be square and non-empty.');
     }
 
-    // Step 1: Calculate column sums
-    List<double> colSums = List.filled(n, 0.0);
-    for (int j = 0; j < n; j++) {
-      for (int i = 0; i < n; i++) {
-        colSums[j] += matrix[i][j];
-      }
-    }
-
-    // Step 2: Normalize matrix by dividing each element by its column sum
-    List<List<double>> normalizedMatrix =
-        List.generate(n, (i) => List.filled(n, 0.0));
-    for (int i = 0; i < n; i++) {
-      for (int j = 0; j < n; j++) {
-        normalizedMatrix[i][j] = matrix[i][j] / colSums[j];
-      }
-    }
-
-    // Step 3: Calculate row averages to get priority vector
-    List<double> priorities = List.filled(n, 0.0);
-    for (int i = 0; i < n; i++) {
-      double rowSum = 0.0;
-      for (int j = 0; j < n; j++) {
-        rowSum += normalizedMatrix[i][j];
-      }
-      priorities[i] = rowSum / n;
-    }
-
-    return priorities;
+    return AhpCalculator.calculateEigenVector(matrix);
   } catch (e) {
     throw Exception('Failed to calculate eigen vector alternative: $e');
   } finally {

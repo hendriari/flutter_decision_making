@@ -11,6 +11,10 @@ Angka expected dihitung dengan skrip Python murni, lalu diverifikasi ulang secar
 - **Label:** `cross-checked`
 - **Toleransi komparasi numerik:** `1e-4` (`closeTo(expected, 1e-4)`).
 
+> **Catatan Arsitektur (Fase 3b):**
+> Sumber kebenaran angka expected numerik berada di package `decision_making_core` (`packages/decision_making_core/test/golden/`).
+> Test golden di root (`test/golden/`) memverifikasi kesetaraan (parity) antara pembungkus root (`FlutterDecisionMaking`, `useIsolate: false` dan `useIsolate: true`) dengan hasil perhitungan core tanpa menduplikasi nilai expected hardcoded.
+
 ---
 
 ## Batasan AHP (Limitations)

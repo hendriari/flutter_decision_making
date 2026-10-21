@@ -1,5 +1,7 @@
 import 'dart:developer' as dev;
 
+import 'package:decision_making_core/decision_making_core.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_decision_making/core/decision_making_enums.dart';
 import 'package:flutter_decision_making/core/decision_making_helper.dart';
@@ -19,12 +21,6 @@ import 'package:flutter_decision_making/feature/ahp/data/mapper/ahp_item_mapper.
 import 'package:flutter_decision_making/feature/ahp/data/mapper/ahp_result_mapper.dart';
 import 'package:flutter_decision_making/feature/ahp/data/mapper/pairwise_comparison_alternative_input_mapper.dart';
 import 'package:flutter_decision_making/feature/ahp/data/mapper/pairwise_comparison_input_mapper.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_hierarchy.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_identification.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_item.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/entities/ahp_result.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/entities/pairwise_alternative_input.dart';
-import 'package:flutter_decision_making/feature/ahp/domain/entities/pairwise_comparison_input.dart';
 
 /// Abstract class defining the contract for AHP (Analytic Hierarchy Process) local data operations.
 ///
@@ -205,38 +201,10 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
     startPerformanceProfiling('identification');
 
     try {
-      if (criteria.isEmpty) {
-        throw Exception("Criteria can't be empty!");
-      }
-      if (alternative.isEmpty) {
-        throw Exception("Alternative can't be empty!");
-      }
-
-      if (criteria.length > 100 || alternative.length > 100) {
-        throw Exception(
-          "Too much data, please limit the number of criteria/alternatives (max 100 criteria and 100 alternative).",
-        );
-      }
-
-      final updatedCriteria = List<AhpItem>.generate(criteria.length, (i) {
-        final e = criteria[i];
-        return (e.id == null || e.id!.isEmpty)
-            ? e.copyWith(id: _helper.getCustomUniqueId())
-            : e;
-      });
-
-      final updateAlternative = List<AhpItem>.generate(alternative.length, (
-        i,
-      ) {
-        final e = alternative[i];
-        return (e.id == null || e.id!.isEmpty)
-            ? e.copyWith(id: _helper.getCustomUniqueId())
-            : e;
-      });
-
-      return AhpIdentification(
-        criteria: updatedCriteria,
-        alternative: updateAlternative,
+      return AhpCalculator.identification(
+        criteria,
+        alternative,
+        idGenerator: () => _helper.getCustomUniqueId(),
       );
     } finally {
       endPerformanceProfiling('identification');
@@ -249,11 +217,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
       List<AhpItem> criteria, List<AhpItem> alternative) async {
     startPerformanceProfiling('generate hierarchy');
     try {
-      final resultHierarchy = criteria.map((c) {
-        return AhpHierarchy(criteria: c, alternative: alternative);
-      }).toList();
-
-      return resultHierarchy;
+      return AhpCalculator.generateHierarchy(criteria, alternative);
     } catch (e) {
       throw Exception('Failed generate hierarchy $e');
     } finally {
@@ -267,23 +231,10 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
       List<AhpItem> criteria) async {
     startPerformanceProfiling('generate pairwise criteria');
     try {
-      final result = <PairwiseComparisonInput>[];
-
-      for (int i = 0; i < criteria.length; i++) {
-        for (int j = i + 1; j < criteria.length; j++) {
-          result.add(
-            PairwiseComparisonInput(
-              left: criteria[i],
-              right: criteria[j],
-              preferenceValue: null,
-              isLeftMoreImportant: null,
-              id: _helper.getCustomUniqueId(),
-            ),
-          );
-        }
-      }
-
-      return result;
+      return AhpCalculator.generatePairwiseCriteria(
+        criteria,
+        idGenerator: () => _helper.getCustomUniqueId(),
+      );
     } catch (e) {
       throw Exception('Failed generate pairwise criteria template $e');
     } finally {

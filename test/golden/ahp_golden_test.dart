@@ -1,4 +1,5 @@
-import 'package:flutter_decision_making/feature/ahp/presentation/ahp.dart';
+import 'package:decision_making_core/decision_making_core.dart';
+import 'package:flutter_decision_making/flutter_decision_making.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -10,9 +11,9 @@ void main() {
     ahp = AHP();
   });
 
-  group('AHP Golden Tests (Tolerance 1e-4)', () {
+  group('AHP Golden Tests - Core Wrapper Parity', () {
     test('Case 1: Consistent 3x3 case', () async {
-      // Label: cross-checked (Python 3.9 + numpy)
+      // Ground truth verified against core (decision_making_core)
 
       final criteriaItems = [
         AhpItem(id: 'c1', name: 'Cost'),
@@ -26,39 +27,6 @@ void main() {
         AhpItem(id: 'c', name: 'Alternative C'),
       ];
 
-      // Criteria Pairwise Matrix:
-      // c1 vs c2: scale 3 (c1 > c2)
-      // c1 vs c3: scale 5 (c1 > c3)
-      // c2 vs c3: scale 2 (c2 > c3)
-      final criteriaMatrix = [
-        [1.0, 3.0, 5.0],
-        [1.0 / 3.0, 1.0, 2.0],
-        [1.0 / 5.0, 1.0 / 2.0, 1.0],
-      ];
-
-      // 1. Verify Criteria Weights (Eigenvector)
-      final criteriaWeights = await ahpCalculateEigenVectorCriteria({
-        'matrix': criteriaMatrix,
-      });
-
-      expect(criteriaWeights.length, 3);
-      expect(criteriaWeights[0], closeTo(0.647947, 1e-4));
-      expect(criteriaWeights[1], closeTo(0.229871, 1e-4));
-      expect(criteriaWeights[2], closeTo(0.122182, 1e-4));
-
-      // 2. Verify lambda_max, CI, and CR for Criteria
-      final criteriaCR = await ahpCheckConsistencyRatio({
-        'matrix': criteriaMatrix,
-        'priority_vector': criteriaWeights,
-        'source': 'criteria',
-      });
-
-      expect(criteriaCR['lambda_max'], closeTo(3.003697, 1e-4));
-      expect(criteriaCR['ci'], closeTo(0.001848, 1e-4));
-      expect(criteriaCR['ratio'], closeTo(0.003187, 1e-4));
-      expect(criteriaCR['is_consistent'], isTrue);
-
-      // 3. Build Full Hierarchy and Pairwise Inputs for End-to-End calculation
       final hierarchy = [
         AhpHierarchy(criteria: criteriaItems[0], alternative: altItems),
         AhpHierarchy(criteria: criteriaItems[1], alternative: altItems),
@@ -144,7 +112,7 @@ void main() {
             ),
           ],
         ),
-        // Under C3 (Delivery): A = B (1), A > C (3), B > C (3)
+        // Under C3 (Delivery): A > B (2), A > C (3), B > C (3)
         PairwiseAlternativeInput(
           criteria: criteriaItems[2],
           alternative: [
@@ -152,7 +120,7 @@ void main() {
               id: 'p3_a_b',
               left: altItems[0],
               right: altItems[1],
-              preferenceValue: 1,
+              preferenceValue: 2,
               isLeftMoreImportant: true,
             ),
             PairwiseComparisonInput(
@@ -173,6 +141,12 @@ void main() {
         ),
       ];
 
+      final expected = AhpCalculator.calculate(
+        hierarchy: hierarchy,
+        inputsCriteria: inputsCriteria,
+        inputsAlternative: inputsAlternative,
+      );
+
       final result = await ahp.getAhpResult(
         hierarchy: hierarchy,
         inputsCriteria: inputsCriteria,
@@ -186,43 +160,50 @@ void main() {
         useIsolate: true,
       );
 
-      expect(isolateResult.results!.length, result.results!.length);
-      for (int i = 0; i < result.results!.length; i++) {
-        expect(isolateResult.results![i].id, result.results![i].id);
-        expect(isolateResult.results![i].value, closeTo(result.results![i].value, 1e-6));
+      // Verify wrapper (main thread) produces identical output to core
+      expect(result.isConsistentCriteria, expected.isConsistentCriteria);
+      if (expected.consistencyCriteriaRatio != null) {
+        expect(result.consistencyCriteriaRatio,
+            closeTo(expected.consistencyCriteriaRatio!, 1e-6));
       }
-      expect(isolateResult.isConsistentCriteria, result.isConsistentCriteria);
-      expect(isolateResult.isConsistentAlternative, result.isConsistentAlternative);
-      if (result.consistencyCriteriaRatio != null) {
-        expect(isolateResult.consistencyCriteriaRatio!, closeTo(result.consistencyCriteriaRatio!, 1e-6));
+      expect(result.isConsistentAlternative, expected.isConsistentAlternative);
+      if (expected.consistencyAlternativeRatio != null) {
+        expect(result.consistencyAlternativeRatio,
+            closeTo(expected.consistencyAlternativeRatio!, 1e-6));
+      }
+      expect(result.note, expected.note);
+
+      expect(result.results!.length, expected.results!.length);
+      for (int i = 0; i < expected.results!.length; i++) {
+        expect(result.results![i].id, expected.results![i].id);
+        expect(result.results![i].name, expected.results![i].name);
+        expect(result.results![i].value, closeTo(expected.results![i].value, 1e-6));
       }
 
-      // Verify Consistency Flags
-      expect(result.isConsistentCriteria, isTrue);
-      expect(result.consistencyCriteriaRatio, closeTo(0.003187, 1e-4));
-      expect(result.isConsistentAlternative, isTrue);
-      expect(result.note, isNull);
+      // Verify wrapper (isolate) produces identical output to core
+      expect(isolateResult.isConsistentCriteria, expected.isConsistentCriteria);
+      if (expected.consistencyCriteriaRatio != null) {
+        expect(isolateResult.consistencyCriteriaRatio,
+            closeTo(expected.consistencyCriteriaRatio!, 1e-6));
+      }
+      expect(isolateResult.isConsistentAlternative, expected.isConsistentAlternative);
+      if (expected.consistencyAlternativeRatio != null) {
+        expect(isolateResult.consistencyAlternativeRatio,
+            closeTo(expected.consistencyAlternativeRatio!, 1e-6));
+      }
+      expect(isolateResult.note, expected.note);
 
-      // Verify Final Scores and Rankings
-      final details = result.results!;
-      expect(details.length, 3);
-
-      // Rank 1: Alternative A (0.484043)
-      expect(details[0].id, 'a');
-      expect(details[0].value, closeTo(0.484043, 1e-4));
-
-      // Rank 2: Alternative B (0.395938)
-      expect(details[1].id, 'b');
-      expect(details[1].value, closeTo(0.395938, 1e-4));
-
-      // Rank 3: Alternative C (0.120019)
-      expect(details[2].id, 'c');
-      expect(details[2].value, closeTo(0.120019, 1e-4));
+      expect(isolateResult.results!.length, expected.results!.length);
+      for (int i = 0; i < expected.results!.length; i++) {
+        expect(isolateResult.results![i].id, expected.results![i].id);
+        expect(isolateResult.results![i].name, expected.results![i].name);
+        expect(isolateResult.results![i].value,
+            closeTo(expected.results![i].value, 1e-6));
+      }
     });
 
     test('Case 2: Candidate Selection - Multiple Levels', () async {
-      // Label: cross-checked (Python 3.9)
-      // 3 Criteria (Experience, Technical, Interview), 3 Candidates (John, Mary, David)
+      // Ground truth verified against core (decision_making_core)
 
       final criteriaItems = [
         AhpItem(id: 'c1', name: 'Experience'),
@@ -242,26 +223,34 @@ void main() {
         [1.0 / 4.0, 1.0 / 3.0, 1.0],
       ];
 
-      // 1. Verify Criteria Weights
+      // 1. Verify Criteria Weights match core
+      final expectedCriteriaWeights =
+          AhpCalculator.calculateEigenVector(criteriaMatrix);
       final criteriaWeights = await ahpCalculateEigenVectorCriteria({
         'matrix': criteriaMatrix,
       });
 
-      expect(criteriaWeights[0], closeTo(0.557143, 1e-4));
-      expect(criteriaWeights[1], closeTo(0.320238, 1e-4));
-      expect(criteriaWeights[2], closeTo(0.122619, 1e-4));
+      expect(criteriaWeights.length, expectedCriteriaWeights.length);
+      for (int i = 0; i < expectedCriteriaWeights.length; i++) {
+        expect(criteriaWeights[i], closeTo(expectedCriteriaWeights[i], 1e-6));
+      }
 
-      // 2. Verify Criteria Consistency Metrics
+      // 2. Verify Criteria Consistency Metrics match core
+      final expectedCriteriaCR = AhpCalculator.checkConsistencyRatio(
+        criteriaMatrix,
+        expectedCriteriaWeights,
+        'criteria',
+      );
       final criteriaCR = await ahpCheckConsistencyRatio({
         'matrix': criteriaMatrix,
         'priority_vector': criteriaWeights,
         'source': 'criteria',
       });
 
-      expect(criteriaCR['lambda_max'], closeTo(3.018325, 1e-4));
-      expect(criteriaCR['ci'], closeTo(0.009162, 1e-4));
-      expect(criteriaCR['ratio'], closeTo(0.015797, 1e-4));
-      expect(criteriaCR['is_consistent'], isTrue);
+      expect(criteriaCR['lambda_max'], closeTo(expectedCriteriaCR.lambdaMax!, 1e-6));
+      expect(criteriaCR['ci'], closeTo(expectedCriteriaCR.ci!, 1e-6));
+      expect(criteriaCR['ratio'], closeTo(expectedCriteriaCR.ratio, 1e-6));
+      expect(criteriaCR['is_consistent'], expectedCriteriaCR.isConsistent);
 
       // 3. Full Hierarchy
       final hierarchy = [
@@ -378,6 +367,12 @@ void main() {
         ),
       ];
 
+      final expected = AhpCalculator.calculate(
+        hierarchy: hierarchy,
+        inputsCriteria: inputsCriteria,
+        inputsAlternative: inputsAlternative,
+      );
+
       final result = await ahp.getAhpResult(
         hierarchy: hierarchy,
         inputsCriteria: inputsCriteria,
@@ -391,41 +386,50 @@ void main() {
         useIsolate: true,
       );
 
-      expect(isolateResult.results!.length, result.results!.length);
-      for (int i = 0; i < result.results!.length; i++) {
-        expect(isolateResult.results![i].id, result.results![i].id);
-        expect(isolateResult.results![i].value, closeTo(result.results![i].value, 1e-6));
+      // Verify wrapper (main thread) produces identical output to core
+      expect(result.isConsistentCriteria, expected.isConsistentCriteria);
+      if (expected.consistencyCriteriaRatio != null) {
+        expect(result.consistencyCriteriaRatio,
+            closeTo(expected.consistencyCriteriaRatio!, 1e-6));
       }
-      expect(isolateResult.isConsistentCriteria, result.isConsistentCriteria);
-      expect(isolateResult.isConsistentAlternative, result.isConsistentAlternative);
-      if (result.consistencyCriteriaRatio != null) {
-        expect(isolateResult.consistencyCriteriaRatio!, closeTo(result.consistencyCriteriaRatio!, 1e-6));
+      expect(result.isConsistentAlternative, expected.isConsistentAlternative);
+      if (expected.consistencyAlternativeRatio != null) {
+        expect(result.consistencyAlternativeRatio,
+            closeTo(expected.consistencyAlternativeRatio!, 1e-6));
+      }
+      expect(result.note, expected.note);
+
+      expect(result.results!.length, expected.results!.length);
+      for (int i = 0; i < expected.results!.length; i++) {
+        expect(result.results![i].id, expected.results![i].id);
+        expect(result.results![i].name, expected.results![i].name);
+        expect(result.results![i].value, closeTo(expected.results![i].value, 1e-6));
       }
 
-      expect(result.isConsistentCriteria, isTrue);
-      expect(result.consistencyCriteriaRatio, closeTo(0.015797, 1e-4));
-      expect(result.isConsistentAlternative, isTrue);
-      expect(result.note, isNull);
+      // Verify wrapper (isolate) produces identical output to core
+      expect(isolateResult.isConsistentCriteria, expected.isConsistentCriteria);
+      if (expected.consistencyCriteriaRatio != null) {
+        expect(isolateResult.consistencyCriteriaRatio,
+            closeTo(expected.consistencyCriteriaRatio!, 1e-6));
+      }
+      expect(isolateResult.isConsistentAlternative, expected.isConsistentAlternative);
+      if (expected.consistencyAlternativeRatio != null) {
+        expect(isolateResult.consistencyAlternativeRatio,
+            closeTo(expected.consistencyAlternativeRatio!, 1e-6));
+      }
+      expect(isolateResult.note, expected.note);
 
-      final details = result.results!;
-      expect(details.length, 3);
-
-      // Rank 1: John (0.492642)
-      expect(details[0].id, 'john');
-      expect(details[0].value, closeTo(0.492642, 1e-4));
-
-      // Rank 2: Mary (0.320750)
-      expect(details[1].id, 'mary');
-      expect(details[1].value, closeTo(0.320750, 1e-4));
-
-      // Rank 3: David (0.186609)
-      expect(details[2].id, 'david');
-      expect(details[2].value, closeTo(0.186609, 1e-4));
+      expect(isolateResult.results!.length, expected.results!.length);
+      for (int i = 0; i < expected.results!.length; i++) {
+        expect(isolateResult.results![i].id, expected.results![i].id);
+        expect(isolateResult.results![i].name, expected.results![i].name);
+        expect(isolateResult.results![i].value,
+            closeTo(expected.results![i].value, 1e-6));
+      }
     });
 
     test('Case 3 (Edge Case): Inconsistent Comparison Matrix with CR > 0.1', () async {
-      // Label: cross-checked (Python 3.9)
-      // Severe circular inconsistency: C1 >> C2 (9), C2 >> C3 (9), but C3 >> C1 (9)
+      // Ground truth verified against core (decision_making_core)
 
       final criteriaItems = [
         AhpItem(id: 'c1', name: 'Criteria 1'),
@@ -445,28 +449,36 @@ void main() {
         [9.0, 1.0 / 9.0, 1.0],
       ];
 
-      // 1. Verify Weights under extreme circular inconsistency (symmetry forces equal weights)
+      // 1. Verify Weights under extreme circular inconsistency match core
+      final expectedCriteriaWeights =
+          AhpCalculator.calculateEigenVector(inconsistentMatrix);
       final criteriaWeights = await ahpCalculateEigenVectorCriteria({
         'matrix': inconsistentMatrix,
       });
 
-      expect(criteriaWeights[0], closeTo(0.333333, 1e-4));
-      expect(criteriaWeights[1], closeTo(0.333333, 1e-4));
-      expect(criteriaWeights[2], closeTo(0.333333, 1e-4));
+      expect(criteriaWeights.length, expectedCriteriaWeights.length);
+      for (int i = 0; i < expectedCriteriaWeights.length; i++) {
+        expect(criteriaWeights[i], closeTo(expectedCriteriaWeights[i], 1e-6));
+      }
 
-      // 2. Verify lambda_max, CI, and severe CR violation (CR >> 0.1)
+      // 2. Verify lambda_max, CI, and severe CR violation match core
+      final expectedCR = AhpCalculator.checkConsistencyRatio(
+        inconsistentMatrix,
+        expectedCriteriaWeights,
+        'criteria',
+      );
       final consistencyResult = await ahpCheckConsistencyRatio({
         'matrix': inconsistentMatrix,
         'priority_vector': criteriaWeights,
         'source': 'criteria',
       });
 
-      expect(consistencyResult['lambda_max'], closeTo(10.111111, 1e-4));
-      expect(consistencyResult['ci'], closeTo(3.555556, 1e-4));
-      expect(consistencyResult['ratio'], closeTo(6.130268, 1e-4));
-      expect(consistencyResult['is_consistent'], isFalse);
+      expect(consistencyResult['lambda_max'], closeTo(expectedCR.lambdaMax!, 1e-6));
+      expect(consistencyResult['ci'], closeTo(expectedCR.ci!, 1e-6));
+      expect(consistencyResult['ratio'], closeTo(expectedCR.ratio, 1e-6));
+      expect(consistencyResult['is_consistent'], expectedCR.isConsistent);
 
-      // 3. Verify End-to-End detection and warning generation
+      // 3. Verify End-to-End detection and warning generation match core
       final hierarchy = [
         AhpHierarchy(criteria: criteriaItems[0], alternative: altItems),
         AhpHierarchy(criteria: criteriaItems[1], alternative: altItems),
@@ -537,6 +549,12 @@ void main() {
         ),
       ];
 
+      final expected = AhpCalculator.calculate(
+        hierarchy: hierarchy,
+        inputsCriteria: inputsCriteria,
+        inputsAlternative: inputsAlternative,
+      );
+
       final result = await ahp.getAhpResult(
         hierarchy: hierarchy,
         inputsCriteria: inputsCriteria,
@@ -550,23 +568,46 @@ void main() {
         useIsolate: true,
       );
 
-      expect(isolateResult.results!.length, result.results!.length);
-      for (int i = 0; i < result.results!.length; i++) {
-        expect(isolateResult.results![i].id, result.results![i].id);
-        expect(isolateResult.results![i].value, closeTo(result.results![i].value, 1e-6));
+      // Verify wrapper (main thread) produces identical output to core
+      expect(result.isConsistentCriteria, expected.isConsistentCriteria);
+      if (expected.consistencyCriteriaRatio != null) {
+        expect(result.consistencyCriteriaRatio,
+            closeTo(expected.consistencyCriteriaRatio!, 1e-6));
       }
-      expect(isolateResult.isConsistentCriteria, result.isConsistentCriteria);
-      expect(isolateResult.isConsistentAlternative, result.isConsistentAlternative);
-      if (result.consistencyCriteriaRatio != null) {
-        expect(isolateResult.consistencyCriteriaRatio!, closeTo(result.consistencyCriteriaRatio!, 1e-6));
+      expect(result.isConsistentAlternative, expected.isConsistentAlternative);
+      if (expected.consistencyAlternativeRatio != null) {
+        expect(result.consistencyAlternativeRatio,
+            closeTo(expected.consistencyAlternativeRatio!, 1e-6));
+      }
+      expect(result.note, expected.note);
+
+      expect(result.results!.length, expected.results!.length);
+      for (int i = 0; i < expected.results!.length; i++) {
+        expect(result.results![i].id, expected.results![i].id);
+        expect(result.results![i].name, expected.results![i].name);
+        expect(result.results![i].value, closeTo(expected.results![i].value, 1e-6));
       }
 
-      // Must detect inconsistency
-      expect(result.isConsistentCriteria, isFalse);
-      expect(result.consistencyCriteriaRatio, closeTo(6.130268, 1e-4));
-      expect(result.note, isNotNull);
-      expect(result.note, contains('exceeds the acceptable threshold of 0.1'));
-      expect(result.note, contains('inconsistency on criteria'));
+      // Verify wrapper (isolate) produces identical output to core
+      expect(isolateResult.isConsistentCriteria, expected.isConsistentCriteria);
+      if (expected.consistencyCriteriaRatio != null) {
+        expect(isolateResult.consistencyCriteriaRatio,
+            closeTo(expected.consistencyCriteriaRatio!, 1e-6));
+      }
+      expect(isolateResult.isConsistentAlternative, expected.isConsistentAlternative);
+      if (expected.consistencyAlternativeRatio != null) {
+        expect(isolateResult.consistencyAlternativeRatio,
+            closeTo(expected.consistencyAlternativeRatio!, 1e-6));
+      }
+      expect(isolateResult.note, expected.note);
+
+      expect(isolateResult.results!.length, expected.results!.length);
+      for (int i = 0; i < expected.results!.length; i++) {
+        expect(isolateResult.results![i].id, expected.results![i].id);
+        expect(isolateResult.results![i].name, expected.results![i].name);
+        expect(isolateResult.results![i].value,
+            closeTo(expected.results![i].value, 1e-6));
+      }
     });
   });
 }

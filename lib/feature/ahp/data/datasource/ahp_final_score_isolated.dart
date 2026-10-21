@@ -1,8 +1,10 @@
+import 'package:decision_making_core/decision_making_core.dart';
 import 'package:flutter_decision_making/core/decision_making_performance_profiling.dart';
 import 'package:flutter_decision_making/feature/ahp/data/dto/ahp_consistency_ratio_dto.dart';
 import 'package:flutter_decision_making/feature/ahp/data/dto/ahp_item_dto.dart';
-import 'package:flutter_decision_making/feature/ahp/data/dto/ahp_result_detail_dto.dart';
-import 'package:flutter_decision_making/feature/ahp/data/dto/ahp_result_dto.dart';
+import 'package:flutter_decision_making/feature/ahp/data/mapper/ahp_result_mapper.dart';
+import 'package:flutter_decision_making/feature/ahp/data/mapper/ahp_item_mapper.dart';
+import 'package:flutter_decision_making/feature/ahp/data/mapper/ahp_consistency_ratio_mapper.dart';
 
 /// Calculates the final AHP scores for all alternatives.
 ///
@@ -132,59 +134,16 @@ Future<Map<String, dynamic>> ahpFinalScore(Map<String, dynamic> data) async {
       throw Exception('Alternative matrix is empty.');
     }
 
-    final int altCount = eigenVectorsAlternative.first.length;
-    final int criteriaCount = eigenVectorCriteria.length;
-
-    // Calculate final scores: Σ(criteria_weight × alternative_priority)
-    List<double> result = List.filled(altCount, 0.0);
-
-    for (int i = 0; i < altCount; i++) {
-      for (int j = 0; j < criteriaCount; j++) {
-        result[i] += eigenVectorCriteria[j] * eigenVectorsAlternative[j][i];
-      }
-    }
-
-    // Build detailed result objects
-    final ahpResultDetail = <AhpResultDetailDto>[];
-
-    for (int i = 0; i < altCount; i++) {
-      ahpResultDetail.add(
-        AhpResultDetailDto(
-          id: alternatives[i].id,
-          name: alternatives[i].name,
-          value: result[i],
-        ),
-      );
-    }
-
-    // Find the worst consistency ratio among alternatives
-    final alternativesConsistency = consistencyAlternatives
-      ..sort((a, b) => b.ratio.compareTo(a.ratio));
-
-    // Generate warning note if any inconsistencies detected
-    String? note = !consistencyCriteria.isConsistent ||
-            consistencyAlternatives.any((e) => e.isConsistent == false)
-        ? '''
-Thank you for completing the assessment process. Based on the consistency check, the resulting Consistency Ratio (CR) exceeds the acceptable threshold of 0.1.
-As a result, the current assessment does not meet the expected level of consistency and therefore cannot yet be considered valid.
-We recommend reviewing and revising the assessment to ensure that the resulting analysis is more accurate and reliable for decision-making.
-Detail:
-${!consistencyCriteria.isConsistent ? '* inconsistency on criteria' : ''}
-${consistencyAlternatives.any((e) => e.isConsistent == false) ? '* Inconsistency on alternatives per criteria:\n${consistencyAlternatives.where((e) => !e.isConsistent).map((e) => '- ${e.source}: ${e.ratio}').join('\n')}' : ''}
-'''
-        : null;
-
-    // Build final result with sorted alternatives and consistency info
-    final ahpResult = AhpResultDto(
-      results: ahpResultDetail..sort((a, b) => b.value.compareTo(a.value)),
-      isConsistentCriteria: consistencyCriteria.isConsistent,
-      consistencyCriteriaRatio: consistencyCriteria.ratio,
-      isConsistentAlternative: alternativesConsistency[0].isConsistent,
-      consistencyAlternativeRatio: alternativesConsistency[0].ratio,
-      note: note,
+    final finalResult = AhpCalculator.calculateFinalScore(
+      eigenVectorCriteria: eigenVectorCriteria,
+      eigenVectorsAlternative: eigenVectorsAlternative,
+      alternatives: alternatives.map((e) => e.toEntity()).toList(),
+      consistencyCriteria: consistencyCriteria.toEntity(),
+      consistencyAlternatives:
+          consistencyAlternatives.map((e) => e.toEntity()).toList(),
     );
 
-    return ahpResult.toMap();
+    return AhpResultMapper.fromEntity(finalResult).toMap();
   } catch (e) {
     throw Exception('Failed calculate final score: $e');
   } finally {
