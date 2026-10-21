@@ -148,3 +148,15 @@ Contributions are highly appreciated 🙌
 We welcome all contributions and suggestions!
 
 👉 Open an issue or submit a pull request at [GitHub Repo](https://github.com/hendriari/flutter_decision_making)
+
+---
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=hendriari%2Fflutter_decision_making&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=hendriari/flutter_decision_making&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=hendriari/flutter_decision_making&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=hendriari/flutter_decision_making&type=date&legend=top-left" />
+ </picture>
+</a>
