@@ -15,6 +15,17 @@
 - **Nilai Pembanding Eigenvector Sebenarnya (`np.linalg.eig`):**
   - **Kasus Golden 1:** Bobot eigenvector eksak `[0.648329, 0.229651, 0.122020]`, $\lambda_{max} = 3.003695$ (vs column averaging `[0.647947, 0.229871, 0.122182]`, $\lambda_{max} = 3.003697$).
   - **Kasus Golden 2:** Bobot eigenvector eksak `[0.558425, 0.319618, 0.121957]`, $\lambda_{max} = 3.018295$ (vs column averaging `[0.557143, 0.320238, 0.122619]`, $\lambda_{max} = 3.018325$).
+- **Tabel Random Index (RI) & Ukuran Matriks:**
+  - Tabel Random Index (RI) pada package ini menggunakan nilai empiris Saaty untuk ukuran matriks $n = 1..15$.
+  - Untuk $n > 15$, sistem menggunakan nilai *fallback* tetap sebesar `1.59` (`riTable[n] ?? 1.59`).
+  - Sebagai gambaran, estimasi RI dari simulasi Monte Carlo (matriks resiprokal acak dengan skala 1/9..9) menghasilkan:
+    - $n = 16 \approx 1.59$
+    - $n = 20 \approx 1.62$
+    - $n = 30 \approx 1.67$
+    - $n = 50 \approx 1.71$
+    - $n = 80 \approx 1.73$
+  - Akibat dari penggunaan batas tetap `1.59`, perhitungan Consistency Ratio ($CR = CI / RI$) untuk $n > 15$ menjadi sedikit lebih konservatif (angka CR sedikit lebih tinggi dari yang semestinya).
+  - **Catatan Praktis:** Dalam metodologi AHP nyata, perbandingan berpasangan dengan jumlah elemen yang sangat banyak ($n > 15$) tidak praktis bagi penilai manusia karena jumlah pertanyaan perbandingan tumbuh secara kuadratik ($n(n-1)/2$; misalnya $n=80$ membutuhkan 3.160 pasangan perbandingan), yang cenderung merusak konsistensi manusia.
 
 ---
 ## ✨ Features

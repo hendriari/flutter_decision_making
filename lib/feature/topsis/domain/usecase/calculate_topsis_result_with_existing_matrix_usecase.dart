@@ -1,6 +1,6 @@
+import 'package:flutter_decision_making/core/shared/entity/weighted_decision_result.dart';
 import 'package:flutter_decision_making/feature/topsis/domain/entities/topsis_raw_matrix.dart';
 import 'package:flutter_decision_making/feature/topsis/domain/repository/topsis_repository.dart';
-import 'package:flutter_decision_making/flutter_decision_making.dart';
 
 class CalculateTopsisResultWithExistingMatrixUsecase {
   final TopsisRepository _repository;

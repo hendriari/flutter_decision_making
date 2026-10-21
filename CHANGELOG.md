@@ -10,8 +10,12 @@
   - *Panduan Migrasi:* Pengguna normal tidak perlu mengakses isolate secara manual dan cukup meneruskan parameter `useIsolate: true` pada API publik (`getSawResult`, `getTopsisResult`, `getAhpResult`). Jika pengujian atau kode khusus memerlukan akses ke instance isolate manager, import file secara langsung:
     `import 'package:flutter_decision_making/core/isolate/decision_isolate_main.dart';`
 
+### Added
+- Export `TOPSIS` di barrel utama (`lib/flutter_decision_making.dart`): class `TOPSIS`, `TopsisRawMatrix`, dan tipe terkait kini dapat diimpor langsung dari `package:flutter_decision_making/flutter_decision_making.dart`.
+
 ### Fixed
 - Ranking TOPSIS salah di versi 1.2.0 untuk data > 80 alternatif atau > 25 kriteria karena worker memanggil normalisasi SAW (`normalizeWeightedMatrixIsolate`) alih-alih normalisasi Euclidean (`normalizeEuclideanMatrixIsolate`) pada `TopsisProcessingIsolateCommand.normalizeEuclidean`.
+- Hapus command mati `TopsisProcessingIsolateCommand.normalizeMatrix` dari enum dan worker isolate.
 
 ### Open Items / Planned
 - Serialisasi isolate memakai Map/DTO dan menjadi bottleneck; pertimbangkan data datar (`Float64List` / `TransferableTypedData`) di Fase 3.

@@ -27,6 +27,17 @@ Angka expected dihitung dengan skrip Python murni, lalu diverifikasi ulang secar
      - Eigenvector eksak: `[0.558425, 0.319618, 0.121957]`, $\lambda_{max} = 3.018295$
      - Selisih bobot: $\approx 1.3 \times 10^{-3}$.
    - **Kesimpulan:** Untuk perbandingan matriks yang konsisten ($CR \le 0.1$), selisih aproksimasi terhadap eigenvector sebenarnya berada pada rentang $4 \times 10^{-4}$ hingga $1.3 \times 10^{-3}$. Namun untuk matriks yang tidak konsisten ($CR > 0.1$), selisihnya bisa menjadi lebih besar.
+3. **Random Index (RI) & Ukuran Matriks:**
+   - Tabel Random Index (RI) pada package memakai tabel Saaty untuk $n = 1..15$.
+   - Untuk $n > 15$, dipakai fallback tetap `1.59` (`riTable[n] ?? 1.59`).
+   - Estimasi RI hasil simulasi Monte Carlo (matriks resiprokal acak, skala 1/9..9):
+     - $n = 16 \approx 1.59$
+     - $n = 20 \approx 1.62$
+     - $n = 30 \approx 1.67$
+     - $n = 50 \approx 1.71$
+     - $n = 80 \approx 1.73$
+   - Akibatnya, nilai Consistency Ratio ($CR = CI / RI$) untuk $n > 15$ menjadi sedikit lebih konservatif (lebih besar) daripada seharusnya.
+   - Selain itu, perbandingan berpasangan AHP dengan banyak elemen ($n > 15$) secara praktis tidak realistis bagi penilai manusia ($n(n-1)/2$ perbandingan; misal $n=80$ memerlukan 3.160 pertanyaan perbandingan).
 
 ---
 

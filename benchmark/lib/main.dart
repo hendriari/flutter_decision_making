@@ -8,7 +8,6 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_decision_making/core/isolate/decision_isolate_main.dart';
-import 'package:flutter_decision_making/feature/topsis/presentation/topsis.dart';
 import 'package:flutter_decision_making/flutter_decision_making.dart';
 
 import 'data_generator.dart';

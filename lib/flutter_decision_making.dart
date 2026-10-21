@@ -4,6 +4,7 @@ import 'package:flutter_decision_making/feature/topsis/presentation/topsis.dart'
 
 export 'package:flutter_decision_making/feature/ahp/presentation/ahp.dart';
 export 'package:flutter_decision_making/feature/saw/presentation/saw.dart';
+export 'package:flutter_decision_making/feature/topsis/presentation/topsis.dart';
 export 'package:flutter_decision_making/core/decision_making_utils.dart';
 
 class FlutterDecisionMaking {

@@ -108,24 +108,27 @@ class _AhpPairwiseComparisonScaleWidgetState
                       _isLeftMoreImportant.value = newValue;
                     },
                     groupValue: _isLeftMoreImportant.value,
-                    child: Column(
-                      children: [
-                        RadioListTile<bool?>(
-                          value: true,
-                          title: Text(
-                            widget.leftItemName,
-                            style: TextStyle(fontSize: 16),
+                    child: Material(
+                      color: Colors.white,
+                      child: Column(
+                        children: [
+                          RadioListTile<bool?>(
+                            value: true,
+                            title: Text(
+                              widget.leftItemName,
+                              style: TextStyle(fontSize: 16),
+                            ),
                           ),
-                        ),
 
-                        RadioListTile<bool?>(
-                          value: false,
-                          title: Text(
-                            widget.rightItemName,
-                            style: TextStyle(fontSize: 16),
+                          RadioListTile<bool?>(
+                            value: false,
+                            title: Text(
+                              widget.rightItemName,
+                              style: TextStyle(fontSize: 16),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   );
                 },
