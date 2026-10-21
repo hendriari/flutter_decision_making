@@ -14,22 +14,34 @@ class TopsisRepositoryImpl implements TopsisRepository {
   Future<TopsisRawMatrix> generateTopsisMatrix({
     required List<WeightedDecisionAlternative> listAlternative,
     required List<WeightedDecisionCriteria> listCriteria,
+    bool useIsolate = false,
   }) async {
     return await _localDatasource.generateTopsisMatrix(
-        listAlternative: listAlternative, listCriteria: listCriteria);
+      listAlternative: listAlternative,
+      listCriteria: listCriteria,
+      useIsolate: useIsolate,
+    );
   }
 
   @override
   Future<List<WeightedDecisionResult>> calculateResult({
     required TopsisRawMatrix rawMatrix,
+    bool useIsolate = false,
   }) async {
-    return await _localDatasource.calculateResult(rawMatrix: rawMatrix);
+    return await _localDatasource.calculateResult(
+      rawMatrix: rawMatrix,
+      useIsolate: useIsolate,
+    );
   }
 
   @override
-  Future<List<WeightedDecisionResult>> calculateResultWithExistingMatrix(
-      {required TopsisRawMatrix rawMatrix}) async {
+  Future<List<WeightedDecisionResult>> calculateResultWithExistingMatrix({
+    required TopsisRawMatrix rawMatrix,
+    bool useIsolate = false,
+  }) async {
     return await _localDatasource.calculateResultWithExistingMatrix(
-        rawMatrix: rawMatrix);
+      rawMatrix: rawMatrix,
+      useIsolate: useIsolate,
+    );
   }
 }

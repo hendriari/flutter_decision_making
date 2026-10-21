@@ -97,6 +97,29 @@ Major method logs:
 
 ---
 
+## ⚡ Kapan Memakai Isolate (`useIsolate`)
+
+Secara *default*, seluruh perhitungan berjalan di **main thread** (`useIsolate: false`). Isolate bersifat opsional (*opt-in*) melalui parameter `useIsolate: true`.
+
+### Data Hasil Benchmark Riil (via Public API)
+Hasil pengujian empiris pada **Apple Silicon macOS (M-series)** dalam mode `--profile` (AOT compiled, Impeller backend, 10 iterasi setelah 3x *warm-up*):
+
+| Kasus & Ukuran Data (Alt × Crt) | Main Thread (ms)<br>median [min–max] | Isolate Warm (ms)<br>median [min–max] | Blokir Main Thread (ms)<br>median [min–max] |
+| :--- | :--- | :--- | :--- |
+| **SAW 80 × 25** | **0.19 ms** [0.18 – 0.35] | 4.35 ms [3.01 – 5.86] | 0.85 ms [0.00 – 3.03] |
+| **SAW 2000 × 50** | **8.71 ms** [8.39 – 12.27] | 449.24 ms [411.99 – 477.15] | 244.23 ms [219.73 – 262.51] |
+| **TOPSIS 80 × 25** | **0.52 ms** [0.50 – 0.55] | 4.02 ms [3.33 – 6.18] | 0.80 ms [0.00 – 3.34] |
+| **TOPSIS 2000 × 50** | **47.53 ms** [40.32 – 52.14] | 526.39 ms [464.34 – 605.88] | 277.99 ms [223.17 – 306.31] |
+| **AHP 80 × 10** | **31.71 ms** [31.21 – 52.50] | 51.01 ms [47.90 – 66.97] | 25.84 ms [23.09 – 39.94] |
+
+> **Catatan Pengukuran "Blokir Main Thread":** Diukur menggunakan pemantauan lag event-loop (`LagTracker`) selama eksekusi `useIsolate: true`. Nilai `0.000 ms` pada dataset kecil (mis. 10×5) terjadi karena durasi blokir sinkron main thread berada di bawah batas resolusi timer/jitter event-loop (< 1 ms), sehingga tidak berpotensi menimbulkan jank/frame drop.
+
+### Rekomendasi
+- **Gunakan `useIsolate: false` (Default, Direkomendasikan):** Untuk hampir semua kasus MCDM di Flutter (< 2000 alternatif). Menghitung langsung di *main thread* selesai dalam < 9 ms untuk SAW, < 48 ms untuk TOPSIS, dan < 32 ms untuk AHP, tanpa overhead serialisasi antar isolate.
+- **Kapan memakai `useIsolate: true`?** Jika Anda ingin mencegah komputasi matematika berjalan di UI thread pada dataset sangat besar di perangkat berdaya rendah, dengan konsekuensi total *execution time* lebih lama karena overhead serialisasi Map/DTO.
+
+---
+
 ## 💡 Want Another Algorithm?
 
 We are continuously improving this package 🚀

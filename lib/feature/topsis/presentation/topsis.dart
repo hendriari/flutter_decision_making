@@ -1,4 +1,5 @@
 import 'package:flutter_decision_making/core/decision_making_utils.dart';
+import 'package:flutter_decision_making/feature/topsis/domain/usecase/calculate_topsis_result_with_existing_matrix_usecase.dart';
 
 export 'topsis_utils.dart';
 
@@ -14,6 +15,7 @@ class TOPSIS {
   Future<TopsisRawMatrix> generateTopsisMatrix({
     required List<WeightedDecisionAlternative> listAlternative,
     required List<WeightedDecisionCriteria> listCriteria,
+    bool useIsolate = false,
   }) async {
     try {
       final matrixUsecase = GenerateTopsisMatrixUsecase(_topsisRepository);
@@ -21,6 +23,7 @@ class TOPSIS {
       final result = await matrixUsecase.execute(
         listAlternative: listAlternative,
         listCriteria: listCriteria,
+        useIsolate: useIsolate,
       );
 
       return result;
@@ -63,11 +66,15 @@ class TOPSIS {
   /// CALCULATE TOPSIS RESULT
   Future<List<WeightedDecisionResult>> getTopsisResult({
     required TopsisRawMatrix matrix,
+    bool useIsolate = false,
   }) async {
     try {
       final usecase = CalculateTopsisResultUsecase(_topsisRepository);
 
-      final result = await usecase.execute(rawMatrix: matrix);
+      final result = await usecase.execute(
+        rawMatrix: matrix,
+        useIsolate: useIsolate,
+      );
 
       return result;
     } catch (e) {
@@ -78,11 +85,16 @@ class TOPSIS {
   /// CALCULATE RESULT WITH EXISTING MATRIX
   Future<List<WeightedDecisionResult>> getTopsisResultWithExistingMatrix({
     required TopsisRawMatrix matrix,
+    bool useIsolate = false,
   }) async {
     try {
-      final usecase = CalculateTopsisResultUsecase(_topsisRepository);
+      final usecase =
+          CalculateTopsisResultWithExistingMatrixUsecase(_topsisRepository);
 
-      final result = await usecase.execute(rawMatrix: matrix);
+      final result = await usecase.execute(
+        rawMatrix: matrix,
+        useIsolate: useIsolate,
+      );
 
       return result;
     } catch (e) {

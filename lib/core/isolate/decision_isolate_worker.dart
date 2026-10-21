@@ -10,6 +10,7 @@ import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_result_p
 import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_result_pairwise_matrix_criteria_isolated.dart';
 import 'package:flutter_decision_making/core/shared/interface/generate_weighted_decision_matrix_isolate.dart';
 import 'package:flutter_decision_making/feature/saw/data/datasource/normalize_saw_matrix_isolate.dart';
+import 'package:flutter_decision_making/feature/topsis/data/datasource/normalize_euclidean_matrix_isolate.dart';
 
 import 'decision_isolate_message.dart';
 
@@ -368,9 +369,7 @@ Future<dynamic> _handleTopsisTask(
   switch (command) {
     case TopsisProcessingIsolateCommand.generateMatrix:
       return generateWeightedDecisionMatrixIsolate(data: data);
-    case TopsisProcessingIsolateCommand.normalizeMatrix:
-      return normalizeWeightedMatrixIsolate(data: data);
     case TopsisProcessingIsolateCommand.normalizeEuclidean:
-      return normalizeWeightedMatrixIsolate(data: data);
+      return normalizeEuclideanMatrixIsolate(data: data);
   }
 }

@@ -11,9 +11,11 @@ class SawGenerateMatrixUsecase {
   Future<List<WeightedDecisionMatrix>> execute({
     required List<WeightedDecisionAlternative> listAlternative,
     required List<WeightedDecisionCriteria> listCriteria,
+    bool useIsolate = false,
   }) async =>
       await _sawRepository.generateSawMatrix(
         listAlternative: listAlternative,
         listCriteria: listCriteria,
+        useIsolate: useIsolate,
       );
 }

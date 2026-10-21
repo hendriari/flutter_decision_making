@@ -9,6 +9,10 @@ class SawCalculateResultUsecase {
 
   Future<List<WeightedDecisionResult>> execute({
     required List<WeightedDecisionMatrix> matrix,
+    bool useIsolate = false,
   }) async =>
-      await _repository.calculateSawResult(matrix: matrix);
+      await _repository.calculateSawResult(
+        matrix: matrix,
+        useIsolate: useIsolate,
+      );
 }

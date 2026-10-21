@@ -10,7 +10,11 @@ class AhpGeneratePairwiseAlternativeInputUsecase {
   AhpGeneratePairwiseAlternativeInputUsecase(this._ahpRepository);
 
   Future<List<PairwiseAlternativeInput>> execute(
-    List<AhpHierarchy> nodes,
-  ) async =>
-      await _ahpRepository.generatePairwiseAlternative(nodes);
+    List<AhpHierarchy> nodes, {
+    bool useIsolate = false,
+  }) async =>
+      await _ahpRepository.generatePairwiseAlternative(
+        nodes,
+        useIsolate: useIsolate,
+      );
 }

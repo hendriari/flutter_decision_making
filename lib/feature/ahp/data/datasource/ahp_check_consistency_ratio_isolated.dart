@@ -142,6 +142,8 @@ Future<Map<String, dynamic>> ahpCheckConsistencyRatio(
         "source": source,
         "ratio": 0,
         "is_consistent": true,
+        "lambda_max": lambdaMax,
+        "ci": ci,
       };
     }
 
@@ -156,6 +158,8 @@ Future<Map<String, dynamic>> ahpCheckConsistencyRatio(
         "source": source,
         "ratio": cr,
         "is_consistent": false,
+        "lambda_max": lambdaMax,
+        "ci": ci,
       };
     }
 
@@ -163,6 +167,8 @@ Future<Map<String, dynamic>> ahpCheckConsistencyRatio(
       "source": source,
       "ratio": cr,
       "is_consistent": true,
+      "lambda_max": lambdaMax,
+      "ci": ci,
     };
   } finally {
     endPerformanceProfiling('check consistency ratio');

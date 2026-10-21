@@ -11,9 +11,11 @@ class GenerateTopsisMatrixUsecase {
   Future<TopsisRawMatrix> execute({
     required List<WeightedDecisionAlternative> listAlternative,
     required List<WeightedDecisionCriteria> listCriteria,
+    bool useIsolate = false,
   }) async =>
       await _repository.generateTopsisMatrix(
         listAlternative: listAlternative,
         listCriteria: listCriteria,
+        useIsolate: useIsolate,
       );
 }

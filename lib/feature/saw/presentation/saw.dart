@@ -13,6 +13,7 @@ class SAW {
   Future<List<WeightedDecisionMatrix>> generateSawMatrix({
     required List<WeightedDecisionAlternative> listAlternative,
     required List<WeightedDecisionCriteria> listCriteria,
+    bool useIsolate = false,
   }) async {
     try {
       final matrixUsecase = SawGenerateMatrixUsecase(_sawRepository);
@@ -20,6 +21,7 @@ class SAW {
       final result = await matrixUsecase.execute(
         listAlternative: listAlternative,
         listCriteria: listCriteria,
+        useIsolate: useIsolate,
       );
 
       return result;
@@ -61,11 +63,15 @@ class SAW {
   /// CALCULATE SAW RESULT
   Future<List<WeightedDecisionResult>> getSawResult({
     required List<WeightedDecisionMatrix> matrix,
+    bool useIsolate = false,
   }) async {
     try {
       final usecase = SawCalculateResultUsecase(_sawRepository);
 
-      final result = await usecase.execute(matrix: matrix);
+      final result = await usecase.execute(
+        matrix: matrix,
+        useIsolate: useIsolate,
+      );
 
       return result;
     } catch (e) {
@@ -76,12 +82,16 @@ class SAW {
   /// CALCULATE RESULT WITH EXISTING MATRIX
   Future<List<WeightedDecisionResult>> getResultWithExistingMatrix({
     required List<WeightedDecisionMatrix> sawMatrix,
+    bool useIsolate = false,
   }) async {
     try {
       final usecase =
           SawCalculateResultWithExistingMatrixUsecase(_sawRepository);
 
-      final result = await usecase.execute(sawMatrix: sawMatrix);
+      final result = await usecase.execute(
+        sawMatrix: sawMatrix,
+        useIsolate: useIsolate,
+      );
 
       return result;
     } catch (e) {

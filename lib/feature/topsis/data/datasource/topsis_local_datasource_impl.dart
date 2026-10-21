@@ -1,3 +1,5 @@
+import 'package:flutter_decision_making/core/isolate/decision_isolate_main.dart';
+import 'package:flutter_decision_making/core/decision_making_utils.dart';
 import 'package:flutter_decision_making/core/shared/interface/weighted_decision_matrix_mixin.dart';
 import 'package:flutter_decision_making/feature/topsis/data/datasource/topsis_local_datasource.dart';
 import 'package:flutter/foundation.dart';
@@ -10,7 +12,6 @@ import 'package:flutter_decision_making/feature/topsis/domain/entities/topsis_ma
 import 'dart:math' as math;
 
 import 'package:flutter_decision_making/feature/topsis/domain/entities/topsis_raw_matrix.dart';
-import 'package:flutter_decision_making/flutter_decision_making.dart';
 
 /// Implementation of [TopsisLocalDatasource] that handles TOPSIS algorithm operations.
 ///
@@ -39,13 +40,13 @@ class TopsisLocalDatasourceImpl
     with WeightedDecisionMatrixMixin
     implements TopsisLocalDatasource {
   final DecisionMakingHelper _helper;
-  final DecisionIsolateMain _isolate;
+  DecisionIsolateMain? _isolate;
 
   @override
   DecisionMakingHelper get helper => _helper;
 
   @override
-  DecisionIsolateMain get isolate => _isolate;
+  DecisionIsolateMain get isolate => _isolate ??= DecisionIsolateMain();
 
   /// Creates an instance of [TopsisLocalDatasourceImpl].
   ///
@@ -57,12 +58,13 @@ class TopsisLocalDatasourceImpl
     DecisionIsolateMain? isolate,
     Stopwatch? stopwatch,
   })  : _helper = helper ?? DecisionMakingHelper(),
-        _isolate = isolate ?? DecisionIsolateMain();
+        _isolate = isolate;
 
   @override
   Future<TopsisRawMatrix> generateTopsisMatrix({
     required List<WeightedDecisionAlternative> listAlternative,
     required List<WeightedDecisionCriteria> listCriteria,
+    bool useIsolate = false,
   }) async {
     final name = "Generate TOPSIS pairwise matrix";
     startPerformanceProfiling(name);
@@ -74,8 +76,7 @@ class TopsisLocalDatasourceImpl
       final updateCriteria = ensureIdsForCriteria(normalizedCriteria);
 
       List<WeightedDecisionMatrix> result = [];
-      final canUseIsolate = !kIsWeb &&
-          (updateAlternative.length > 80 || updateCriteria.length > 25);
+      final canUseIsolate = useIsolate && !kIsWeb;
 
       if (canUseIsolate) {
         result = await generateMatrixWithIsolate(
@@ -107,16 +108,18 @@ class TopsisLocalDatasourceImpl
   /// **Parameters:**
   /// - [matrix]: The matrix to normalize
   /// - [listCriteria]: The criteria to use for normalization
+  /// - [useIsolate]: Whether to run Euclidean normalization in an isolate worker (defaults to false)
   ///
   /// **Returns:** Euclidean normalized matrix
   Future<List<WeightedDecisionMatrix>> _normalizeEuclidean({
     required List<WeightedDecisionMatrix> matrix,
     required List<WeightedDecisionCriteria> listCriteria,
+    bool useIsolate = false,
   }) async {
     final name = "Normalize euclidean";
     startPerformanceProfiling(name);
     try {
-      if (!kIsWeb && (matrix.length > 80 || listCriteria.length > 25)) {
+      if (useIsolate && !kIsWeb) {
         final data = await isolate.runTask(
           DecisionAlgorithm.topsis,
           TopsisProcessingIsolateCommand.normalizeEuclidean,
@@ -304,13 +307,17 @@ class TopsisLocalDatasourceImpl
   @override
   Future<List<WeightedDecisionResult>> calculateResult({
     required TopsisRawMatrix rawMatrix,
+    bool useIsolate = false,
   }) async {
     final name = "Calculate result";
     startPerformanceProfiling(name);
     try {
       /// NORMALIZE EUCLIDEAN
       var normalizeEuclidean = await _normalizeEuclidean(
-          matrix: rawMatrix.matrixs, listCriteria: rawMatrix.criterias);
+        matrix: rawMatrix.matrixs,
+        listCriteria: rawMatrix.criterias,
+        useIsolate: useIsolate,
+      );
 
       /// NORMALIZE WEIGHTED MATRIX
       var normalizeWeightedMatrix = await _normalizeWeightedMatrix(
@@ -358,6 +365,7 @@ class TopsisLocalDatasourceImpl
   @override
   Future<List<WeightedDecisionResult>> calculateResultWithExistingMatrix({
     required TopsisRawMatrix rawMatrix,
+    bool useIsolate = false,
   }) async {
     final name = "Calculate result from existing matrix";
     startPerformanceProfiling(name);
@@ -372,7 +380,10 @@ class TopsisLocalDatasourceImpl
 
       /// NORMALIZE EUCLIDEAN
       var normalizeEuclidean = await _normalizeEuclidean(
-          matrix: validatedMatrix, listCriteria: updatedCriterias);
+        matrix: validatedMatrix,
+        listCriteria: updatedCriterias,
+        useIsolate: useIsolate,
+      );
 
       /// NORMALIZE WEIGHTED MATRIX
       var normalizeWeightedMatrix = await _normalizeWeightedMatrix(

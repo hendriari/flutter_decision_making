@@ -7,6 +7,16 @@
 **Since calculations are performed on the client side, the total number of criteria and alternatives may affect your device's performance. Although this package offloads heavy computations to a separate thread using Isolates for datasets with more than 15 criteria or alternatives, we recommend using data wisely.**
 
 ---
+
+## ⚠️ Batasan AHP (AHP Limitations)
+
+- **Metode Perhitungan Bobot:** Package ini memakai metode aproksimasi **normalized column averaging** (rata-rata kolom ternormalisasi), bukan *principal eigenvector* eksak berbasis dekomposisi matriks/nilai eigen.
+- **Akurasi & Selisih:** Selisih bobot terhadap eigenvector sebenarnya sekitar $4 \times 10^{-4}$ sampai $1.3 \times 10^{-3}$ pada kasus matriks konsisten ($CR \le 0.1$). Untuk matriks konsisten, selisihnya kecil. Untuk matriks tidak konsisten, selisihnya bisa lebih besar.
+- **Nilai Pembanding Eigenvector Sebenarnya (`np.linalg.eig`):**
+  - **Kasus Golden 1:** Bobot eigenvector eksak `[0.648329, 0.229651, 0.122020]`, $\lambda_{max} = 3.003695$ (vs column averaging `[0.647947, 0.229871, 0.122182]`, $\lambda_{max} = 3.003697$).
+  - **Kasus Golden 2:** Bobot eigenvector eksak `[0.558425, 0.319618, 0.121957]`, $\lambda_{max} = 3.018295$ (vs column averaging `[0.557143, 0.320238, 0.122619]`, $\lambda_{max} = 3.018325$).
+
+---
 ## ✨ Features
 
 - Generate hierarchy from criteria and alternatives

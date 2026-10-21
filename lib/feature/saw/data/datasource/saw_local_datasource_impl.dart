@@ -38,13 +38,13 @@ class SawLocalDatasourceImpl
     with WeightedDecisionMatrixMixin
     implements SawLocalDatasource {
   final DecisionMakingHelper _helper;
-  final DecisionIsolateMain _isolate;
+  DecisionIsolateMain? _isolate;
 
   @override
   DecisionMakingHelper get helper => _helper;
 
   @override
-  DecisionIsolateMain get isolate => _isolate;
+  DecisionIsolateMain get isolate => _isolate ??= DecisionIsolateMain();
 
   /// Creates an instance of [SawLocalDatasourceImpl].
   ///
@@ -57,7 +57,7 @@ class SawLocalDatasourceImpl
     Stopwatch? stopwatch,
     DecisionIsolateMain? isolate,
   })  : _helper = helper ?? DecisionMakingHelper(),
-        _isolate = isolate ?? DecisionIsolateMain();
+        _isolate = isolate;
 
   /// [MATRIX]
   /// GENERATE SAW MATRIX
@@ -65,6 +65,7 @@ class SawLocalDatasourceImpl
   Future<List<WeightedDecisionMatrix>> generateSawMatrix({
     required List<WeightedDecisionAlternative> listAlternative,
     required List<WeightedDecisionCriteria> listCriteria,
+    bool useIsolate = false,
   }) async {
     startPerformanceProfiling('Generate SAW pairwise matrix');
     try {
@@ -75,9 +76,7 @@ class SawLocalDatasourceImpl
       final updateCriteria = ensureIdsForCriteria(normalizedCriteria);
 
       List<WeightedDecisionMatrix> result = [];
-      final canUseIsolate = !kIsWeb &&
-          (updateAlternative.length > 10 || updateCriteria.length > 25);
-      // (updateAlternative.length > 80 || updateCriteria.length > 25);
+      final canUseIsolate = useIsolate && !kIsWeb;
 
       if (canUseIsolate) {
         result = await generateMatrixWithIsolate(
@@ -110,6 +109,7 @@ class SawLocalDatasourceImpl
   ///
   /// **Parameters:**
   /// - [listMatrix]: The matrix to normalize
+  /// - [useIsolate]: Whether to run normalization in an isolate worker (defaults to false)
   ///
   /// **Returns:** Normalized matrix
   ///
@@ -117,7 +117,9 @@ class SawLocalDatasourceImpl
   /// - Exception if matrix is empty
   /// - Exception if cost criteria contain zero values
   Future<List<WeightedDecisionMatrix>> _normalizeMatrix(
-      List<WeightedDecisionMatrix> listMatrix) async {
+    List<WeightedDecisionMatrix> listMatrix, {
+    bool useIsolate = false,
+  }) async {
     startPerformanceProfiling('normalize matrix saw');
     try {
       if (listMatrix.isEmpty) {
@@ -125,8 +127,7 @@ class SawLocalDatasourceImpl
       }
 
       var normalized = <WeightedDecisionMatrix>[];
-      final canUseIsolate = !kIsWeb &&
-          (listMatrix.length > 80 || listMatrix.first.ratings.length > 25);
+      final canUseIsolate = useIsolate && !kIsWeb;
 
       if (canUseIsolate) {
         normalized = await _normalizeMatrixWithIsolate(listMatrix);
@@ -150,7 +151,7 @@ class SawLocalDatasourceImpl
   /// **Returns:** Normalized matrix
   Future<List<WeightedDecisionMatrix>> _normalizeMatrixWithIsolate(
       List<WeightedDecisionMatrix> listMatrix) async {
-    final rawData = await _isolate.runTask(
+    final rawData = await isolate.runTask(
       DecisionAlgorithm.saw,
       SawProcessingIsolateCommand.normalizeMatrix,
       {
@@ -341,12 +342,13 @@ class SawLocalDatasourceImpl
   @override
   Future<List<WeightedDecisionResult>> calculateSawResult({
     required List<WeightedDecisionMatrix> matrix,
+    bool useIsolate = false,
   }) async {
     startPerformanceProfiling('Combined all method SAW algorithm');
     try {
       await validateMaxInputValue(matrix);
 
-      final normalized = await _normalizeMatrix(matrix);
+      final normalized = await _normalizeMatrix(matrix, useIsolate: useIsolate);
       final result = await _calculateSawScore(normalized);
 
       return result;
@@ -363,6 +365,7 @@ class SawLocalDatasourceImpl
   @override
   Future<List<WeightedDecisionResult>> calculateResultWithExistingMatrix({
     required List<WeightedDecisionMatrix> matrix,
+    bool useIsolate = false,
   }) async {
     startPerformanceProfiling('Calculate result with existing matrix');
     try {
@@ -374,7 +377,8 @@ class SawLocalDatasourceImpl
 
       final validatedMatrix = validateAndFixMatrix(matrix);
 
-      final normalizedMatrix = await _normalizeMatrix(validatedMatrix);
+      final normalizedMatrix =
+          await _normalizeMatrix(validatedMatrix, useIsolate: useIsolate);
       final sawResult = await _calculateSawScore(normalizedMatrix);
 
       return sawResult;

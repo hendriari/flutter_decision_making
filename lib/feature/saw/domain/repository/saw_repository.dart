@@ -7,13 +7,16 @@ abstract class SawRepository {
   Future<List<WeightedDecisionMatrix>> generateSawMatrix({
     required List<WeightedDecisionAlternative> listAlternative,
     required List<WeightedDecisionCriteria> listCriteria,
+    bool useIsolate = false,
   });
 
   Future<List<WeightedDecisionResult>> calculateSawResult({
     required List<WeightedDecisionMatrix> matrix,
+    bool useIsolate = false,
   });
 
   Future<List<WeightedDecisionResult>> calculateResultWithExistingMatrix({
     required List<WeightedDecisionMatrix> sawMatrix,
+    bool useIsolate = false,
   });
 }

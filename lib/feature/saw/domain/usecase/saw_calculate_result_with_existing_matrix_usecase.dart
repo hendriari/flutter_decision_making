@@ -7,7 +7,12 @@ class SawCalculateResultWithExistingMatrixUsecase {
 
   SawCalculateResultWithExistingMatrixUsecase(this._repository);
 
-  Future<List<WeightedDecisionResult>> execute(
-          {required List<WeightedDecisionMatrix> sawMatrix}) async =>
-      await _repository.calculateResultWithExistingMatrix(sawMatrix: sawMatrix);
+  Future<List<WeightedDecisionResult>> execute({
+    required List<WeightedDecisionMatrix> sawMatrix,
+    bool useIsolate = false,
+  }) async =>
+      await _repository.calculateResultWithExistingMatrix(
+        sawMatrix: sawMatrix,
+        useIsolate: useIsolate,
+      );
 }
