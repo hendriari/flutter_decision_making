@@ -1,0 +1,10 @@
+packages/
+benchmark/
+.github/
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+pubspec.lock
+.idea/
+.DS_Store

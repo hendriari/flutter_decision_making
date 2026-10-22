@@ -32,20 +32,27 @@ class AhpRepositoryImpl extends AhpRepository {
 
   @override
   Future<List<PairwiseAlternativeInput>> generatePairwiseAlternative(
-      List<AhpHierarchy> nodes) async {
-    return await _localDatasource.generatePairwiseAlternative(nodes);
+    List<AhpHierarchy> nodes, {
+    bool useIsolate = false,
+  }) async {
+    return await _localDatasource.generatePairwiseAlternative(
+      nodes,
+      useIsolate: useIsolate,
+    );
   }
 
   @override
   Future<AhpResult> calculateFinalScore(
     List<AhpHierarchy> hierarchy,
     List<PairwiseComparisonInput> inputsCriteria,
-    List<PairwiseAlternativeInput> inputsAlternative,
-  ) async {
+    List<PairwiseAlternativeInput> inputsAlternative, {
+    bool useIsolate = false,
+  }) async {
     return await _localDatasource.calculateFinalScore(
       hierarchy,
       inputsCriteria,
       inputsAlternative,
+      useIsolate: useIsolate,
     );
   }
 }

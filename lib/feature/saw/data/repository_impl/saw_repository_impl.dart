@@ -14,24 +14,34 @@ class SawRepositoryImpl extends SawRepository {
   Future<List<WeightedDecisionMatrix>> generateSawMatrix({
     required List<WeightedDecisionAlternative> listAlternative,
     required List<WeightedDecisionCriteria> listCriteria,
+    bool useIsolate = false,
   }) async {
     return await _localDatasource.generateSawMatrix(
       listAlternative: listAlternative,
       listCriteria: listCriteria,
+      useIsolate: useIsolate,
     );
   }
 
   @override
-  Future<List<WeightedDecisionResult>> calculateSawResult(
-      {required List<WeightedDecisionMatrix> matrix}) async {
-    return await _localDatasource.calculateSawResult(matrix: matrix);
+  Future<List<WeightedDecisionResult>> calculateSawResult({
+    required List<WeightedDecisionMatrix> matrix,
+    bool useIsolate = false,
+  }) async {
+    return await _localDatasource.calculateSawResult(
+      matrix: matrix,
+      useIsolate: useIsolate,
+    );
   }
 
   @override
-  Future<List<WeightedDecisionResult>> calculateResultWithExistingMatrix(
-      {required List<WeightedDecisionMatrix> sawMatrix}) async {
+  Future<List<WeightedDecisionResult>> calculateResultWithExistingMatrix({
+    required List<WeightedDecisionMatrix> sawMatrix,
+    bool useIsolate = false,
+  }) async {
     return await _localDatasource.calculateResultWithExistingMatrix(
       matrix: sawMatrix,
+      useIsolate: useIsolate,
     );
   }
 }

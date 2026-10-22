@@ -14,11 +14,13 @@ class AhpCalculateFinalScore {
     required List<AhpHierarchy> hierarchy,
     required List<PairwiseComparisonInput> inputsCriteria,
     required List<PairwiseAlternativeInput> inputsAlternative,
+    bool useIsolate = false,
   }) async {
     return await _ahpRepository.calculateFinalScore(
       hierarchy,
       inputsCriteria,
       inputsAlternative,
+      useIsolate: useIsolate,
     );
   }
 }

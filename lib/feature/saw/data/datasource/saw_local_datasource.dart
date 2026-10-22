@@ -27,6 +27,7 @@ abstract interface class SawLocalDatasource {
   Future<List<WeightedDecisionMatrix>> generateSawMatrix({
     required List<WeightedDecisionAlternative> listAlternative,
     required List<WeightedDecisionCriteria> listCriteria,
+    bool useIsolate = false,
   });
 
   /// Calculates the final SAW results from a decision matrix.
@@ -39,6 +40,7 @@ abstract interface class SawLocalDatasource {
   ///
   /// **Parameters:**
   /// - [matrix]: The decision matrix containing ratings for all alternatives
+  /// - [useIsolate]: Whether to run matrix normalization in an isolate worker (defaults to false)
   ///
   /// **Returns:** A ranked list of [WeightedDecisionResult] objects
   ///
@@ -46,6 +48,7 @@ abstract interface class SawLocalDatasource {
   /// - Exception if matrix is empty or contains invalid values
   Future<List<WeightedDecisionResult>> calculateSawResult({
     required List<WeightedDecisionMatrix> matrix,
+    bool useIsolate = false,
   });
 
   /// Calculates results using an existing matrix with validation and fixing.
@@ -55,6 +58,7 @@ abstract interface class SawLocalDatasource {
   ///
   /// **Parameters:**
   /// - [matrix]: The existing decision matrix to calculate from
+  /// - [useIsolate]: Whether to run matrix normalization in an isolate worker (defaults to false)
   ///
   /// **Returns:** A ranked list of [WeightedDecisionResult] objects
   ///
@@ -62,5 +66,6 @@ abstract interface class SawLocalDatasource {
   /// - Exception if matrix is empty or contains invalid data
   Future<List<WeightedDecisionResult>> calculateResultWithExistingMatrix({
     required List<WeightedDecisionMatrix> matrix,
+    bool useIsolate = false,
   });
 }

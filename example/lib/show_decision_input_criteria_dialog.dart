@@ -79,20 +79,23 @@ class _DecisionInputCriteriaWidgetState
                       _isBenefit.value = newValue;
                     },
                     groupValue: value,
-                    child: Column(
-                      children: [
-                        /// IS COST
-                        RadioListTile<bool?>(
-                          value: false,
-                          title: Text('Cost', style: _textStyle),
-                        ),
+                    child: Material(
+                      color: Colors.white,
+                      child: Column(
+                        children: [
+                          /// IS COST
+                          RadioListTile<bool?>(
+                            value: false,
+                            title: Text('Cost', style: _textStyle),
+                          ),
 
-                        /// IS BENEFIT
-                        RadioListTile<bool?>(
-                          value: true,
-                          title: Text('Benefit', style: _textStyle),
-                        ),
-                      ],
+                          /// IS BENEFIT
+                          RadioListTile<bool?>(
+                            value: true,
+                            title: Text('Benefit', style: _textStyle),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },

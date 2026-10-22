@@ -7,13 +7,16 @@ abstract interface class TopsisRepository {
   Future<TopsisRawMatrix> generateTopsisMatrix({
     required List<WeightedDecisionAlternative> listAlternative,
     required List<WeightedDecisionCriteria> listCriteria,
+    bool useIsolate = false,
   });
 
   Future<List<WeightedDecisionResult>> calculateResult({
     required TopsisRawMatrix rawMatrix,
+    bool useIsolate = false,
   });
 
   Future<List<WeightedDecisionResult>> calculateResultWithExistingMatrix({
     required TopsisRawMatrix rawMatrix,
+    bool useIsolate = false,
   });
 }

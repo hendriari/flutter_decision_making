@@ -24,12 +24,15 @@ abstract class AhpRepository {
 
   /// TO GENERATE PAIRWISE ALTERNATIVE INPUTS
   Future<List<PairwiseAlternativeInput>> generatePairwiseAlternative(
-      List<AhpHierarchy> nodes);
+    List<AhpHierarchy> nodes, {
+    bool useIsolate = false,
+  });
 
   /// GET RESULT AHP
   Future<AhpResult> calculateFinalScore(
     List<AhpHierarchy> hierarchy,
     List<PairwiseComparisonInput> inputsCriteria,
-    List<PairwiseAlternativeInput> inputsAlternative,
-  );
+    List<PairwiseAlternativeInput> inputsAlternative, {
+    bool useIsolate = false,
+  });
 }

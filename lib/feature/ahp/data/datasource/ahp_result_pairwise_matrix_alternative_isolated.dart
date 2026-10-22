@@ -1,6 +1,9 @@
+import 'package:decision_making_core/decision_making_core.dart';
 import 'package:flutter_decision_making/core/decision_making_performance_profiling.dart';
 import 'package:flutter_decision_making/feature/ahp/data/dto/ahp_item_dto.dart';
 import 'package:flutter_decision_making/feature/ahp/data/dto/pairwise_comparison_alternative_input_dto.dart';
+import 'package:flutter_decision_making/feature/ahp/data/mapper/ahp_item_mapper.dart';
+import 'package:flutter_decision_making/feature/ahp/data/mapper/pairwise_comparison_input_mapper.dart';
 
 /// Generates the pairwise comparison matrix for alternatives under a criterion.
 ///
@@ -117,57 +120,14 @@ Future<List<List<double>>> ahpGenerateResultPairwiseMatrixAlternative(
       throw ArgumentError('Alternative list is empty');
     }
 
-    // Special case: no comparisons provided, return identity matrix
-    if (inputsDto.isEmpty) {
-      return List.generate(
-        itemDto.length,
-        (_) => List.filled(itemDto.length, 1.0),
-      );
-    }
+    final pairwise = inputsDto.isEmpty
+        ? <PairwiseComparisonInput>[]
+        : inputsDto.first.alternative.map((e) => e.toEntity()).toList();
 
-    final pairwise = inputsDto.first.alternative;
-
-    // Initialize matrix with 1.0 (diagonal)
-    final matrix = List.generate(
-      itemDto.length,
-      (_) => List.filled(itemDto.length, 1.0),
+    return AhpCalculator.generateResultPairwiseMatrixAlternative(
+      itemDto.map((e) => e.toEntity()).toList(),
+      pairwise,
     );
-
-    // Build ID to index mapping for quick lookups
-    final itemIndexMap = <String, int>{};
-    for (int index = 0; index < itemDto.length; index++) {
-      final id = itemDto[index].id;
-      if (id == null || id.isEmpty) {
-        throw Exception('Alternative item has missing ID');
-      }
-      itemIndexMap[id] = index;
-    }
-
-    // Process each pairwise comparison
-    for (final comparison in pairwise) {
-      final i = itemIndexMap[comparison.left.id];
-      final j = itemIndexMap[comparison.right.id];
-
-      if (i == null || j == null) {
-        throw Exception('Alternative not found in list');
-      }
-
-      final value = comparison.preferenceValue?.toDouble() ?? 1.0;
-      if (value <= 0) {
-        throw Exception('Comparison value must be greater than zero');
-      }
-
-      // Set matrix values based on which alternative is more important
-      if (comparison.isLeftMoreImportant == true) {
-        matrix[i][j] = value;
-        matrix[j][i] = 1 / value;
-      } else {
-        matrix[i][j] = 1 / value;
-        matrix[j][i] = value;
-      }
-    }
-
-    return matrix;
   } finally {
     endPerformanceProfiling('generate pairwise matrix alternative');
   }

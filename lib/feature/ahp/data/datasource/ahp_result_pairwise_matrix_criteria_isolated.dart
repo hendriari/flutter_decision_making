@@ -1,6 +1,9 @@
+import 'package:decision_making_core/decision_making_core.dart';
 import 'package:flutter_decision_making/core/decision_making_performance_profiling.dart';
 import 'package:flutter_decision_making/feature/ahp/data/dto/ahp_item_dto.dart';
 import 'package:flutter_decision_making/feature/ahp/data/dto/pairwise_comparison_input_dto.dart';
+import 'package:flutter_decision_making/feature/ahp/data/mapper/ahp_item_mapper.dart';
+import 'package:flutter_decision_making/feature/ahp/data/mapper/pairwise_comparison_input_mapper.dart';
 
 /// Generates the pairwise comparison matrix for criteria in AHP.
 ///
@@ -140,47 +143,10 @@ Future<List<List<double>>> ahpGenerateResultPairwiseMatrixCriteria(
         inputsRaw.map((e) => PairwiseComparisonInputDto.fromMap(e)).toList();
     final itemDto = itemsRaw.map((e) => AhpItemDto.fromMap(e)).toList();
 
-    // Initialize matrix with identity (diagonal = 1.0)
-    final matrix = List.generate(
-      itemDto.length,
-      (_) => List.filled(itemDto.length, 1.0),
+    return AhpCalculator.generateResultPairwiseMatrixCriteria(
+      itemDto.map((e) => e.toEntity()).toList(),
+      inputsDto.map((e) => e.toEntity()).toList(),
     );
-
-    // Build ID-to-index mapping for quick lookups
-    final itemIndexMap = <String, int>{};
-    for (int index = 0; index < itemDto.length; index++) {
-      final id = itemDto[index].id;
-      if (id == null || id.isEmpty) {
-        throw Exception('Item with missing ID found');
-      }
-      itemIndexMap[id] = index;
-    }
-
-    // Process each pairwise comparison
-    for (final e in inputsDto) {
-      final i = itemIndexMap[e.left.id];
-      final j = itemIndexMap[e.right.id];
-      final value = e.preferenceValue?.toDouble() ?? 1.0;
-
-      if (i == null || j == null) {
-        throw Exception('One or both items not found in the list');
-      }
-
-      if (value <= 0) {
-        throw Exception('Comparison value must be greater than zero');
-      }
-
-      // Assign values based on importance direction
-      if (e.isLeftMoreImportant == true) {
-        matrix[i][j] = value;
-        matrix[j][i] = 1 / value;
-      } else {
-        matrix[i][j] = 1 / value;
-        matrix[j][i] = value;
-      }
-    }
-
-    return matrix;
   } finally {
     endPerformanceProfiling('generate result pairwise matrix criteria');
   }

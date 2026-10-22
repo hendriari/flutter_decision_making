@@ -1,0 +1,20 @@
+name: decision_making_core
+description: "Pure Dart multi-criteria decision-making (MCDM) core library implementing AHP, SAW, and TOPSIS algorithms."
+version: 0.1.0
+repository: https://github.com/hendriari/flutter_decision_making/tree/main/packages/decision_making_core
+issue_tracker: https://github.com/hendriari/flutter_decision_making/issues
+topics:
+  - mcdm
+  - decision-support-system
+  - ahp
+  - topsis
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  meta: ^1.9.0
+
+dev_dependencies:
+  lints: ^3.0.0
+  test: ^1.24.0

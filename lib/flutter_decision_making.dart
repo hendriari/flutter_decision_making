@@ -2,11 +2,37 @@ import 'package:flutter_decision_making/feature/ahp/presentation/ahp.dart';
 import 'package:flutter_decision_making/feature/saw/presentation/saw.dart';
 import 'package:flutter_decision_making/feature/topsis/presentation/topsis.dart';
 
-export 'package:flutter_decision_making/core/isolate/decision_isolate_main.dart';
-export 'package:flutter_decision_making/core/isolate/decision_isolate_message.dart';
-export 'package:flutter_decision_making/core/isolate/decision_isolate_worker.dart';
+export 'package:decision_making_core/decision_making_core.dart'
+    show
+        AhpComparisonScale,
+        AhpConsistencyRatio,
+        AhpDetailedResult,
+        AhpHierarchy,
+        AhpIdentification,
+        AhpItem,
+        AhpMatrixEvaluation,
+        AhpResult,
+        AhpResultDetail,
+        AlternativePair,
+        PairwiseAlternativeInput,
+        PairwiseComparisonInput,
+        RankReversalCase,
+        SawDetailedResult,
+        SensitivityAnalysisResult,
+        SensitivityDirection,
+        TopsisDetailedResult,
+        TopsisIdealValue,
+        TopsisMatrix,
+        TopsisRawMatrix,
+        WeightSensitivityCase,
+        WeightedDecisionAlternative,
+        WeightedDecisionCriteria,
+        WeightedDecisionMatrix,
+        WeightedDecisionRating,
+        WeightedDecisionResult;
 export 'package:flutter_decision_making/feature/ahp/presentation/ahp.dart';
 export 'package:flutter_decision_making/feature/saw/presentation/saw.dart';
+export 'package:flutter_decision_making/feature/topsis/presentation/topsis.dart';
 export 'package:flutter_decision_making/core/decision_making_utils.dart';
 
 class FlutterDecisionMaking {

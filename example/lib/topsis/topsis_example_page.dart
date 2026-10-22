@@ -3,7 +3,6 @@ import 'package:example/helper.dart';
 import 'package:example/show_decision_input_criteria_dialog.dart';
 import 'package:example/show_decision_input_value_criteria_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_decision_making/feature/topsis/presentation/topsis.dart';
 import 'package:flutter_decision_making/flutter_decision_making.dart';
 
 class TopsisExamplePage extends StatefulWidget {

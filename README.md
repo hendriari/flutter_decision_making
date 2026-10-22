@@ -10,6 +10,12 @@
 | ✅     | SAW (Simple Additive Weighting)                                         | 1.1.0                |
 | ✅     | TOPSIS (Technique for Order Preference by Similarity to Ideal Solution) | 1.2.0                |
 
+| Feature                                            | Available in version |
+|:---------------------------------------------------|:---------------------|
+| Self-explaining (detailed) results with `toJson()` | 2.0.0                |
+| Weight sensitivity analysis & rank reversal check  | 2.0.0                |
+| Pure Dart core ([`decision_making_core`](https://pub.dev/packages/decision_making_core)) | 2.0.0 |
+
 ---
 
 ## 🎯 Typical Use Cases
@@ -22,6 +28,20 @@ Suitable for building decision support features such as:
 - Feature prioritization in product management
 - Internal corporate decision-making systems
 - Recommendation or comparison apps
+
+---
+
+## 📦 Installation
+
+```bash
+flutter pub add flutter_decision_making
+```
+
+```dart
+import 'package:flutter_decision_making/flutter_decision_making.dart';
+```
+
+> Need the algorithms without Flutter (CLI, server, Dart backend)? Use the pure Dart package [`decision_making_core`](https://pub.dev/packages/decision_making_core).
 
 ---
 
@@ -77,6 +97,49 @@ _ahpResult = await _ahp.getAhpResult(...);
 
 ---
 
+## 🔍 Explainable Results
+
+Every algorithm can return all intermediate steps, not only the final ranking. Useful for reports, audits and teaching.
+
+```dart
+final saw = await _decisionMaking.saw.getSawDetailedResult(matrix: matrix);
+saw.normalizedMatrix;   // r_ij
+saw.normalizedWeights;  // w_j (sum = 1)
+saw.weightedMatrix;     // v_ij
+saw.scores;             // final scores and ranks
+
+final topsis = await _decisionMaking.topsis.getTopsisDetailedResult(matrix: topsisMatrix);
+topsis.positiveIdeal;   // A+
+topsis.negativeIdeal;   // A-
+topsis.separationPlus;  // D+
+topsis.separationMinus; // D-
+
+final ahp = await _decisionMaking.ahp.getAhpDetailedResult(...);
+ahp.criteriaEvaluation; // comparison/normalized matrix, weights, lambda max, CI, RI, CR
+
+final json = saw.toJson(); // every detailed result can be serialized
+```
+
+The existing `getSawResult`, `getTopsisResult` and `getAhpResult` are unchanged.
+
+---
+
+## 🧪 Sensitivity Analysis & Rank Reversal (SAW, TOPSIS)
+
+Check how stable a ranking is.
+
+```dart
+final result = await _decisionMaking.saw.analyzeSensitivity(matrix: matrix, delta: 0.10);
+
+result.isStable;              // false if any perturbation or removal changes the order
+result.sensitivityCases;      // each criterion weight +/- 10% (relative), others rescaled
+result.rankReversalCases;     // each alternative removed in turn (needs 3+ alternatives)
+```
+
+> Rank reversal is **detected**, not prevented. Results depend on `delta` and on the normalization method of each algorithm. Skipped cases (for example fewer than 3 alternatives) are reported with a reason and are not counted as unstable.
+
+---
+
 ## 📖 Algorithm Docs
 For details on how to use the algorithm, you can visit the following documentation.
 
@@ -85,6 +148,9 @@ For details on how to use the algorithm, you can visit the following documentati
 | [AHP Doc](https://github.com/hendriari/flutter_decision_making/wiki/Analytic-Hierarchy-Process-(AHP))   | If you need a method that is able to determine weights accurately through pairwise comparisons, validate the consistency of assessments, and work well on subjective or multilevel criteria.     |
 | [SAW Doc](https://github.com/hendriari/flutter_decision_making/wiki/Simple-Additive-Weighting-(SAW))    | If you need a simple, fast, easy to calculate, and easy to implement method for ranking alternatives based on criteria weights and values.                                                       |
 | [TOPSIS Doc](https://github.com/hendriari/flutter_decision_making/wiki/TOPSIS-(Technique-for-Order-Preference-by-Similarity-to-Ideal-Solution)) | If you need a method that ranks alternatives based on their distance to the ideal best and ideal worst solutions, providing a more discriminative and robust decision-making result.                                                      |
+
+> The wiki pages describe each algorithm. For detailed results, sensitivity analysis and `useIsolate`, see the sections above.
+
 ---
 
 ## 📈 Performance Profiling
@@ -94,6 +160,36 @@ Major method logs:
 - Execution duration (in milliseconds).
 
 > Useful for debugging and optimization during development.
+
+---
+
+## ⚡ When to Use Isolates (`useIsolate`)
+
+By default all calculations run on the **main thread** (`useIsolate: false`). Isolates are **opt-in** via `useIsolate: true`.
+
+Measured on **Apple Silicon (macOS), `--profile` mode**, public API, median [min–max] of 10 runs after 3 warm-ups:
+
+| Case (alternatives × criteria) | Main thread (ms) | Isolate, warm (ms) | Main thread blocked (ms) |
+|:--|:--|:--|:--|
+| SAW 80 × 25      | **0.19** [0.18–0.35]    | 4.35 [3.01–5.86]       | 0.85 [0.00–3.03]       |
+| SAW 2000 × 50    | **8.71** [8.39–12.27]   | 449.24 [411.99–477.15] | 244.23 [219.73–262.51] |
+| TOPSIS 80 × 25   | **0.52** [0.50–0.55]    | 4.02 [3.33–6.18]       | 0.80 [0.00–3.34]       |
+| TOPSIS 2000 × 50 | **47.53** [40.32–52.14] | 526.39 [464.34–605.88] | 277.99 [223.17–306.31] |
+| AHP 80 × 10      | **31.71** [31.21–52.50] | 51.01 [47.90–66.97]    | 25.84 [23.09–39.94]    |
+
+"Main thread blocked" is estimated with an event-loop lag monitor; values near 0 mean the blocking was below its detection threshold (about 1 ms), not that it is exactly zero. Mobile devices will be slower than these numbers, so profile on your target device.
+
+**Recommendation:** keep the default. Sending data to an isolate costs more (serialization) than the calculation itself in every case measured. Use `useIsolate: true` only if you must keep very large calculations off the UI thread and accept a longer total time. Note that AHP needs n(n-1)/2 pairwise judgments per matrix, so very large AHP inputs are rarely practical for human evaluators.
+
+---
+
+## ⬆️ Upgrading from 1.x
+
+- Isolates are no longer used automatically. Pass `useIsolate: true` if you relied on that behaviour.
+- `DecisionIsolateMain` and the isolate message/worker types are no longer exported from the main library.
+- **TOPSIS in 1.2.0 returned wrong rankings above 80 alternatives or 25 criteria. Upgrade if you use TOPSIS with large inputs.**
+
+See the [CHANGELOG](CHANGELOG.md) for details.
 
 ---
 

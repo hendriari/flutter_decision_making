@@ -1,8 +1,9 @@
 name: flutter_decision_making
 description: "Flutter package for multi-criteria decision-making using AHP, SAW, and TOPSIS algorithms."
-version: 1.2.0
+version: 2.0.0
 homepage: https://github.com/hendriari/flutter_decision_making
 repository: https://github.com/hendriari/flutter_decision_making
+issue_tracker: https://github.com/hendriari/flutter_decision_making/issues
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -11,8 +12,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  decision_making_core: ^0.1.0
   synchronized: ^3.4.0
   uuid: ^4.5.2
+
+dependency_overrides:
+  decision_making_core:
+    path: packages/decision_making_core
 
 dev_dependencies:
   flutter_test:
@@ -20,10 +26,11 @@ dev_dependencies:
   flutter_lints: ^6.0.0
 
 topics:
-  - decision-support-system
-  - algorithm
   - mcdm
-  - madm
+  - decision-support-system
+  - ahp
+  - topsis
+  - saw
 
 funding:
   - https://github.com/hendriari/flutter_decision_making

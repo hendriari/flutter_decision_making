@@ -1,0 +1,41 @@
+name: Decision Making Core CI
+
+on:
+  push:
+    branches: [ main, dev ]
+    paths:
+      - 'packages/decision_making_core/**'
+      - '.github/workflows/core.yml'
+  pull_request:
+    branches: [ main, dev ]
+    paths:
+      - 'packages/decision_making_core/**'
+      - '.github/workflows/core.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Dart SDK
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Install dependencies
+        working-directory: packages/decision_making_core
+        run: dart pub get
+
+      - name: Verify formatting
+        working-directory: packages/decision_making_core
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze core package
+        working-directory: packages/decision_making_core
+        run: dart analyze --fatal-infos .
+
+      - name: Run tests
+        working-directory: packages/decision_making_core
+        run: dart test

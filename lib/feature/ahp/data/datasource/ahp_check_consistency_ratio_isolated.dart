@@ -1,4 +1,5 @@
 import 'dart:developer' as dev;
+import 'package:decision_making_core/decision_making_core.dart';
 
 import 'package:flutter_decision_making/core/decision_making_performance_profiling.dart';
 
@@ -114,117 +115,25 @@ Future<Map<String, dynamic>> ahpCheckConsistencyRatio(
           'Priority vector contains zero, cannot divide by zero.');
     }
 
-    // Step 1: Calculate weighted sums (matrix × priority vector)
-    List<double> weightedSums = List.filled(n, 0);
-    for (int i = 0; i < n; i++) {
-      double sum = 0;
-      for (int j = 0; j < n; j++) {
-        sum += matrix[i][j] * priorityVector[j];
-      }
-      weightedSums[i] = sum;
-    }
+    final crResult = AhpCalculator.checkConsistencyRatio(
+      matrix,
+      priorityVector,
+      source,
+    );
 
-    // Step 2: Calculate λmax (maximum eigenvalue)
-    double lambdaMax = 0;
-    for (int i = 0; i < n; i++) {
-      lambdaMax += weightedSums[i] / priorityVector[i];
-    }
-    lambdaMax /= n;
-
-    // Step 3: Calculate Consistency Index (CI)
-    double ci = (lambdaMax - n) / (n - 1);
-
-    // Step 4: Get Random Index (RI) and calculate CR
-    final ri = _getRI(n);
-    if (ri == 0) {
-      // For n ≤ 2, always consistent
-      return {
-        "source": source,
-        "ratio": 0,
-        "is_consistent": true,
-      };
-    }
-
-    final cr = ci / ri;
-
-    dev.log('λmax: $lambdaMax, CI: $ci, CR: $cr', name: 'DECISION MAKING');
-
-    // Check if CR exceeds acceptable threshold (0.1)
-    // Using epsilon comparison to avoid floating point precision issues
-    if ((cr - 0.1) > 1e-5) {
-      return {
-        "source": source,
-        "ratio": cr,
-        "is_consistent": false,
-      };
-    }
+    dev.log(
+      'λmax: ${crResult.lambdaMax}, CI: ${crResult.ci}, CR: ${crResult.ratio}',
+      name: 'DECISION MAKING',
+    );
 
     return {
-      "source": source,
-      "ratio": cr,
-      "is_consistent": true,
+      "source": crResult.source,
+      "ratio": crResult.ratio,
+      "is_consistent": crResult.isConsistent,
+      "lambda_max": crResult.lambdaMax,
+      "ci": crResult.ci,
     };
   } finally {
     endPerformanceProfiling('check consistency ratio');
   }
-}
-
-/// Returns the Random Index (RI) for a given matrix size.
-///
-/// The RI is the average Consistency Index (CI) of randomly generated
-/// reciprocal matrices. These values were empirically determined by Saaty
-/// through extensive testing.
-///
-/// **Purpose:**
-/// The RI provides a baseline for comparison. It represents the expected
-/// inconsistency level in a random matrix of size n.
-///
-/// **Parameters:**
-/// - [n]: Size of the pairwise comparison matrix (number of elements being compared)
-///
-/// **Returns:**
-/// The Random Index value for the given matrix size.
-/// For n > 15, returns 1.59 (the approximate limit value).
-///
-/// **RI Table (Saaty, 1980):**
-/// | Matrix Size (n) | RI Value |
-/// |----------------|----------|
-/// | 1-2            | 0.00     |
-/// | 3              | 0.58     |
-/// | 4              | 0.90     |
-/// | 5              | 1.12     |
-/// | 6              | 1.24     |
-/// | 7              | 1.32     |
-/// | 8              | 1.41     |
-/// | 9              | 1.45     |
-/// | 10             | 1.49     |
-/// | 11             | 1.51     |
-/// | 12             | 1.48     |
-/// | 13             | 1.56     |
-/// | 14             | 1.57     |
-/// | 15+            | 1.59     |
-///
-/// **Note:**
-/// For matrices of size 1 or 2, RI is 0.0 because:
-/// - Size 1: Only one element, no comparisons needed (always consistent)
-/// - Size 2: Only one comparison (A vs B), no possibility of inconsistency
-double _getRI(int n) {
-  const Map<int, double> riTable = {
-    1: 0.0,
-    2: 0.0,
-    3: 0.58,
-    4: 0.90,
-    5: 1.12,
-    6: 1.24,
-    7: 1.32,
-    8: 1.41,
-    9: 1.45,
-    10: 1.49,
-    11: 1.51,
-    12: 1.48,
-    13: 1.56,
-    14: 1.57,
-    15: 1.59,
-  };
-  return riTable[n] ?? 1.59;
 }

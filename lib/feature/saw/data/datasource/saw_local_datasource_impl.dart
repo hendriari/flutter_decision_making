@@ -1,3 +1,4 @@
+import 'package:decision_making_core/decision_making_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_decision_making/core/decision_making_enums.dart';
 import 'package:flutter_decision_making/core/decision_making_helper.dart';
@@ -6,12 +7,7 @@ import 'package:flutter_decision_making/core/isolate/decision_isolate_main.dart'
 import 'package:flutter_decision_making/core/shared/dto/weighted_decision_matrix_dto.dart';
 import 'package:flutter_decision_making/core/shared/interface/weighted_decision_matrix_mixin.dart';
 import 'package:flutter_decision_making/core/shared/mapper/weighted_decision_matrix_mapper.dart';
-import 'package:flutter_decision_making/core/shared/entity/weighted_decision_rating.dart';
 import 'package:flutter_decision_making/feature/saw/data/datasource/saw_local_datasource.dart';
-import 'package:flutter_decision_making/core/shared/entity/weighted_decision_alternative.dart';
-import 'package:flutter_decision_making/core/shared/entity/weighted_decision_criteria.dart';
-import 'package:flutter_decision_making/core/shared/entity/weighted_decision_matrix.dart';
-import 'package:flutter_decision_making/core/shared/entity/weighted_decision_result.dart';
 
 /// Implementation of [SawLocalDatasource] that handles SAW algorithm operations.
 ///
@@ -38,13 +34,13 @@ class SawLocalDatasourceImpl
     with WeightedDecisionMatrixMixin
     implements SawLocalDatasource {
   final DecisionMakingHelper _helper;
-  final DecisionIsolateMain _isolate;
+  DecisionIsolateMain? _isolate;
 
   @override
   DecisionMakingHelper get helper => _helper;
 
   @override
-  DecisionIsolateMain get isolate => _isolate;
+  DecisionIsolateMain get isolate => _isolate ??= DecisionIsolateMain();
 
   /// Creates an instance of [SawLocalDatasourceImpl].
   ///
@@ -57,7 +53,7 @@ class SawLocalDatasourceImpl
     Stopwatch? stopwatch,
     DecisionIsolateMain? isolate,
   })  : _helper = helper ?? DecisionMakingHelper(),
-        _isolate = isolate ?? DecisionIsolateMain();
+        _isolate = isolate;
 
   /// [MATRIX]
   /// GENERATE SAW MATRIX
@@ -65,6 +61,7 @@ class SawLocalDatasourceImpl
   Future<List<WeightedDecisionMatrix>> generateSawMatrix({
     required List<WeightedDecisionAlternative> listAlternative,
     required List<WeightedDecisionCriteria> listCriteria,
+    bool useIsolate = false,
   }) async {
     startPerformanceProfiling('Generate SAW pairwise matrix');
     try {
@@ -75,9 +72,7 @@ class SawLocalDatasourceImpl
       final updateCriteria = ensureIdsForCriteria(normalizedCriteria);
 
       List<WeightedDecisionMatrix> result = [];
-      final canUseIsolate = !kIsWeb &&
-          (updateAlternative.length > 10 || updateCriteria.length > 25);
-      // (updateAlternative.length > 80 || updateCriteria.length > 25);
+      final canUseIsolate = useIsolate && !kIsWeb;
 
       if (canUseIsolate) {
         result = await generateMatrixWithIsolate(
@@ -110,6 +105,7 @@ class SawLocalDatasourceImpl
   ///
   /// **Parameters:**
   /// - [listMatrix]: The matrix to normalize
+  /// - [useIsolate]: Whether to run normalization in an isolate worker (defaults to false)
   ///
   /// **Returns:** Normalized matrix
   ///
@@ -117,7 +113,9 @@ class SawLocalDatasourceImpl
   /// - Exception if matrix is empty
   /// - Exception if cost criteria contain zero values
   Future<List<WeightedDecisionMatrix>> _normalizeMatrix(
-      List<WeightedDecisionMatrix> listMatrix) async {
+    List<WeightedDecisionMatrix> listMatrix, {
+    bool useIsolate = false,
+  }) async {
     startPerformanceProfiling('normalize matrix saw');
     try {
       if (listMatrix.isEmpty) {
@@ -125,8 +123,7 @@ class SawLocalDatasourceImpl
       }
 
       var normalized = <WeightedDecisionMatrix>[];
-      final canUseIsolate = !kIsWeb &&
-          (listMatrix.length > 80 || listMatrix.first.ratings.length > 25);
+      final canUseIsolate = useIsolate && !kIsWeb;
 
       if (canUseIsolate) {
         normalized = await _normalizeMatrixWithIsolate(listMatrix);
@@ -150,7 +147,7 @@ class SawLocalDatasourceImpl
   /// **Returns:** Normalized matrix
   Future<List<WeightedDecisionMatrix>> _normalizeMatrixWithIsolate(
       List<WeightedDecisionMatrix> listMatrix) async {
-    final rawData = await _isolate.runTask(
+    final rawData = await isolate.runTask(
       DecisionAlgorithm.saw,
       SawProcessingIsolateCommand.normalizeMatrix,
       {
@@ -176,102 +173,7 @@ class SawLocalDatasourceImpl
   /// **Returns:** Normalized matrix
   List<WeightedDecisionMatrix> _normalizeMatrixDirectly(
       List<WeightedDecisionMatrix> listMatrix) {
-    final criteriaStats = _calculateCriteriaStats(listMatrix);
-
-    return listMatrix.map((matrix) {
-      final newRatings = matrix.ratings.map((rating) {
-        return _normalizeRating(rating, criteriaStats);
-      }).toList();
-
-      return matrix.copyWith(ratings: newRatings);
-    }).toList();
-  }
-
-  /// Calculates minimum and maximum values for each criteria across all alternatives.
-  ///
-  /// These statistics are needed for normalization calculations.
-  ///
-  /// **Parameters:**
-  /// - [listMatrix]: Matrix to analyze
-  ///
-  /// **Returns:** Map of criteria ID to their min/max statistics
-  ///
-  /// **Throws:**
-  /// - Exception if a rating is found without criteria ID
-  Map<String, _CriteriaStats> _calculateCriteriaStats(
-      List<WeightedDecisionMatrix> listMatrix) {
-    final stats = <String, _CriteriaStats>{};
-
-    for (var matrix in listMatrix) {
-      for (var rating in matrix.ratings) {
-        final cid = rating.criteria?.id;
-        final val = rating.value ?? 0;
-
-        if (cid == null) {
-          throw Exception('Found rating without criteria ID! Data invalid.');
-        }
-
-        if (!stats.containsKey(cid)) {
-          stats[cid] = _CriteriaStats(max: val, min: val);
-        } else {
-          stats[cid] = _CriteriaStats(
-            max: val > stats[cid]!.max ? val : stats[cid]!.max,
-            min: val < stats[cid]!.min ? val : stats[cid]!.min,
-          );
-        }
-      }
-    }
-
-    return stats;
-  }
-
-  /// Normalizes a single rating value based on its criteria type and statistics.
-  ///
-  /// **Normalization formulas:**
-  /// - Benefit criteria: normalized = value / max_value
-  /// - Cost criteria: normalized = min_value / value
-  /// - If all values are equal: normalized = 1
-  ///
-  /// **Parameters:**
-  /// - [rating]: The rating to normalize
-  /// - [stats]: Statistics for all criteria
-  ///
-  /// **Returns:** Normalized rating
-  ///
-  /// **Throws:**
-  /// - Exception if zero value found in cost criteria
-  WeightedDecisionRating _normalizeRating(
-    WeightedDecisionRating rating,
-    Map<String, _CriteriaStats> stats,
-  ) {
-    final cid = rating.criteria?.id;
-    final val = rating.value ?? 0;
-
-    if (cid == null || rating.criteria == null) {
-      return rating;
-    }
-
-    if (rating.criteria!.isBenefit == false && val == 0) {
-      throw Exception(
-        'Zero value found in cost criteria: ${rating.criteria!.name}. '
-        'Cost criteria must have positive values.',
-      );
-    }
-
-    final maxV = stats[cid]!.max;
-    final minV = stats[cid]!.min;
-
-    double newValue;
-
-    if (maxV == minV) {
-      newValue = 1;
-    } else if (rating.criteria!.isBenefit == true) {
-      newValue = maxV == 0 ? 0 : val / maxV;
-    } else {
-      newValue = minV / val;
-    }
-
-    return rating.copyWith(value: newValue);
+    return SawCalculator.normalize(listMatrix);
   }
 
   /// ==========================================================================
@@ -295,42 +197,7 @@ class SawLocalDatasourceImpl
       List<WeightedDecisionMatrix> normalizedMatrix) async {
     startPerformanceProfiling('Calculate SAW result');
     try {
-      if (normalizedMatrix.isEmpty) {
-        throw Exception('Normalized matrix cannot be empty!');
-      }
-
-      var sawResult = <WeightedDecisionResult>[];
-
-      for (var matrix in normalizedMatrix) {
-        double totalScore = 0;
-
-        for (var rating in matrix.ratings) {
-          if (rating.criteria == null) {
-            throw Exception(
-              'Rating without criteria found for alternative: ${matrix.alternative.name}',
-            );
-          }
-
-          final weight = rating.criteria!.weightPercent / 100;
-          final value = rating.value ?? 0;
-
-          totalScore += value * weight;
-        }
-
-        sawResult.add(WeightedDecisionResult(
-          alternative: matrix.alternative,
-          score: totalScore,
-          rank: 0,
-        ));
-      }
-
-      sawResult.sort((a, b) => b.score.compareTo(a.score));
-
-      for (int i = 0; i < sawResult.length; i++) {
-        sawResult[i] = sawResult[i].copyWith(rank: i + 1);
-      }
-
-      return sawResult;
+      return SawCalculator.calculateScores(normalizedMatrix);
     } catch (e) {
       rethrow;
     } finally {
@@ -341,12 +208,13 @@ class SawLocalDatasourceImpl
   @override
   Future<List<WeightedDecisionResult>> calculateSawResult({
     required List<WeightedDecisionMatrix> matrix,
+    bool useIsolate = false,
   }) async {
     startPerformanceProfiling('Combined all method SAW algorithm');
     try {
       await validateMaxInputValue(matrix);
 
-      final normalized = await _normalizeMatrix(matrix);
+      final normalized = await _normalizeMatrix(matrix, useIsolate: useIsolate);
       final result = await _calculateSawScore(normalized);
 
       return result;
@@ -363,6 +231,7 @@ class SawLocalDatasourceImpl
   @override
   Future<List<WeightedDecisionResult>> calculateResultWithExistingMatrix({
     required List<WeightedDecisionMatrix> matrix,
+    bool useIsolate = false,
   }) async {
     startPerformanceProfiling('Calculate result with existing matrix');
     try {
@@ -374,7 +243,8 @@ class SawLocalDatasourceImpl
 
       final validatedMatrix = validateAndFixMatrix(matrix);
 
-      final normalizedMatrix = await _normalizeMatrix(validatedMatrix);
+      final normalizedMatrix =
+          await _normalizeMatrix(validatedMatrix, useIsolate: useIsolate);
       final sawResult = await _calculateSawScore(normalizedMatrix);
 
       return sawResult;
@@ -384,18 +254,4 @@ class SawLocalDatasourceImpl
       endPerformanceProfiling('Calculate result with existing matrix');
     }
   }
-}
-
-/// Helper class to store minimum and maximum statistics for a criteria.
-///
-/// Used during the normalization process to calculate normalized values
-/// based on the range of values for each criteria.
-class _CriteriaStats {
-  /// Maximum value found for this criteria across all alternatives
-  final num max;
-
-  /// Minimum value found for this criteria across all alternatives
-  final num min;
-
-  _CriteriaStats({required this.max, required this.min});
 }

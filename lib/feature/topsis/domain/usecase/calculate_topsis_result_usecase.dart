@@ -9,8 +9,10 @@ class CalculateTopsisResultUsecase {
 
   Future<List<WeightedDecisionResult>> execute({
     required TopsisRawMatrix rawMatrix,
+    bool useIsolate = false,
   }) async =>
       await _repository.calculateResult(
         rawMatrix: rawMatrix,
+        useIsolate: useIsolate,
       );
 }

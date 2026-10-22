@@ -41,9 +41,25 @@ import 'decision_isolate_worker.dart';
 /// isolate.dispose(force: true);
 /// ```
 class DecisionIsolateMain with WidgetsBindingObserver {
-  static final DecisionIsolateMain _instance = DecisionIsolateMain._internal();
+  static DecisionIsolateMain? _instance;
 
-  factory DecisionIsolateMain() => _instance;
+  factory DecisionIsolateMain() =>
+      _instance ??= DecisionIsolateMain._internal();
+
+  /// Whether the singleton instance has been created.
+  @visibleForTesting
+  static bool get hasInstance => _instance != null;
+
+  /// Whether the background isolate worker is currently running.
+  @visibleForTesting
+  static bool get isWorkerRunning => _instance?._isolate != null;
+
+  /// Visible for testing: resets and force disposes the singleton instance.
+  @visibleForTesting
+  static void resetInstance() {
+    _instance?.dispose(force: true);
+    _instance = null;
+  }
 
   DecisionIsolateMain._internal() {
     _setupAutoDispose();
@@ -304,6 +320,10 @@ class DecisionIsolateMain with WidgetsBindingObserver {
   ///
   /// This method is automatically called on app pause/detach.
   void dispose({bool force = false}) {
+    _idleTimer?.cancel();
+    _idleTimer = null;
+    WidgetsBinding.instance.removeObserver(this);
+
     if (_isolate == null) return;
 
     if (!force && _activeTasks > 0) {
@@ -324,11 +344,8 @@ class DecisionIsolateMain with WidgetsBindingObserver {
     _helper.printLog(
         message: '[$_debugId] 🧹 Disposing (force: $force)...',
         logName: _logName);
-    _idleTimer?.cancel();
-    _idleTimer = null;
     _cleanup();
     _activeTasks = 0;
-    WidgetsBinding.instance.removeObserver(this);
   }
 
   // ========== UTILITY ==========

@@ -1,3 +1,4 @@
+import 'package:decision_making_core/decision_making_core.dart';
 import 'ahp_utils.dart';
 
 export 'ahp_utils.dart';
@@ -67,6 +68,7 @@ class AHP {
   /// GENERATE PAIRWISE ALTERNATIVE INPUTS
   Future<List<PairwiseAlternativeInput>> generateAlternativeInputs({
     required List<AhpHierarchy> hierarchyNodes,
+    bool useIsolate = false,
   }) async {
     if (hierarchyNodes.isEmpty) {
       throw Exception(
@@ -76,7 +78,10 @@ class AHP {
     final pairAlternativeUsecase =
         AhpGeneratePairwiseAlternativeInputUsecase(_ahpRepository);
 
-    final result = await pairAlternativeUsecase.execute(hierarchyNodes);
+    final result = await pairAlternativeUsecase.execute(
+      hierarchyNodes,
+      useIsolate: useIsolate,
+    );
 
     return result;
   }
@@ -169,6 +174,7 @@ class AHP {
     required List<AhpHierarchy> hierarchy,
     required List<PairwiseComparisonInput> inputsCriteria,
     required List<PairwiseAlternativeInput> inputsAlternative,
+    bool useIsolate = false,
   }) async {
     final resultUsecase = AhpCalculateFinalScore(_ahpRepository);
 
@@ -176,8 +182,26 @@ class AHP {
       hierarchy: hierarchy,
       inputsCriteria: inputsCriteria,
       inputsAlternative: inputsAlternative,
+      useIsolate: useIsolate,
     );
 
     return result;
+  }
+
+  /// CALCULATE DETAILED AHP RESULT
+  ///
+  /// Returns an [AhpDetailedResult] containing comparison matrices, normalized matrices,
+  /// priority weights ($w_j$), consistency metrics ($\lambda_{\max}$, $CI$, $RI$, $CR$),
+  /// local priority scores per criterion, and final synthesized scores.
+  Future<AhpDetailedResult> getAhpDetailedResult({
+    required List<AhpHierarchy> hierarchy,
+    required List<PairwiseComparisonInput> inputsCriteria,
+    required List<PairwiseAlternativeInput> inputsAlternative,
+  }) async {
+    return AhpCalculator.calculateDetailed(
+      hierarchy: hierarchy,
+      inputsCriteria: inputsCriteria,
+      inputsAlternative: inputsAlternative,
+    );
   }
 }

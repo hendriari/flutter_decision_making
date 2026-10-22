@@ -29,6 +29,7 @@ abstract interface class TopsisLocalDatasource {
   Future<TopsisRawMatrix> generateTopsisMatrix({
     required List<WeightedDecisionAlternative> listAlternative,
     required List<WeightedDecisionCriteria> listCriteria,
+    bool useIsolate = false,
   });
 
   /// Calculates the final TOPSIS results from a decision matrix.
@@ -43,6 +44,7 @@ abstract interface class TopsisLocalDatasource {
   ///
   /// **Parameters:**
   /// - [rawMatrix]: The raw decision matrix containing ratings and criteria
+  /// - [useIsolate]: Whether to run Euclidean normalization in an isolate worker (defaults to false)
   ///
   /// **Returns:** A ranked list of [WeightedDecisionResult] objects
   ///
@@ -50,6 +52,7 @@ abstract interface class TopsisLocalDatasource {
   /// - Exception if matrix is empty or contains invalid values
   Future<List<WeightedDecisionResult>> calculateResult({
     required TopsisRawMatrix rawMatrix,
+    bool useIsolate = false,
   });
 
   /// Calculates results using an existing matrix with validation and fixing.
@@ -59,6 +62,7 @@ abstract interface class TopsisLocalDatasource {
   ///
   /// **Parameters:**
   /// - [rawMatrix]: The existing decision matrix to calculate from
+  /// - [useIsolate]: Whether to run Euclidean normalization in an isolate worker (defaults to false)
   ///
   /// **Returns:** A ranked list of [WeightedDecisionResult] objects
   ///
@@ -67,5 +71,6 @@ abstract interface class TopsisLocalDatasource {
   /// - Exception if rating values exceed criteria max values
   Future<List<WeightedDecisionResult>> calculateResultWithExistingMatrix({
     required TopsisRawMatrix rawMatrix,
+    bool useIsolate = false,
   });
 }
