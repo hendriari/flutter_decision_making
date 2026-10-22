@@ -14,17 +14,9 @@
 - **Weight sensitivity analysis & rank reversal detection (SAW & TOPSIS):** Added `SawCalculator.analyzeSensitivity`, `TopsisCalculator.analyzeSensitivity`, `SAW.analyzeSensitivity`, and `TOPSIS.analyzeSensitivity` returning `SensitivityAnalysisResult` with systematic +/- delta perturbations, pairwise ranking change detection, alternative removal rank reversal tests, and JSON serialization support (`toJson()`).
 - Exported sensitivity entities: `AlternativePair`, `RankReversalCase`, `SensitivityAnalysisResult`, `SensitivityDirection`, and `WeightSensitivityCase`.
 
-### Changed (API)
-- **AHP internal helper protection:** `AhpCalculator.getRI`, `riTable`, and `normalizeComparisonMatrix` are marked `@internal` from `package:meta`.
-
 ### Fixed
 - **TOPSIS ranking was wrong in 1.2.0 for datasets above 80 alternatives or 25 criteria**, because the isolate worker called the SAW normalization instead of the Euclidean one.
 - Removed a dead TOPSIS isolate command (`normalizeMatrix`).
-
-### Release order
-1. Publish `decision_making_core` (0.1.0).
-2. Remove `dependency_overrides` from the root, `example/` and `benchmark/` pubspecs.
-3. Publish `flutter_decision_making`.
 
 ---
 
