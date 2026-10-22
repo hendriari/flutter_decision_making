@@ -189,30 +189,41 @@ class TopsisCalculator {
   static TopsisDetailedResult calculateDetailed(TopsisRawMatrix rawMatrix) {
     MatrixValidator.validateMatrixValues(rawMatrix.matrixs);
 
-    final normalizedEuclidean = normalizeEuclidean(
-      matrix: rawMatrix.matrixs,
-      criteria: rawMatrix.criterias,
-    );
+    final normalizedWeightMatrix =
+        MatrixValidator.normalizeCriteriaWeights(rawMatrix.matrixs);
 
     final totalWeight = rawMatrix.criterias.fold<double>(
       0.0,
       (sum, c) => sum + c.weightPercent,
     );
-    final weightRatio = totalWeight > 0.0 ? 1.0 / totalWeight : 1.0;
+    final weightRatio = (totalWeight != 100.0 && totalWeight > 0.0)
+        ? 100.0 / totalWeight
+        : 1.0;
+    final normalizedCriteria = rawMatrix.criterias.map((c) {
+      return weightRatio == 1.0
+          ? c
+          : c.copyWith(weightPercent: c.weightPercent * weightRatio);
+    }).toList();
+
+    final normalizedEuclidean = normalizeEuclidean(
+      matrix: normalizedWeightMatrix,
+      criteria: normalizedCriteria,
+    );
+
     final normalizedWeights = <String, double>{};
-    for (final c in rawMatrix.criterias) {
+    for (final c in normalizedCriteria) {
       final id = c.id;
       if (id == null) {
         throw Exception('Found criteria without ID! Data invalid.');
       }
-      normalizedWeights[id] = c.weightPercent * weightRatio;
+      normalizedWeights[id] = c.weightPercent / 100.0;
     }
 
     final weightedMatrix = weightMatrix(normalizedEuclidean);
 
     final idealSolutions = calculateIdealSolutions(
       weightedMatrix: weightedMatrix,
-      criteria: rawMatrix.criterias,
+      criteria: normalizedCriteria,
     );
 
     final distanceMatrix = calculateSeparationDistances(

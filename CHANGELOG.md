@@ -10,17 +10,16 @@
 - New pure Dart package `decision_making_core` (`packages/decision_making_core`) with synchronous SAW, TOPSIS and AHP calculators. The Flutter package delegates its calculations to it.
 - Entity types from the core are exported selectively from the main barrel.
 - `TOPSIS`, `TopsisRawMatrix` and related types are now exported from the main barrel.
-- **Detailed self-explaining SAW results (`SawDetailedResult`):** Added `SawCalculator.calculateDetailed` and `SAW.getSawDetailedResult` returning all intermediate calculation steps: input matrix, cell-normalized matrix ($r_{ij}$), normalized weights ($w_j$), weighted cell matrix ($v_{ij}$), and final scores/ranks with JSON serialization support (`toJson()`).
-- **Detailed self-explaining TOPSIS results (`TopsisDetailedResult`):** Added `TopsisCalculator.calculateDetailed` and `TOPSIS.getTopsisDetailedResult` returning all intermediate calculation steps: input matrix, Euclidean-normalized matrix ($r_{ij}$), normalized weights ($w_j$), weighted cell matrix ($v_{ij}$), positive/negative ideal solutions ($A^+, A^-$), separation distances ($D^+, D^-$), and final relative closeness scores/ranks with JSON serialization support (`toJson()`).
-- **Detailed self-explaining AHP results (`AhpDetailedResult`, `AhpMatrixEvaluation`):** Added `AhpCalculator.calculateDetailed` and `AHP.getAhpDetailedResult` returning all intermediate comparison matrices, normalized matrices, weights ($w_j$), consistency metrics ($\lambda_{\max}, CI, RI, CR$), per-criteria local priority scores, weighted scores, and final synthesized scores with JSON serialization support (`toJson()`).
+- **Detailed self-explaining SAW results (`SawDetailedResult`):** Added `SawCalculator.calculateDetailed` and `SAW.getSawDetailedResult` returning all intermediate calculation steps: input matrix, cell-normalized matrix (r_ij), normalized weights (w_j), weighted cell matrix (v_ij), and final scores/ranks with JSON serialization support (`toJson()`).
+- **Detailed self-explaining TOPSIS results (`TopsisDetailedResult`):** Added `TopsisCalculator.calculateDetailed` and `TOPSIS.getTopsisDetailedResult` returning all intermediate calculation steps: input matrix, Euclidean-normalized matrix (r_ij), normalized weights (w_j), weighted cell matrix (v_ij), positive/negative ideal solutions (A+, A-), separation distances (D+, D-), and final relative closeness scores/ranks with JSON serialization support (`toJson()`).
+- **Detailed self-explaining AHP results (`AhpDetailedResult`, `AhpMatrixEvaluation`):** Added `AhpCalculator.calculateDetailed` and `AHP.getAhpDetailedResult` returning all intermediate comparison matrices, normalized matrices, weights (w_j), consistency metrics (lambda_max, CI, RI, CR), per-criteria local priority scores, weighted scores, and final synthesized scores with JSON serialization support (`toJson()`).
 
-### Fixed / Behavior changes
+### Changed (API)
+- **AHP internal helper protection:** `AhpCalculator.getRI`, `riTable`, and `normalizeComparisonMatrix` are marked `@internal` from `package:meta`.
+
+### Fixed
 - **TOPSIS ranking was wrong in 1.2.0 for datasets above 80 alternatives or 25 criteria**, because the isolate worker called the SAW normalization instead of the Euclidean one.
 - Removed a dead TOPSIS isolate command (`normalizeMatrix`).
-- **SAW cost criteria with value 0:** Throws explicit `Exception` instead of producing infinite or undefined weights when dividing by zero in `minValue / rating.value`.
-- **TOPSIS all-zero column:** When an entire criteria column contains 0 values, the Euclidean divider $\sqrt{\sum x_{ij}^2} = 0$ is safely handled by yielding normalized value `0.0` per cell instead of dividing by zero or producing `NaN`.
-- **TOPSIS indeterminate relative closeness ($D^+ = D^- = 0$):** When all alternatives have identical distance to ideal solutions (such as single alternative datasets or identical alternative values), the indeterminate form $\frac{0}{0 + 0}$ safely resolves to a neutral relative closeness score of `0.5` instead of `NaN`.
-- **AHP internal helper protection:** `AhpCalculator.getRI`, `riTable`, and `normalizeComparisonMatrix` are marked `@internal` from `package:meta`.
 
 ### Release order
 1. Publish `decision_making_core` (0.1.0).

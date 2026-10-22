@@ -454,73 +454,11 @@ ${consistencyAlternatives.any((e) => e.isConsistent == false) ? '* Inconsistency
     required List<PairwiseComparisonInput> inputsCriteria,
     required List<PairwiseAlternativeInput> inputsAlternative,
   }) {
-    if (inputsCriteria.any((e) => e.preferenceValue == null)) {
-      throw Exception('Please complete all values from the criteria scale');
-    }
-    if (inputsCriteria.any((e) => e.isLeftMoreImportant == null)) {
-      throw Exception('Please complete which more important from the criteria');
-    }
-    if (inputsAlternative
-        .any((e) => e.alternative.any((d) => d.preferenceValue == null))) {
-      throw Exception('Please complete all values from the alternative scale');
-    }
-    if (inputsAlternative
-        .any((e) => e.alternative.any((d) => d.isLeftMoreImportant == null))) {
-      throw Exception(
-          'Please complete which more important from the alternative');
-    }
-
-    // 1. Criteria Matrix & Priority Vector
-    final itemCriteria =
-        hierarchy.map((e) => e.criteria).toList(growable: false);
-    final matrixCriteria = generateResultPairwiseMatrixCriteria(
-      itemCriteria,
-      inputsCriteria,
-    );
-    final eigenVectorCriteria = calculateEigenVector(matrixCriteria);
-    final consistencyCriteria = checkConsistencyRatio(
-      matrixCriteria,
-      eigenVectorCriteria,
-      'criteria',
-    );
-
-    // 2. Alternative Matrices & Priority Vectors per Criterion
-    final allEigenVectorsAlternative = <List<double>>[];
-    final allConsistencyAlternatives = <AhpConsistencyRatio>[];
-
-    for (final input in inputsAlternative) {
-      final itemAlternative = input.alternative
-          .expand((e) => [e.left, e.right])
-          .toSet()
-          .toList(growable: false);
-
-      final matrixAlt = generateResultPairwiseMatrixAlternative(
-        itemAlternative,
-        input.alternative,
-      );
-      final eigenVectorAlt = calculateEigenVector(matrixAlt);
-      final consistencyAlt = checkConsistencyRatio(
-        matrixAlt,
-        eigenVectorAlt,
-        input.criteria.name,
-      );
-
-      allEigenVectorsAlternative.add(eigenVectorAlt);
-      allConsistencyAlternatives.add(consistencyAlt);
-    }
-
-    // 3. Extract unique list of alternatives
-    final alternatives =
-        hierarchy.expand((e) => e.alternative).toSet().toList(growable: false);
-
-    // 4. Synthesize final scores
-    return calculateFinalScore(
-      eigenVectorCriteria: eigenVectorCriteria,
-      eigenVectorsAlternative: allEigenVectorsAlternative,
-      alternatives: alternatives,
-      consistencyCriteria: consistencyCriteria,
-      consistencyAlternatives: allConsistencyAlternatives,
-    );
+    return calculateDetailed(
+      hierarchy: hierarchy,
+      inputsCriteria: inputsCriteria,
+      inputsAlternative: inputsAlternative,
+    ).toAhpResult();
   }
 
   /// Full synchronous AHP calculation pipeline returning detailed intermediate steps.
@@ -549,11 +487,43 @@ ${consistencyAlternatives.any((e) => e.isConsistent == false) ? '* Inconsistency
           'Please complete which more important from the alternative');
     }
 
+    for (final h in hierarchy) {
+      if (h.criteria.id == null || h.criteria.id!.isEmpty) {
+        throw Exception('Found criteria without ID! Data invalid.');
+      }
+      for (final a in h.alternative) {
+        if (a.id == null || a.id!.isEmpty) {
+          throw Exception('Found alternative without ID! Data invalid.');
+        }
+      }
+    }
+    for (final p in inputsCriteria) {
+      if (p.left.id == null ||
+          p.left.id!.isEmpty ||
+          p.right.id == null ||
+          p.right.id!.isEmpty) {
+        throw Exception('Found criteria without ID! Data invalid.');
+      }
+    }
+    for (final input in inputsAlternative) {
+      if (input.criteria.id == null || input.criteria.id!.isEmpty) {
+        throw Exception('Found criteria without ID! Data invalid.');
+      }
+      for (final p in input.alternative) {
+        if (p.left.id == null ||
+            p.left.id!.isEmpty ||
+            p.right.id == null ||
+            p.right.id!.isEmpty) {
+          throw Exception('Found alternative without ID! Data invalid.');
+        }
+      }
+    }
+
     // 1. Criteria Matrix, Normalized Matrix & Priority Vector
     final itemCriteria =
         hierarchy.map((e) => e.criteria).toList(growable: false);
     final criteriaIds =
-        itemCriteria.map((c) => c.id ?? '').toList(growable: false);
+        itemCriteria.map((c) => c.id!).toList(growable: false);
     final matrixCriteria = generateResultPairwiseMatrixCriteria(
       itemCriteria,
       inputsCriteria,
@@ -568,7 +538,7 @@ ${consistencyAlternatives.any((e) => e.isConsistent == false) ? '* Inconsistency
 
     final criteriaWeights = <String, double>{};
     for (int i = 0; i < itemCriteria.length; i++) {
-      criteriaWeights[itemCriteria[i].id ?? ''] = eigenVectorCriteria[i];
+      criteriaWeights[itemCriteria[i].id!] = eigenVectorCriteria[i];
     }
 
     final criteriaEvaluation = AhpMatrixEvaluation(
@@ -592,13 +562,13 @@ ${consistencyAlternatives.any((e) => e.isConsistent == false) ? '* Inconsistency
     final allConsistencyAlternatives = <AhpConsistencyRatio>[];
 
     for (final input in inputsAlternative) {
-      final critId = input.criteria.id ?? '';
+      final critId = input.criteria.id!;
       final itemAlternative = input.alternative
           .expand((e) => [e.left, e.right])
           .toSet()
           .toList(growable: false);
       final altIds =
-          itemAlternative.map((a) => a.id ?? '').toList(growable: false);
+          itemAlternative.map((a) => a.id!).toList(growable: false);
 
       final matrixAlt = generateResultPairwiseMatrixAlternative(
         itemAlternative,
@@ -614,7 +584,7 @@ ${consistencyAlternatives.any((e) => e.isConsistent == false) ? '* Inconsistency
 
       final altWeights = <String, double>{};
       for (int i = 0; i < itemAlternative.length; i++) {
-        altWeights[itemAlternative[i].id ?? ''] = eigenVectorAlt[i];
+        altWeights[itemAlternative[i].id!] = eigenVectorAlt[i];
       }
 
       scoresPerCriteria[critId] = altWeights;
@@ -645,9 +615,9 @@ ${consistencyAlternatives.any((e) => e.isConsistent == false) ? '* Inconsistency
     // 4. Synthesize final scores
     final resultScores = List.filled(altCount, 0.0);
     for (int i = 0; i < altCount; i++) {
-      final altId = alternatives[i].id ?? '';
+      final altId = alternatives[i].id!;
       for (int j = 0; j < criteriaCount; j++) {
-        final critId = itemCriteria[j].id ?? '';
+        final critId = itemCriteria[j].id!;
         final critWeight = criteriaWeights[critId] ?? 0.0;
         final altPriority = scoresPerCriteria[critId]?[altId] ?? 0.0;
         final weightedScore = critWeight * altPriority;

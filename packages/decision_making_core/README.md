@@ -4,7 +4,7 @@ A pure Dart multi-criteria decision-making (MCDM) library implementing **SAW**, 
 
 - **Zero Flutter dependencies**: Can be used in CLI tools, background workers, backend microservices, or frontend applications.
 - **Synchronous & fast**: Pure computational engine without Futures or event loop overhead.
-- **Strictly tested**: Validated with golden datasets under a numerical tolerance of $10^{-4}$.
+- **Strictly tested**: Validated with golden datasets under a numerical tolerance of 1e-4.
 
 ---
 
@@ -221,6 +221,16 @@ void main() {
   // print(detailed.toJson());
 }
 ```
+
+---
+
+## Existing Behavior & Edge Cases
+
+The core calculation engines maintain consistent mathematical specifications for edge cases:
+
+- **SAW cost criteria with value 0:** If a cost criterion receives a rating value of `0.0`, an explicit `Exception("Rating value cannot be 0 for cost criteria")` is thrown to prevent division by zero (`min / 0.0`) or infinite scores.
+- **TOPSIS all-zero column:** When all alternatives have a value of `0.0` for a criterion (resulting in Euclidean norm = 0.0), each normalized cell safely evaluates to `0.0` instead of `NaN` or divide-by-zero.
+- **TOPSIS equidistant alternatives (D+ = D- = 0):** When all alternatives have identical distance to ideal solutions (such as single-alternative datasets or identical rows where `D+ = 0.0` and `D- = 0.0`), the relative closeness formula `D- / (D+ + D-)` safely resolves to a neutral score of `0.5` instead of `NaN`.
 
 ---
 
