@@ -1,32 +1,31 @@
 ## Unreleased
 
-### Proposed Version: 1.3.0
+### Proposed version: 1.3.0
 
-### Breaking Changes / Behavior Changes
-- **Isolate execution is now opt-in (`useIsolate: false` by default):** Automatic threshold offloading to background isolate (>80 alternatives / >25 criteria) has been removed from SAW, TOPSIS, and AHP based on empirical benchmark findings showing main thread execution is 6x-70x faster for datasets up to 2000x50.
-- All calculation methods (`getSawResult`, `getResultWithExistingMatrix`, `getTopsisResult`, `getTopsisResultWithExistingMatrix`, `getAhpResult`, and matrix generators) now accept optional `bool useIsolate = false`.
-- When `useIsolate: false`, `DecisionIsolateMain` and `WidgetsBindingObserver` are not initialized, preventing unnecessary worker spawns and idle timers.
-- **Penghapusan export internal isolate dari barrel (`lib/flutter_decision_making.dart`):** `DecisionIsolateMain`, `decision_isolate_message.dart`, dan `decision_isolate_worker.dart` tidak lagi di-export melalui barrel utama karena merupakan detail implementasi internal.
-  - *Panduan Migrasi:* Pengguna normal tidak perlu mengakses isolate secara manual dan cukup meneruskan parameter `useIsolate: true` pada API publik (`getSawResult`, `getTopsisResult`, `getAhpResult`). Jika pengujian atau kode khusus memerlukan akses ke instance isolate manager, import file secara langsung:
-    `import 'package:flutter_decision_making/core/isolate/decision_isolate_main.dart';`
+### Breaking changes
+- **Isolate execution is now opt-in.** The automatic isolate threshold (>80 alternatives / >25 criteria) was removed. All calculation methods accept `useIsolate` (default `false`). In profile-mode benchmarks on Apple Silicon, the main-thread path was roughly 8–50x faster than the isolate path for SAW and TOPSIS up to 2000x50 (see README).
+- **Isolate internals are no longer exported** from `package:flutter_decision_making/flutter_decision_making.dart` (`DecisionIsolateMain`, isolate message and worker files). Migration: pass `useIsolate: true` to the public API; if you need the manager itself, import `package:flutter_decision_making/core/isolate/decision_isolate_main.dart`.
 
 ### Added
-- **Pemisahan package `decision_making_core` (Pure Dart):** Dibuat package mandiri `packages/decision_making_core` tanpa dependensi Flutter (`dart test` dan `dart analyze` bersih, SDK `>=3.0.0 <4.0.0`). Mendukung eksekusi sinkron (`SawCalculator.calculate`, `TopsisCalculator.calculate`, `AhpCalculator.calculate`).
-- Export entity `decision_making_core` di barrel utama `package:flutter_decision_making/flutter_decision_making.dart` secara selektif (`show`) untuk interoperabilitas penuh tipe entitas tanpa mengekspos engine kalkulator mentah.
-- Export `TOPSIS` di barrel utama (`lib/flutter_decision_making.dart`): class `TOPSIS`, `TopsisRawMatrix`, dan tipe terkait kini dapat diimpor langsung dari `package:flutter_decision_making/flutter_decision_making.dart`.
+- New pure Dart package `decision_making_core` (`packages/decision_making_core`) with synchronous SAW, TOPSIS and AHP calculators. The Flutter package delegates its calculations to it.
+- Entity types from the core are exported selectively from the main barrel.
+- `TOPSIS`, `TopsisRawMatrix` and related types are now exported from the main barrel.
+- **Detailed self-explaining SAW results (`SawDetailedResult`):** Added `SawCalculator.calculateDetailed` and `SAW.getSawDetailedResult` returning all intermediate calculation steps: input matrix, cell-normalized matrix ($r_{ij}$), normalized weights ($w_j$), weighted cell matrix ($v_{ij}$), and final scores/ranks with JSON serialization support (`toJson()`).
+- **Detailed self-explaining TOPSIS results (`TopsisDetailedResult`):** Added `TopsisCalculator.calculateDetailed` and `TOPSIS.getTopsisDetailedResult` returning all intermediate calculation steps: input matrix, Euclidean-normalized matrix ($r_{ij}$), normalized weights ($w_j$), weighted cell matrix ($v_{ij}$), positive/negative ideal solutions ($A^+, A^-$), separation distances ($D^+, D^-$), and final relative closeness scores/ranks with JSON serialization support (`toJson()`).
+- **Detailed self-explaining AHP results (`AhpDetailedResult`, `AhpMatrixEvaluation`):** Added `AhpCalculator.calculateDetailed` and `AHP.getAhpDetailedResult` returning all intermediate comparison matrices, normalized matrices, weights ($w_j$), consistency metrics ($\lambda_{\max}, CI, RI, CR$), per-criteria local priority scores, weighted scores, and final synthesized scores with JSON serialization support (`toJson()`).
 
-### Urutan Rilis / Publishing Workflow
-1. **Rilis Core Terlebih Dahulu:** Masuk ke direktori `packages/decision_making_core` dan terbitkan package ke pub.dev (`dart pub publish`). Versi awal adalah `0.1.0`.
-2. **Hapus Overrides di Root & Subproject:** Setelah `decision_making_core` terbit dan terindeks di pub.dev, hapus blok `dependency_overrides` pada `pubspec.yaml`, `example/pubspec.yaml`, dan `benchmark/pubspec.yaml`.
-3. **Rilis Root Package:** Jalankan `flutter test` dan `flutter pub publish` untuk merilis `flutter_decision_making` (diusulkan versi `1.3.0`).
+### Fixed / Behavior changes
+- **TOPSIS ranking was wrong in 1.2.0 for datasets above 80 alternatives or 25 criteria**, because the isolate worker called the SAW normalization instead of the Euclidean one.
+- Removed a dead TOPSIS isolate command (`normalizeMatrix`).
+- **SAW cost criteria with value 0:** Throws explicit `Exception` instead of producing infinite or undefined weights when dividing by zero in `minValue / rating.value`.
+- **TOPSIS all-zero column:** When an entire criteria column contains 0 values, the Euclidean divider $\sqrt{\sum x_{ij}^2} = 0$ is safely handled by yielding normalized value `0.0` per cell instead of dividing by zero or producing `NaN`.
+- **TOPSIS indeterminate relative closeness ($D^+ = D^- = 0$):** When all alternatives have identical distance to ideal solutions (such as single alternative datasets or identical alternative values), the indeterminate form $\frac{0}{0 + 0}$ safely resolves to a neutral relative closeness score of `0.5` instead of `NaN`.
+- **AHP internal helper protection:** `AhpCalculator.getRI`, `riTable`, and `normalizeComparisonMatrix` are marked `@internal` from `package:meta`.
 
-### Fixed
-- Ranking TOPSIS salah di versi 1.2.0 untuk data > 80 alternatif atau > 25 kriteria karena worker memanggil normalisasi SAW (`normalizeWeightedMatrixIsolate`) alih-alih normalisasi Euclidean (`normalizeEuclideanMatrixIsolate`) pada `TopsisProcessingIsolateCommand.normalizeEuclidean`.
-- Hapus command mati `TopsisProcessingIsolateCommand.normalizeMatrix` dari enum dan worker isolate.
-
-### Open Items / Planned
-- Serialisasi isolate memakai Map/DTO dan menjadi bottleneck; pertimbangkan data datar (`Float64List` / `TransferableTypedData`) di Fase 3.
-- Putuskan semantik rank saat seri (rank sama vs rank unik sekuensial) dan tiebreak eksplisit (perilaku saat ini: rank unik sekuensial mengikuti urutan input pada data kecil karena `List.sort` Dart tidak dijamin stabil pada data besar).
+### Release order
+1. Publish `decision_making_core` (0.1.0).
+2. Remove `dependency_overrides` from the root, `example/` and `benchmark/` pubspecs.
+3. Publish `flutter_decision_making`.
 
 ---
 

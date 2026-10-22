@@ -4,7 +4,7 @@
 /// - SAW (Simple Additive Weighting)
 /// - TOPSIS (Technique for Order Preference by Similarity to Ideal Solution)
 /// - AHP (Analytic Hierarchy Process)
-library decision_making_core;
+library;
 
 // Common
 export 'src/common/matrix_validator.dart';
@@ -16,9 +16,11 @@ export 'src/common/weighted_decision_result.dart';
 
 // SAW
 export 'src/saw/saw_calculator.dart';
+export 'src/saw/saw_detailed_result.dart';
 
 // TOPSIS
 export 'src/topsis/topsis_calculator.dart';
+export 'src/topsis/topsis_detailed_result.dart';
 export 'src/topsis/topsis_ideal_value.dart';
 export 'src/topsis/topsis_matrix.dart';
 export 'src/topsis/topsis_raw_matrix.dart';
@@ -27,6 +29,7 @@ export 'src/topsis/topsis_raw_matrix.dart';
 export 'src/ahp/ahp_calculator.dart';
 export 'src/ahp/ahp_comparison_scale.dart';
 export 'src/ahp/ahp_consistency_ratio.dart';
+export 'src/ahp/ahp_detailed_result.dart';
 export 'src/ahp/ahp_hierarchy.dart';
 export 'src/ahp/ahp_identification.dart';
 export 'src/ahp/ahp_item.dart';

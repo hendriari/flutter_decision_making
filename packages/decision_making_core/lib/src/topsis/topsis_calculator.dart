@@ -4,6 +4,7 @@ import '../common/matrix_validator.dart';
 import '../common/weighted_decision_criteria.dart';
 import '../common/weighted_decision_matrix.dart';
 import '../common/weighted_decision_result.dart';
+import 'topsis_detailed_result.dart';
 import 'topsis_ideal_value.dart';
 import 'topsis_matrix.dart';
 import 'topsis_raw_matrix.dart';
@@ -181,5 +182,71 @@ class TopsisCalculator {
     );
 
     return calculateRelativeCloseness(distanceMatrix);
+  }
+
+  /// Executes full end-to-end TOPSIS calculation and returns detailed results including all intermediate steps:
+  /// normalized matrix, normalized weights, weighted matrix, ideal solutions, separation distances, relative closeness, and ranks.
+  static TopsisDetailedResult calculateDetailed(TopsisRawMatrix rawMatrix) {
+    MatrixValidator.validateMatrixValues(rawMatrix.matrixs);
+
+    final normalizedEuclidean = normalizeEuclidean(
+      matrix: rawMatrix.matrixs,
+      criteria: rawMatrix.criterias,
+    );
+
+    final totalWeight = rawMatrix.criterias.fold<double>(
+      0.0,
+      (sum, c) => sum + c.weightPercent,
+    );
+    final weightRatio = totalWeight > 0.0 ? 1.0 / totalWeight : 1.0;
+    final normalizedWeights = <String, double>{};
+    for (final c in rawMatrix.criterias) {
+      final id = c.id;
+      if (id == null) {
+        throw Exception('Found criteria without ID! Data invalid.');
+      }
+      normalizedWeights[id] = c.weightPercent * weightRatio;
+    }
+
+    final weightedMatrix = weightMatrix(normalizedEuclidean);
+
+    final idealSolutions = calculateIdealSolutions(
+      weightedMatrix: weightedMatrix,
+      criteria: rawMatrix.criterias,
+    );
+
+    final distanceMatrix = calculateSeparationDistances(
+      weightedMatrix: weightedMatrix,
+      idealValue: idealSolutions,
+    );
+
+    final separationPlus = <String, double>{};
+    final separationMinus = <String, double>{};
+    for (final m in distanceMatrix) {
+      final altId = m.alternative.id;
+      if (altId == null) {
+        throw Exception('Found alternative without ID! Data invalid.');
+      }
+      separationPlus[altId] = m.distancePlus;
+      separationMinus[altId] = m.distanceMinus;
+    }
+
+    final scores = calculateRelativeCloseness(distanceMatrix);
+
+    return TopsisDetailedResult(
+      initialMatrix: rawMatrix.matrixs,
+      normalizedMatrix: normalizedEuclidean,
+      normalizedWeights: normalizedWeights,
+      weightedMatrix: weightedMatrix,
+      positiveIdeal: idealSolutions.positiveIdeal.map(
+        (key, value) => MapEntry(key, (value as num).toDouble()),
+      ),
+      negativeIdeal: idealSolutions.negativeIdeal.map(
+        (key, value) => MapEntry(key, (value as num).toDouble()),
+      ),
+      separationPlus: separationPlus,
+      separationMinus: separationMinus,
+      scores: scores,
+    );
   }
 }

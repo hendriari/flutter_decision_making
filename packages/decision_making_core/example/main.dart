@@ -46,13 +46,15 @@ void main() {
 
   final sawResults = SawCalculator.calculate(matrix);
   for (final res in sawResults) {
-    print('Rank ${res.rank}: ${res.alternative.name} - Score: ${res.score.toStringAsFixed(4)}');
+    print(
+        'Rank ${res.rank}: ${res.alternative.name} - Score: ${res.score.toStringAsFixed(4)}');
   }
 
   print('\n=== TOPSIS Example ===');
   final rawMatrix = TopsisRawMatrix(criterias: criteria, matrixs: matrix);
   final topsisResults = TopsisCalculator.calculate(rawMatrix);
   for (final res in topsisResults) {
-    print('Rank ${res.rank}: ${res.alternative.name} - Score: ${res.score.toStringAsFixed(4)}');
+    print(
+        'Rank ${res.rank}: ${res.alternative.name} - Score: ${res.score.toStringAsFixed(4)}');
   }
 }

@@ -45,8 +45,7 @@ class MatrixValidator {
       for (final r in row.ratings) {
         final c = r.criteria;
         if (c == null) {
-          throw Exception(
-              'Rating on ${row.alternative.name} has no criteria.');
+          throw Exception('Rating on ${row.alternative.name} has no criteria.');
         }
         final val = r.value;
         if (val == null) {

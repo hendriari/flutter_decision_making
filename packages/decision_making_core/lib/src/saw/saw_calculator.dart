@@ -2,6 +2,7 @@ import '../common/matrix_validator.dart';
 import '../common/weighted_decision_matrix.dart';
 import '../common/weighted_decision_rating.dart';
 import '../common/weighted_decision_result.dart';
+import 'saw_detailed_result.dart';
 
 class _CriteriaStats {
   final double max;
@@ -94,6 +95,52 @@ class SawCalculator {
     final normalizedMatrix = normalize(normalizedWeightMatrix);
 
     return calculateScores(normalizedMatrix);
+  }
+
+  /// Calculates detailed SAW results including all intermediate steps:
+  /// normalized weights, normalized matrix, weighted matrix, and final ranked scores.
+  static SawDetailedResult calculateDetailed(
+      List<WeightedDecisionMatrix> rawMatrix) {
+    MatrixValidator.validateMatrixValues(rawMatrix);
+
+    final normalizedWeightMatrix =
+        MatrixValidator.normalizeCriteriaWeights(rawMatrix);
+
+    final normalizedWeights = <String, double>{};
+    if (normalizedWeightMatrix.isNotEmpty) {
+      for (final rating in normalizedWeightMatrix.first.ratings) {
+        final c = rating.criteria;
+        if (c != null) {
+          final id = c.id;
+          if (id == null) {
+            throw Exception('Found rating without criteria ID! Data invalid.');
+          }
+          normalizedWeights[id] = c.weightPercent / 100.0;
+        }
+      }
+    }
+
+    final normalizedMatrix = normalize(normalizedWeightMatrix);
+
+    final weightedMatrix = normalizedMatrix.map((row) {
+      final weightedRatings = row.ratings.map((rating) {
+        final c = rating.criteria;
+        final w = (c?.weightPercent ?? 0.0) / 100.0;
+        final r = rating.value ?? 0.0;
+        return rating.copyWith(value: r * w);
+      }).toList();
+      return row.copyWith(ratings: weightedRatings);
+    }).toList();
+
+    final scores = calculateScores(normalizedMatrix);
+
+    return SawDetailedResult(
+      initialMatrix: rawMatrix,
+      normalizedMatrix: normalizedMatrix,
+      normalizedWeights: normalizedWeights,
+      weightedMatrix: weightedMatrix,
+      scores: scores,
+    );
   }
 
   static Map<String, _CriteriaStats> _calculateCriteriaStats(

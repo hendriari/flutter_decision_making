@@ -1,6 +1,9 @@
 import 'dart:math';
 
+import 'package:meta/meta.dart';
+
 import 'ahp_consistency_ratio.dart';
+import 'ahp_detailed_result.dart';
 import 'ahp_hierarchy.dart';
 import 'ahp_identification.dart';
 import 'ahp_item.dart';
@@ -13,6 +16,7 @@ import 'pairwise_comparison_input.dart';
 class AhpCalculator {
   /// Random Index (RI) table based on Saaty (1980) for n = 1..15.
   /// For n > 15, fallback is 1.59.
+  @internal
   static const Map<int, double> riTable = {
     1: 0.0,
     2: 0.0,
@@ -32,6 +36,7 @@ class AhpCalculator {
   };
 
   /// Gets the Random Index (RI) for matrix size [n].
+  @internal
   static double getRI(int n) {
     return riTable[n] ?? 1.59;
   }
@@ -253,6 +258,32 @@ class AhpCalculator {
     return matrix;
   }
 
+  /// Normalizes a reciprocal comparison matrix by dividing each element by its column sum.
+  @internal
+  static List<List<double>> normalizeComparisonMatrix(
+    List<List<double>> matrix,
+  ) {
+    final int n = matrix.length;
+    if (n == 0) return [];
+
+    final colSums = List.filled(n, 0.0);
+    for (int j = 0; j < n; j++) {
+      for (int i = 0; i < n; i++) {
+        colSums[j] += matrix[i][j];
+      }
+    }
+
+    final normalized = List.generate(
+      n,
+      (i) => List.generate(
+        n,
+        (j) => colSums[j] == 0.0 ? 0.0 : matrix[i][j] / colSums[j],
+      ),
+    );
+
+    return normalized;
+  }
+
   /// Calculates the priority vector (eigenvector approximation) via normalized column averaging.
   static List<double> calculateEigenVector(List<List<double>> matrix) {
     final int n = matrix.length;
@@ -328,6 +359,7 @@ class AhpCalculator {
         isConsistent: true,
         lambdaMax: lambdaMax,
         ci: ci,
+        ri: ri,
       );
     }
 
@@ -340,6 +372,7 @@ class AhpCalculator {
       isConsistent: isConsistent,
       lambdaMax: lambdaMax,
       ci: ci,
+      ri: ri,
     );
   }
 
@@ -431,8 +464,8 @@ ${consistencyAlternatives.any((e) => e.isConsistent == false) ? '* Inconsistency
         .any((e) => e.alternative.any((d) => d.preferenceValue == null))) {
       throw Exception('Please complete all values from the alternative scale');
     }
-    if (inputsAlternative.any(
-        (e) => e.alternative.any((d) => d.isLeftMoreImportant == null))) {
+    if (inputsAlternative
+        .any((e) => e.alternative.any((d) => d.isLeftMoreImportant == null))) {
       throw Exception(
           'Please complete which more important from the alternative');
     }
@@ -487,6 +520,185 @@ ${consistencyAlternatives.any((e) => e.isConsistent == false) ? '* Inconsistency
       alternatives: alternatives,
       consistencyCriteria: consistencyCriteria,
       consistencyAlternatives: allConsistencyAlternatives,
+    );
+  }
+
+  /// Full synchronous AHP calculation pipeline returning detailed intermediate steps.
+  ///
+  /// Returns an [AhpDetailedResult] containing comparison matrices, normalized matrices,
+  /// priority weights ($w_j$), consistency metrics ($\lambda_{\max}$, $CI$, $RI$, $CR$),
+  /// local priority scores per criterion, and final synthesized scores.
+  static AhpDetailedResult calculateDetailed({
+    required List<AhpHierarchy> hierarchy,
+    required List<PairwiseComparisonInput> inputsCriteria,
+    required List<PairwiseAlternativeInput> inputsAlternative,
+  }) {
+    if (inputsCriteria.any((e) => e.preferenceValue == null)) {
+      throw Exception('Please complete all values from the criteria scale');
+    }
+    if (inputsCriteria.any((e) => e.isLeftMoreImportant == null)) {
+      throw Exception('Please complete which more important from the criteria');
+    }
+    if (inputsAlternative
+        .any((e) => e.alternative.any((d) => d.preferenceValue == null))) {
+      throw Exception('Please complete all values from the alternative scale');
+    }
+    if (inputsAlternative
+        .any((e) => e.alternative.any((d) => d.isLeftMoreImportant == null))) {
+      throw Exception(
+          'Please complete which more important from the alternative');
+    }
+
+    // 1. Criteria Matrix, Normalized Matrix & Priority Vector
+    final itemCriteria =
+        hierarchy.map((e) => e.criteria).toList(growable: false);
+    final criteriaIds =
+        itemCriteria.map((c) => c.id ?? '').toList(growable: false);
+    final matrixCriteria = generateResultPairwiseMatrixCriteria(
+      itemCriteria,
+      inputsCriteria,
+    );
+    final normalizedMatrixCriteria = normalizeComparisonMatrix(matrixCriteria);
+    final eigenVectorCriteria = calculateEigenVector(matrixCriteria);
+    final consistencyCriteria = checkConsistencyRatio(
+      matrixCriteria,
+      eigenVectorCriteria,
+      'criteria',
+    );
+
+    final criteriaWeights = <String, double>{};
+    for (int i = 0; i < itemCriteria.length; i++) {
+      criteriaWeights[itemCriteria[i].id ?? ''] = eigenVectorCriteria[i];
+    }
+
+    final criteriaEvaluation = AhpMatrixEvaluation(
+      id: 'criteria',
+      name: 'Criteria',
+      itemIds: criteriaIds,
+      comparisonMatrix: matrixCriteria,
+      normalizedMatrix: normalizedMatrixCriteria,
+      weights: criteriaWeights,
+      lambdaMax: consistencyCriteria.lambdaMax ?? 0.0,
+      ci: consistencyCriteria.ci ?? 0.0,
+      ri: consistencyCriteria.ri ?? getRI(itemCriteria.length),
+      cr: consistencyCriteria.ratio,
+      isConsistent: consistencyCriteria.isConsistent,
+    );
+
+    // 2. Alternative Matrices & Priority Vectors per Criterion
+    final alternativeEvaluations = <String, AhpMatrixEvaluation>{};
+    final scoresPerCriteria = <String, Map<String, double>>{};
+    final weightedScoresPerCriteria = <String, Map<String, double>>{};
+    final allConsistencyAlternatives = <AhpConsistencyRatio>[];
+
+    for (final input in inputsAlternative) {
+      final critId = input.criteria.id ?? '';
+      final itemAlternative = input.alternative
+          .expand((e) => [e.left, e.right])
+          .toSet()
+          .toList(growable: false);
+      final altIds =
+          itemAlternative.map((a) => a.id ?? '').toList(growable: false);
+
+      final matrixAlt = generateResultPairwiseMatrixAlternative(
+        itemAlternative,
+        input.alternative,
+      );
+      final normalizedMatrixAlt = normalizeComparisonMatrix(matrixAlt);
+      final eigenVectorAlt = calculateEigenVector(matrixAlt);
+      final consistencyAlt = checkConsistencyRatio(
+        matrixAlt,
+        eigenVectorAlt,
+        input.criteria.name,
+      );
+
+      final altWeights = <String, double>{};
+      for (int i = 0; i < itemAlternative.length; i++) {
+        altWeights[itemAlternative[i].id ?? ''] = eigenVectorAlt[i];
+      }
+
+      scoresPerCriteria[critId] = altWeights;
+
+      alternativeEvaluations[critId] = AhpMatrixEvaluation(
+        id: critId,
+        name: input.criteria.name,
+        itemIds: altIds,
+        comparisonMatrix: matrixAlt,
+        normalizedMatrix: normalizedMatrixAlt,
+        weights: altWeights,
+        lambdaMax: consistencyAlt.lambdaMax ?? 0.0,
+        ci: consistencyAlt.ci ?? 0.0,
+        ri: consistencyAlt.ri ?? getRI(itemAlternative.length),
+        cr: consistencyAlt.ratio,
+        isConsistent: consistencyAlt.isConsistent,
+      );
+
+      allConsistencyAlternatives.add(consistencyAlt);
+    }
+
+    // 3. Extract unique list of alternatives
+    final alternatives =
+        hierarchy.expand((e) => e.alternative).toSet().toList(growable: false);
+    final int altCount = alternatives.length;
+    final int criteriaCount = itemCriteria.length;
+
+    // 4. Synthesize final scores
+    final resultScores = List.filled(altCount, 0.0);
+    for (int i = 0; i < altCount; i++) {
+      final altId = alternatives[i].id ?? '';
+      for (int j = 0; j < criteriaCount; j++) {
+        final critId = itemCriteria[j].id ?? '';
+        final critWeight = criteriaWeights[critId] ?? 0.0;
+        final altPriority = scoresPerCriteria[critId]?[altId] ?? 0.0;
+        final weightedScore = critWeight * altPriority;
+
+        weightedScoresPerCriteria
+            .putIfAbsent(critId, () => <String, double>{})[altId] = weightedScore;
+        resultScores[i] += weightedScore;
+      }
+    }
+
+    final details = <AhpResultDetail>[];
+    for (int i = 0; i < altCount; i++) {
+      details.add(
+        AhpResultDetail(
+          id: alternatives[i].id,
+          name: alternatives[i].name,
+          value: resultScores[i],
+        ),
+      );
+    }
+
+    final sortedResults = details..sort((a, b) => b.value.compareTo(a.value));
+
+    // Consistency Note
+    final isConsistentCriteria = consistencyCriteria.isConsistent;
+    final isConsistentAlternative =
+        allConsistencyAlternatives.every((e) => e.isConsistent);
+    final isConsistent = isConsistentCriteria && isConsistentAlternative;
+
+    String? note = !isConsistent
+        ? '''
+Thank you for completing the assessment process. Based on the consistency check, the resulting Consistency Ratio (CR) exceeds the acceptable threshold of 0.1.
+As a result, the current assessment does not meet the expected level of consistency and therefore cannot yet be considered valid.
+We recommend reviewing and revising the assessment to ensure that the resulting analysis is more accurate and reliable for decision-making.
+Detail:
+${!isConsistentCriteria ? '* inconsistency on criteria' : ''}
+${!isConsistentAlternative ? '* Inconsistency on alternatives per criteria:\n${allConsistencyAlternatives.where((e) => !e.isConsistent).map((e) => '- ${e.source}: ${e.ratio}').join('\n')}' : ''}
+'''
+        : null;
+
+    return AhpDetailedResult(
+      criteriaEvaluation: criteriaEvaluation,
+      alternativeEvaluations: alternativeEvaluations,
+      criteriaWeights: criteriaWeights,
+      scoresPerCriteria: scoresPerCriteria,
+      weightedScoresPerCriteria: weightedScoresPerCriteria,
+      scores: sortedResults,
+      isConsistentCriteria: isConsistentCriteria,
+      isConsistentAlternative: isConsistentAlternative,
+      isConsistent: isConsistent,
+      note: note,
     );
   }
 }

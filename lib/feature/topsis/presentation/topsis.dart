@@ -1,4 +1,4 @@
-import 'package:flutter_decision_making/core/decision_making_utils.dart';
+import 'package:decision_making_core/decision_making_core.dart';
 import 'package:flutter_decision_making/feature/topsis/domain/usecase/calculate_topsis_result_with_existing_matrix_usecase.dart';
 
 export 'topsis_utils.dart';
@@ -100,5 +100,17 @@ class TOPSIS {
     } catch (e) {
       rethrow;
     }
+  }
+
+  /// CALCULATE DETAILED TOPSIS RESULT
+  ///
+  /// Returns a [TopsisDetailedResult] containing all intermediate computation steps:
+  /// initial matrix, normalized matrix ($r_{ij}$), normalized weights ($w_j$),
+  /// weighted matrix ($v_{ij}$), positive/negative ideal solutions ($A^+$, $A^-$),
+  /// separation measures ($D^+$, $D^-$), relative closeness scores ($C_i$), and ranks.
+  Future<TopsisDetailedResult> getTopsisDetailedResult({
+    required TopsisRawMatrix matrix,
+  }) async {
+    return TopsisCalculator.calculateDetailed(matrix);
   }
 }

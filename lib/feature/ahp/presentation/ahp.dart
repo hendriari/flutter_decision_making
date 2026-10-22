@@ -1,3 +1,4 @@
+import 'package:decision_making_core/decision_making_core.dart';
 import 'ahp_utils.dart';
 
 export 'ahp_utils.dart';
@@ -185,5 +186,22 @@ class AHP {
     );
 
     return result;
+  }
+
+  /// CALCULATE DETAILED AHP RESULT
+  ///
+  /// Returns an [AhpDetailedResult] containing comparison matrices, normalized matrices,
+  /// priority weights ($w_j$), consistency metrics ($\lambda_{\max}$, $CI$, $RI$, $CR$),
+  /// local priority scores per criterion, and final synthesized scores.
+  Future<AhpDetailedResult> getAhpDetailedResult({
+    required List<AhpHierarchy> hierarchy,
+    required List<PairwiseComparisonInput> inputsCriteria,
+    required List<PairwiseAlternativeInput> inputsAlternative,
+  }) async {
+    return AhpCalculator.calculateDetailed(
+      hierarchy: hierarchy,
+      inputsCriteria: inputsCriteria,
+      inputsAlternative: inputsAlternative,
+    );
   }
 }

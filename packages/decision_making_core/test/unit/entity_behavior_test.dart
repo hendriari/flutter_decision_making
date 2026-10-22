@@ -5,7 +5,8 @@ void main() {
   group('Entity Behavior Tests - Common / SAW Entities', () {
     test('WeightedDecisionAlternative equality, hashCode, and copyWith', () {
       final a1 = WeightedDecisionAlternative(id: 'alt1', name: 'Option A');
-      final a2 = WeightedDecisionAlternative(id: 'alt1', name: 'Different Name');
+      final a2 =
+          WeightedDecisionAlternative(id: 'alt1', name: 'Different Name');
       final a3 = WeightedDecisionAlternative(id: 'alt2', name: 'Option A');
 
       expect(a1 == a2, isTrue, reason: 'Equality is based on id');
@@ -229,7 +230,8 @@ void main() {
 
     test('AhpComparisonScale equality, hashCode, and copyWith', () {
       final s1 = AhpComparisonScale(id: 's1', description: 'Equal', value: 1);
-      final s2 = AhpComparisonScale(id: 's1', description: 'Different', value: 9);
+      final s2 =
+          AhpComparisonScale(id: 's1', description: 'Different', value: 9);
       final s3 = AhpComparisonScale(id: 's2', description: 'Equal', value: 1);
 
       expect(s1 == s2, isTrue);
@@ -272,7 +274,8 @@ void main() {
       expect(p1 == p3, isFalse);
       expect(p1.hashCode, equals(p2.hashCode));
 
-      final copied = p1.copyWith(preferenceValue: 7, isLeftMoreImportant: false);
+      final copied =
+          p1.copyWith(preferenceValue: 7, isLeftMoreImportant: false);
       expect(copied.id, 'p1');
       expect(copied.preferenceValue, 7);
       expect(copied.isLeftMoreImportant, false);
@@ -310,7 +313,8 @@ void main() {
       expect(copied.alternative.length, 1);
     });
 
-    test('AhpConsistencyRatio backwards compatibility with optional fields', () {
+    test('AhpConsistencyRatio backwards compatibility with optional fields',
+        () {
       final cr = AhpConsistencyRatio(
         source: 'criteria',
         ratio: 0.05,

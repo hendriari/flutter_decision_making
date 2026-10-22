@@ -122,6 +122,80 @@ void main() {
         expect(isolateResult[i].rank, expected[i].rank);
         expect(isolateResult[i].score, closeTo(expected[i].score, 1e-6));
       }
+
+      // Verify wrapper detailed result matches core calculateDetailed
+      final expectedDetailed = TopsisCalculator.calculateDetailed(topsisMatrix);
+      final detailedResult =
+          await topsis.getTopsisDetailedResult(matrix: topsisMatrix);
+
+      expect(detailedResult.initialMatrix.length,
+          expectedDetailed.initialMatrix.length);
+      expect(detailedResult.normalizedMatrix.length,
+          expectedDetailed.normalizedMatrix.length);
+      expect(detailedResult.weightedMatrix.length,
+          expectedDetailed.weightedMatrix.length);
+      expect(detailedResult.scores.length, expectedDetailed.scores.length);
+
+      // Verify normalized weights per key with closeTo
+      for (final key in expectedDetailed.normalizedWeights.keys) {
+        expect(detailedResult.normalizedWeights[key],
+            closeTo(expectedDetailed.normalizedWeights[key]!, 1e-4));
+      }
+
+      // Verify each cell in normalized matrix with closeTo
+      for (int i = 0; i < expectedDetailed.normalizedMatrix.length; i++) {
+        for (int j = 0;
+            j < expectedDetailed.normalizedMatrix[i].ratings.length;
+            j++) {
+          expect(
+            detailedResult.normalizedMatrix[i].ratings[j].value,
+            closeTo(
+                expectedDetailed.normalizedMatrix[i].ratings[j].value!, 1e-4),
+          );
+        }
+      }
+
+      // Verify each cell in weighted matrix with closeTo
+      for (int i = 0; i < expectedDetailed.weightedMatrix.length; i++) {
+        for (int j = 0;
+            j < expectedDetailed.weightedMatrix[i].ratings.length;
+            j++) {
+          expect(
+            detailedResult.weightedMatrix[i].ratings[j].value,
+            closeTo(
+                expectedDetailed.weightedMatrix[i].ratings[j].value!, 1e-4),
+          );
+        }
+      }
+
+      // Verify ideal solutions
+      for (final key in expectedDetailed.positiveIdeal.keys) {
+        expect(detailedResult.positiveIdeal[key],
+            closeTo(expectedDetailed.positiveIdeal[key]!, 1e-4));
+      }
+      for (final key in expectedDetailed.negativeIdeal.keys) {
+        expect(detailedResult.negativeIdeal[key],
+            closeTo(expectedDetailed.negativeIdeal[key]!, 1e-4));
+      }
+
+      // Verify separation distances
+      for (final key in expectedDetailed.separationPlus.keys) {
+        expect(detailedResult.separationPlus[key],
+            closeTo(expectedDetailed.separationPlus[key]!, 1e-4));
+      }
+      for (final key in expectedDetailed.separationMinus.keys) {
+        expect(detailedResult.separationMinus[key],
+            closeTo(expectedDetailed.separationMinus[key]!, 1e-4));
+      }
+
+      // Verify final scores and ranks
+      for (int i = 0; i < expectedDetailed.scores.length; i++) {
+        expect(detailedResult.scores[i].alternative.id,
+            expectedDetailed.scores[i].alternative.id);
+        expect(detailedResult.scores[i].rank, expectedDetailed.scores[i].rank);
+        expect(detailedResult.scores[i].score,
+            closeTo(expectedDetailed.scores[i].score, 1e-4));
+      }
     });
 
     test('Case 2: Vendor / Supplier Selection - Multiple Cost Criteria', () async {
@@ -213,6 +287,80 @@ void main() {
         expect(isolateResult[i].rank, expected[i].rank);
         expect(isolateResult[i].score, closeTo(expected[i].score, 1e-6));
       }
+
+      // Verify wrapper detailed result matches core calculateDetailed
+      final expectedDetailed = TopsisCalculator.calculateDetailed(topsisMatrix);
+      final detailedResult =
+          await topsis.getTopsisDetailedResult(matrix: topsisMatrix);
+
+      expect(detailedResult.initialMatrix.length,
+          expectedDetailed.initialMatrix.length);
+      expect(detailedResult.normalizedMatrix.length,
+          expectedDetailed.normalizedMatrix.length);
+      expect(detailedResult.weightedMatrix.length,
+          expectedDetailed.weightedMatrix.length);
+      expect(detailedResult.scores.length, expectedDetailed.scores.length);
+
+      // Verify normalized weights per key with closeTo
+      for (final key in expectedDetailed.normalizedWeights.keys) {
+        expect(detailedResult.normalizedWeights[key],
+            closeTo(expectedDetailed.normalizedWeights[key]!, 1e-4));
+      }
+
+      // Verify each cell in normalized matrix with closeTo
+      for (int i = 0; i < expectedDetailed.normalizedMatrix.length; i++) {
+        for (int j = 0;
+            j < expectedDetailed.normalizedMatrix[i].ratings.length;
+            j++) {
+          expect(
+            detailedResult.normalizedMatrix[i].ratings[j].value,
+            closeTo(
+                expectedDetailed.normalizedMatrix[i].ratings[j].value!, 1e-4),
+          );
+        }
+      }
+
+      // Verify each cell in weighted matrix with closeTo
+      for (int i = 0; i < expectedDetailed.weightedMatrix.length; i++) {
+        for (int j = 0;
+            j < expectedDetailed.weightedMatrix[i].ratings.length;
+            j++) {
+          expect(
+            detailedResult.weightedMatrix[i].ratings[j].value,
+            closeTo(
+                expectedDetailed.weightedMatrix[i].ratings[j].value!, 1e-4),
+          );
+        }
+      }
+
+      // Verify ideal solutions
+      for (final key in expectedDetailed.positiveIdeal.keys) {
+        expect(detailedResult.positiveIdeal[key],
+            closeTo(expectedDetailed.positiveIdeal[key]!, 1e-4));
+      }
+      for (final key in expectedDetailed.negativeIdeal.keys) {
+        expect(detailedResult.negativeIdeal[key],
+            closeTo(expectedDetailed.negativeIdeal[key]!, 1e-4));
+      }
+
+      // Verify separation distances
+      for (final key in expectedDetailed.separationPlus.keys) {
+        expect(detailedResult.separationPlus[key],
+            closeTo(expectedDetailed.separationPlus[key]!, 1e-4));
+      }
+      for (final key in expectedDetailed.separationMinus.keys) {
+        expect(detailedResult.separationMinus[key],
+            closeTo(expectedDetailed.separationMinus[key]!, 1e-4));
+      }
+
+      // Verify final scores and ranks
+      for (int i = 0; i < expectedDetailed.scores.length; i++) {
+        expect(detailedResult.scores[i].alternative.id,
+            expectedDetailed.scores[i].alternative.id);
+        expect(detailedResult.scores[i].rank, expectedDetailed.scores[i].rank);
+        expect(detailedResult.scores[i].score,
+            closeTo(expectedDetailed.scores[i].score, 1e-4));
+      }
     });
 
     test('Case 3 (Edge Case): Cost Criteria and Identical Alternatives (Tie)', () async {
@@ -293,6 +441,80 @@ void main() {
         expect(isolateResult[i].alternative.id, expected[i].alternative.id);
         expect(isolateResult[i].rank, expected[i].rank);
         expect(isolateResult[i].score, closeTo(expected[i].score, 1e-6));
+      }
+
+      // Verify wrapper detailed result matches core calculateDetailed
+      final expectedDetailed = TopsisCalculator.calculateDetailed(topsisMatrix);
+      final detailedResult =
+          await topsis.getTopsisDetailedResult(matrix: topsisMatrix);
+
+      expect(detailedResult.initialMatrix.length,
+          expectedDetailed.initialMatrix.length);
+      expect(detailedResult.normalizedMatrix.length,
+          expectedDetailed.normalizedMatrix.length);
+      expect(detailedResult.weightedMatrix.length,
+          expectedDetailed.weightedMatrix.length);
+      expect(detailedResult.scores.length, expectedDetailed.scores.length);
+
+      // Verify normalized weights per key with closeTo
+      for (final key in expectedDetailed.normalizedWeights.keys) {
+        expect(detailedResult.normalizedWeights[key],
+            closeTo(expectedDetailed.normalizedWeights[key]!, 1e-4));
+      }
+
+      // Verify each cell in normalized matrix with closeTo
+      for (int i = 0; i < expectedDetailed.normalizedMatrix.length; i++) {
+        for (int j = 0;
+            j < expectedDetailed.normalizedMatrix[i].ratings.length;
+            j++) {
+          expect(
+            detailedResult.normalizedMatrix[i].ratings[j].value,
+            closeTo(
+                expectedDetailed.normalizedMatrix[i].ratings[j].value!, 1e-4),
+          );
+        }
+      }
+
+      // Verify each cell in weighted matrix with closeTo
+      for (int i = 0; i < expectedDetailed.weightedMatrix.length; i++) {
+        for (int j = 0;
+            j < expectedDetailed.weightedMatrix[i].ratings.length;
+            j++) {
+          expect(
+            detailedResult.weightedMatrix[i].ratings[j].value,
+            closeTo(
+                expectedDetailed.weightedMatrix[i].ratings[j].value!, 1e-4),
+          );
+        }
+      }
+
+      // Verify ideal solutions
+      for (final key in expectedDetailed.positiveIdeal.keys) {
+        expect(detailedResult.positiveIdeal[key],
+            closeTo(expectedDetailed.positiveIdeal[key]!, 1e-4));
+      }
+      for (final key in expectedDetailed.negativeIdeal.keys) {
+        expect(detailedResult.negativeIdeal[key],
+            closeTo(expectedDetailed.negativeIdeal[key]!, 1e-4));
+      }
+
+      // Verify separation distances
+      for (final key in expectedDetailed.separationPlus.keys) {
+        expect(detailedResult.separationPlus[key],
+            closeTo(expectedDetailed.separationPlus[key]!, 1e-4));
+      }
+      for (final key in expectedDetailed.separationMinus.keys) {
+        expect(detailedResult.separationMinus[key],
+            closeTo(expectedDetailed.separationMinus[key]!, 1e-4));
+      }
+
+      // Verify final scores and ranks
+      for (int i = 0; i < expectedDetailed.scores.length; i++) {
+        expect(detailedResult.scores[i].alternative.id,
+            expectedDetailed.scores[i].alternative.id);
+        expect(detailedResult.scores[i].rank, expectedDetailed.scores[i].rank);
+        expect(detailedResult.scores[i].score,
+            closeTo(expectedDetailed.scores[i].score, 1e-4));
       }
     });
   });

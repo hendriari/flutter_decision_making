@@ -5,6 +5,7 @@ class AhpConsistencyRatio {
   final bool isConsistent;
   final double? lambdaMax;
   final double? ci;
+  final double? ri;
 
   AhpConsistencyRatio({
     required this.source,
@@ -12,5 +13,6 @@ class AhpConsistencyRatio {
     required this.isConsistent,
     this.lambdaMax,
     this.ci,
+    this.ri,
   });
 }

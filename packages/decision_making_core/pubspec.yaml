@@ -6,6 +6,9 @@ repository: https://github.com/hendriari/flutter_decision_making
 environment:
   sdk: '>=3.0.0 <4.0.0'
 
+dependencies:
+  meta: ^1.9.0
+
 dev_dependencies:
   lints: ^3.0.0
   test: ^1.24.0

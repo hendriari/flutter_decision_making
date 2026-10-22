@@ -200,6 +200,56 @@ void main() {
         expect(isolateResult.results![i].value,
             closeTo(expected.results![i].value, 1e-6));
       }
+
+      // Verify wrapper detailed result matches core calculateDetailed
+      final expectedDetailed = AhpCalculator.calculateDetailed(
+        hierarchy: hierarchy,
+        inputsCriteria: inputsCriteria,
+        inputsAlternative: inputsAlternative,
+      );
+      final detailedResult = await ahp.getAhpDetailedResult(
+        hierarchy: hierarchy,
+        inputsCriteria: inputsCriteria,
+        inputsAlternative: inputsAlternative,
+      );
+
+      // Criteria evaluation parity
+      expect(detailedResult.criteriaEvaluation.comparisonMatrix.length,
+          expectedDetailed.criteriaEvaluation.comparisonMatrix.length);
+      expect(detailedResult.criteriaEvaluation.normalizedMatrix.length,
+          expectedDetailed.criteriaEvaluation.normalizedMatrix.length);
+      for (final key in expectedDetailed.criteriaWeights.keys) {
+        expect(detailedResult.criteriaWeights[key],
+            closeTo(expectedDetailed.criteriaWeights[key]!, 1e-4));
+      }
+      expect(detailedResult.criteriaEvaluation.lambdaMax,
+          closeTo(expectedDetailed.criteriaEvaluation.lambdaMax, 1e-4));
+      expect(detailedResult.criteriaEvaluation.ci,
+          closeTo(expectedDetailed.criteriaEvaluation.ci, 1e-4));
+      expect(detailedResult.criteriaEvaluation.ri,
+          closeTo(expectedDetailed.criteriaEvaluation.ri, 1e-4));
+      expect(detailedResult.criteriaEvaluation.cr,
+          closeTo(expectedDetailed.criteriaEvaluation.cr, 1e-4));
+
+      // Alternative evaluations parity
+      for (final critKey in expectedDetailed.alternativeEvaluations.keys) {
+        final expectedAlt = expectedDetailed.alternativeEvaluations[critKey]!;
+        final actualAlt = detailedResult.alternativeEvaluations[critKey]!;
+        for (final altKey in expectedAlt.weights.keys) {
+          expect(actualAlt.weights[altKey],
+              closeTo(expectedAlt.weights[altKey]!, 1e-4));
+        }
+        expect(actualAlt.lambdaMax, closeTo(expectedAlt.lambdaMax, 1e-4));
+        expect(actualAlt.cr, closeTo(expectedAlt.cr, 1e-4));
+      }
+
+      // Final scores parity
+      expect(detailedResult.scores.length, expectedDetailed.scores.length);
+      for (int i = 0; i < expectedDetailed.scores.length; i++) {
+        expect(detailedResult.scores[i].id, expectedDetailed.scores[i].id);
+        expect(detailedResult.scores[i].value,
+            closeTo(expectedDetailed.scores[i].value, 1e-4));
+      }
     });
 
     test('Case 2: Candidate Selection - Multiple Levels', () async {
@@ -426,6 +476,56 @@ void main() {
         expect(isolateResult.results![i].value,
             closeTo(expected.results![i].value, 1e-6));
       }
+
+      // Verify wrapper detailed result matches core calculateDetailed
+      final expectedDetailed = AhpCalculator.calculateDetailed(
+        hierarchy: hierarchy,
+        inputsCriteria: inputsCriteria,
+        inputsAlternative: inputsAlternative,
+      );
+      final detailedResult = await ahp.getAhpDetailedResult(
+        hierarchy: hierarchy,
+        inputsCriteria: inputsCriteria,
+        inputsAlternative: inputsAlternative,
+      );
+
+      // Criteria evaluation parity
+      expect(detailedResult.criteriaEvaluation.comparisonMatrix.length,
+          expectedDetailed.criteriaEvaluation.comparisonMatrix.length);
+      expect(detailedResult.criteriaEvaluation.normalizedMatrix.length,
+          expectedDetailed.criteriaEvaluation.normalizedMatrix.length);
+      for (final key in expectedDetailed.criteriaWeights.keys) {
+        expect(detailedResult.criteriaWeights[key],
+            closeTo(expectedDetailed.criteriaWeights[key]!, 1e-4));
+      }
+      expect(detailedResult.criteriaEvaluation.lambdaMax,
+          closeTo(expectedDetailed.criteriaEvaluation.lambdaMax, 1e-4));
+      expect(detailedResult.criteriaEvaluation.ci,
+          closeTo(expectedDetailed.criteriaEvaluation.ci, 1e-4));
+      expect(detailedResult.criteriaEvaluation.ri,
+          closeTo(expectedDetailed.criteriaEvaluation.ri, 1e-4));
+      expect(detailedResult.criteriaEvaluation.cr,
+          closeTo(expectedDetailed.criteriaEvaluation.cr, 1e-4));
+
+      // Alternative evaluations parity
+      for (final critKey in expectedDetailed.alternativeEvaluations.keys) {
+        final expectedAlt = expectedDetailed.alternativeEvaluations[critKey]!;
+        final actualAlt = detailedResult.alternativeEvaluations[critKey]!;
+        for (final altKey in expectedAlt.weights.keys) {
+          expect(actualAlt.weights[altKey],
+              closeTo(expectedAlt.weights[altKey]!, 1e-4));
+        }
+        expect(actualAlt.lambdaMax, closeTo(expectedAlt.lambdaMax, 1e-4));
+        expect(actualAlt.cr, closeTo(expectedAlt.cr, 1e-4));
+      }
+
+      // Final scores parity
+      expect(detailedResult.scores.length, expectedDetailed.scores.length);
+      for (int i = 0; i < expectedDetailed.scores.length; i++) {
+        expect(detailedResult.scores[i].id, expectedDetailed.scores[i].id);
+        expect(detailedResult.scores[i].value,
+            closeTo(expectedDetailed.scores[i].value, 1e-4));
+      }
     });
 
     test('Case 3 (Edge Case): Inconsistent Comparison Matrix with CR > 0.1', () async {
@@ -607,6 +707,56 @@ void main() {
         expect(isolateResult.results![i].name, expected.results![i].name);
         expect(isolateResult.results![i].value,
             closeTo(expected.results![i].value, 1e-6));
+      }
+
+      // Verify wrapper detailed result matches core calculateDetailed
+      final expectedDetailed = AhpCalculator.calculateDetailed(
+        hierarchy: hierarchy,
+        inputsCriteria: inputsCriteria,
+        inputsAlternative: inputsAlternative,
+      );
+      final detailedResult = await ahp.getAhpDetailedResult(
+        hierarchy: hierarchy,
+        inputsCriteria: inputsCriteria,
+        inputsAlternative: inputsAlternative,
+      );
+
+      // Criteria evaluation parity
+      expect(detailedResult.criteriaEvaluation.comparisonMatrix.length,
+          expectedDetailed.criteriaEvaluation.comparisonMatrix.length);
+      expect(detailedResult.criteriaEvaluation.normalizedMatrix.length,
+          expectedDetailed.criteriaEvaluation.normalizedMatrix.length);
+      for (final key in expectedDetailed.criteriaWeights.keys) {
+        expect(detailedResult.criteriaWeights[key],
+            closeTo(expectedDetailed.criteriaWeights[key]!, 1e-4));
+      }
+      expect(detailedResult.criteriaEvaluation.lambdaMax,
+          closeTo(expectedDetailed.criteriaEvaluation.lambdaMax, 1e-4));
+      expect(detailedResult.criteriaEvaluation.ci,
+          closeTo(expectedDetailed.criteriaEvaluation.ci, 1e-4));
+      expect(detailedResult.criteriaEvaluation.ri,
+          closeTo(expectedDetailed.criteriaEvaluation.ri, 1e-4));
+      expect(detailedResult.criteriaEvaluation.cr,
+          closeTo(expectedDetailed.criteriaEvaluation.cr, 1e-4));
+
+      // Alternative evaluations parity
+      for (final critKey in expectedDetailed.alternativeEvaluations.keys) {
+        final expectedAlt = expectedDetailed.alternativeEvaluations[critKey]!;
+        final actualAlt = detailedResult.alternativeEvaluations[critKey]!;
+        for (final altKey in expectedAlt.weights.keys) {
+          expect(actualAlt.weights[altKey],
+              closeTo(expectedAlt.weights[altKey]!, 1e-4));
+        }
+        expect(actualAlt.lambdaMax, closeTo(expectedAlt.lambdaMax, 1e-4));
+        expect(actualAlt.cr, closeTo(expectedAlt.cr, 1e-4));
+      }
+
+      // Final scores parity
+      expect(detailedResult.scores.length, expectedDetailed.scores.length);
+      for (int i = 0; i < expectedDetailed.scores.length; i++) {
+        expect(detailedResult.scores[i].id, expectedDetailed.scores[i].id);
+        expect(detailedResult.scores[i].value,
+            closeTo(expectedDetailed.scores[i].value, 1e-4));
       }
     });
   });

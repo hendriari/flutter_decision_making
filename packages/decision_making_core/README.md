@@ -73,6 +73,11 @@ void main() {
   for (final res in results) {
     print('Rank ${res.rank}: ${res.alternative.name} (Score: ${res.score.toStringAsFixed(4)})');
   }
+
+  // To inspect all intermediate matrices and normalized weights:
+  // final detailed = SawCalculator.calculateDetailed(matrix);
+  // print(detailed.normalizedWeights);
+  // print(detailed.toJson());
 }
 ```
 
@@ -129,6 +134,12 @@ void main() {
   for (final res in results) {
     print('Rank ${res.rank}: ${res.alternative.name} (Score: ${res.score.toStringAsFixed(4)})');
   }
+
+  // To inspect all intermediate matrices, ideal solutions, and separation measures:
+  // final detailed = TopsisCalculator.calculateDetailed(rawMatrix);
+  // print(detailed.positiveIdeal);
+  // print(detailed.separationPlus);
+  // print(detailed.toJson());
 }
 ```
 
@@ -199,6 +210,15 @@ void main() {
   for (final detail in result.results!) {
     print('${detail.name}: ${detail.value.toStringAsFixed(4)}');
   }
+
+  // To inspect all intermediate comparison matrices, weights, and consistency metrics:
+  // final detailed = AhpCalculator.calculateDetailed(
+  //   hierarchy: hierarchy,
+  //   inputsCriteria: criteriaInputs,
+  //   inputsAlternative: alternativeInputs,
+  // );
+  // print(detailed.criteriaWeights);
+  // print(detailed.toJson());
 }
 ```
 

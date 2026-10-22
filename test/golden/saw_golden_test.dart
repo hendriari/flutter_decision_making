@@ -105,6 +105,59 @@ void main() {
         expect(isolateResult[i].rank, expected[i].rank);
         expect(isolateResult[i].score, closeTo(expected[i].score, 1e-6));
       }
+
+      // Verify wrapper detailed result matches core calculateDetailed
+      final expectedDetailed = SawCalculator.calculateDetailed(rawMatrix);
+      final detailedResult = await saw.getSawDetailedResult(matrix: rawMatrix);
+
+      expect(detailedResult.initialMatrix.length,
+          expectedDetailed.initialMatrix.length);
+      expect(detailedResult.normalizedMatrix.length,
+          expectedDetailed.normalizedMatrix.length);
+      expect(detailedResult.weightedMatrix.length,
+          expectedDetailed.weightedMatrix.length);
+      expect(detailedResult.scores.length, expectedDetailed.scores.length);
+
+      // Verify normalized weights per key with closeTo
+      for (final key in expectedDetailed.normalizedWeights.keys) {
+        expect(detailedResult.normalizedWeights[key],
+            closeTo(expectedDetailed.normalizedWeights[key]!, 1e-4));
+      }
+
+      // Verify each cell in normalized matrix with closeTo
+      for (int i = 0; i < expectedDetailed.normalizedMatrix.length; i++) {
+        for (int j = 0;
+            j < expectedDetailed.normalizedMatrix[i].ratings.length;
+            j++) {
+          expect(
+            detailedResult.normalizedMatrix[i].ratings[j].value,
+            closeTo(
+                expectedDetailed.normalizedMatrix[i].ratings[j].value!, 1e-4),
+          );
+        }
+      }
+
+      // Verify each cell in weighted matrix with closeTo
+      for (int i = 0; i < expectedDetailed.weightedMatrix.length; i++) {
+        for (int j = 0;
+            j < expectedDetailed.weightedMatrix[i].ratings.length;
+            j++) {
+          expect(
+            detailedResult.weightedMatrix[i].ratings[j].value,
+            closeTo(
+                expectedDetailed.weightedMatrix[i].ratings[j].value!, 1e-4),
+          );
+        }
+      }
+
+      // Verify final scores and ranks
+      for (int i = 0; i < expectedDetailed.scores.length; i++) {
+        expect(detailedResult.scores[i].alternative.id,
+            expectedDetailed.scores[i].alternative.id);
+        expect(detailedResult.scores[i].rank, expectedDetailed.scores[i].rank);
+        expect(detailedResult.scores[i].score,
+            closeTo(expectedDetailed.scores[i].score, 1e-4));
+      }
     });
 
     test('Case 2: Employee Performance Evaluation - All Benefit', () async {
@@ -200,6 +253,59 @@ void main() {
         expect(isolateResult[i].rank, expected[i].rank);
         expect(isolateResult[i].score, closeTo(expected[i].score, 1e-6));
       }
+
+      // Verify wrapper detailed result matches core calculateDetailed
+      final expectedDetailed = SawCalculator.calculateDetailed(rawMatrix);
+      final detailedResult = await saw.getSawDetailedResult(matrix: rawMatrix);
+
+      expect(detailedResult.initialMatrix.length,
+          expectedDetailed.initialMatrix.length);
+      expect(detailedResult.normalizedMatrix.length,
+          expectedDetailed.normalizedMatrix.length);
+      expect(detailedResult.weightedMatrix.length,
+          expectedDetailed.weightedMatrix.length);
+      expect(detailedResult.scores.length, expectedDetailed.scores.length);
+
+      // Verify normalized weights per key with closeTo
+      for (final key in expectedDetailed.normalizedWeights.keys) {
+        expect(detailedResult.normalizedWeights[key],
+            closeTo(expectedDetailed.normalizedWeights[key]!, 1e-4));
+      }
+
+      // Verify each cell in normalized matrix with closeTo
+      for (int i = 0; i < expectedDetailed.normalizedMatrix.length; i++) {
+        for (int j = 0;
+            j < expectedDetailed.normalizedMatrix[i].ratings.length;
+            j++) {
+          expect(
+            detailedResult.normalizedMatrix[i].ratings[j].value,
+            closeTo(
+                expectedDetailed.normalizedMatrix[i].ratings[j].value!, 1e-4),
+          );
+        }
+      }
+
+      // Verify each cell in weighted matrix with closeTo
+      for (int i = 0; i < expectedDetailed.weightedMatrix.length; i++) {
+        for (int j = 0;
+            j < expectedDetailed.weightedMatrix[i].ratings.length;
+            j++) {
+          expect(
+            detailedResult.weightedMatrix[i].ratings[j].value,
+            closeTo(
+                expectedDetailed.weightedMatrix[i].ratings[j].value!, 1e-4),
+          );
+        }
+      }
+
+      // Verify final scores and ranks
+      for (int i = 0; i < expectedDetailed.scores.length; i++) {
+        expect(detailedResult.scores[i].alternative.id,
+            expectedDetailed.scores[i].alternative.id);
+        expect(detailedResult.scores[i].rank, expectedDetailed.scores[i].rank);
+        expect(detailedResult.scores[i].score,
+            closeTo(expectedDetailed.scores[i].score, 1e-4));
+      }
     });
 
     test('Case 3 (Edge Case): Cost Criteria and Identical Alternatives (Tie)', () async {
@@ -275,6 +381,59 @@ void main() {
         expect(isolateResult[i].alternative.id, expected[i].alternative.id);
         expect(isolateResult[i].rank, expected[i].rank);
         expect(isolateResult[i].score, closeTo(expected[i].score, 1e-6));
+      }
+
+      // Verify wrapper detailed result matches core calculateDetailed
+      final expectedDetailed = SawCalculator.calculateDetailed(rawMatrix);
+      final detailedResult = await saw.getSawDetailedResult(matrix: rawMatrix);
+
+      expect(detailedResult.initialMatrix.length,
+          expectedDetailed.initialMatrix.length);
+      expect(detailedResult.normalizedMatrix.length,
+          expectedDetailed.normalizedMatrix.length);
+      expect(detailedResult.weightedMatrix.length,
+          expectedDetailed.weightedMatrix.length);
+      expect(detailedResult.scores.length, expectedDetailed.scores.length);
+
+      // Verify normalized weights per key with closeTo
+      for (final key in expectedDetailed.normalizedWeights.keys) {
+        expect(detailedResult.normalizedWeights[key],
+            closeTo(expectedDetailed.normalizedWeights[key]!, 1e-4));
+      }
+
+      // Verify each cell in normalized matrix with closeTo
+      for (int i = 0; i < expectedDetailed.normalizedMatrix.length; i++) {
+        for (int j = 0;
+            j < expectedDetailed.normalizedMatrix[i].ratings.length;
+            j++) {
+          expect(
+            detailedResult.normalizedMatrix[i].ratings[j].value,
+            closeTo(
+                expectedDetailed.normalizedMatrix[i].ratings[j].value!, 1e-4),
+          );
+        }
+      }
+
+      // Verify each cell in weighted matrix with closeTo
+      for (int i = 0; i < expectedDetailed.weightedMatrix.length; i++) {
+        for (int j = 0;
+            j < expectedDetailed.weightedMatrix[i].ratings.length;
+            j++) {
+          expect(
+            detailedResult.weightedMatrix[i].ratings[j].value,
+            closeTo(
+                expectedDetailed.weightedMatrix[i].ratings[j].value!, 1e-4),
+          );
+        }
+      }
+
+      // Verify final scores and ranks
+      for (int i = 0; i < expectedDetailed.scores.length; i++) {
+        expect(detailedResult.scores[i].alternative.id,
+            expectedDetailed.scores[i].alternative.id);
+        expect(detailedResult.scores[i].rank, expectedDetailed.scores[i].rank);
+        expect(detailedResult.scores[i].score,
+            closeTo(expectedDetailed.scores[i].score, 1e-4));
       }
     });
   });

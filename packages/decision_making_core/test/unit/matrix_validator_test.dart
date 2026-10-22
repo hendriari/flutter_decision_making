@@ -93,7 +93,8 @@ void main() {
         ),
       ];
 
-      expect(() => MatrixValidator.validateMatrixValues(matrix), returnsNormally);
+      expect(
+          () => MatrixValidator.validateMatrixValues(matrix), returnsNormally);
     });
   });
 }

@@ -116,6 +116,19 @@ void main() {
       expect(results[1].rank, 2);
     });
 
+    test('SAW detailed calculation via fdm.saw returning SawDetailedResult', () async {
+      final SawDetailedResult detailed =
+          await fdm.saw.getSawDetailedResult(matrix: matrix);
+
+      expect(detailed.initialMatrix.length, 2);
+      expect(detailed.normalizedMatrix.length, 2);
+      expect(detailed.normalizedWeights.length, 2);
+      expect(detailed.weightedMatrix.length, 2);
+      expect(detailed.scores.length, 2);
+      expect(detailed.results.length, 2);
+      expect(detailed.toJson(), isA<Map<String, dynamic>>());
+    });
+
     test('TOPSIS calculation via fdm.topsis with TopsisRawMatrix', () async {
       final List<WeightedDecisionResult> results =
           await fdm.topsis.getTopsisResult(matrix: topsisRawMatrix);
@@ -123,6 +136,25 @@ void main() {
       expect(results.length, 2);
       expect(results[0].rank, 1);
       expect(results[1].rank, 2);
+    });
+
+    test(
+        'TOPSIS detailed calculation via fdm.topsis returning TopsisDetailedResult',
+        () async {
+      final TopsisDetailedResult detailed =
+          await fdm.topsis.getTopsisDetailedResult(matrix: topsisRawMatrix);
+
+      expect(detailed.initialMatrix.length, 2);
+      expect(detailed.normalizedMatrix.length, 2);
+      expect(detailed.normalizedWeights.length, 2);
+      expect(detailed.weightedMatrix.length, 2);
+      expect(detailed.positiveIdeal.length, 2);
+      expect(detailed.negativeIdeal.length, 2);
+      expect(detailed.separationPlus.length, 2);
+      expect(detailed.separationMinus.length, 2);
+      expect(detailed.scores.length, 2);
+      expect(detailed.results.length, 2);
+      expect(detailed.toJson(), isA<Map<String, dynamic>>());
     });
 
     test('AHP calculation via fdm.ahp', () async {
@@ -136,6 +168,27 @@ void main() {
       expect(result.results!.length, 2);
       expect(result.isConsistentCriteria, isTrue);
     });
+
+    test('AHP detailed calculation via fdm.ahp returning AhpDetailedResult',
+        () async {
+      final AhpDetailedResult detailed = await fdm.ahp.getAhpDetailedResult(
+        hierarchy: ahpHierarchy,
+        inputsCriteria: ahpInputsCriteria,
+        inputsAlternative: ahpInputsAlternative,
+      );
+
+      expect(detailed.criteriaEvaluation, isA<AhpMatrixEvaluation>());
+      expect(detailed.criteriaEvaluation.comparisonMatrix.length, 2);
+      expect(detailed.criteriaEvaluation.normalizedMatrix.length, 2);
+      expect(detailed.criteriaEvaluation.weights.length, 2);
+      expect(detailed.alternativeEvaluations.length, 2);
+      expect(detailed.scoresPerCriteria.length, 2);
+      expect(detailed.weightedScoresPerCriteria.length, 2);
+      expect(detailed.scores.length, 2);
+      expect(detailed.results.length, 2);
+      expect(detailed.isConsistent, isTrue);
+      expect(detailed.toJson(), isA<Map<String, dynamic>>());
+    });
   });
 
   group('Public API Barrel Access via Direct Class Constructors', () {
@@ -146,6 +199,10 @@ void main() {
 
       expect(results.length, 2);
       expect(results[0].score, isNonZero);
+
+      final SawDetailedResult detailed =
+          await saw.getSawDetailedResult(matrix: matrix);
+      expect(detailed.scores.length, 2);
     });
 
     test('TOPSIS constructor directly accessible from barrel', () async {
@@ -155,6 +212,10 @@ void main() {
 
       expect(results.length, 2);
       expect(results[0].score, isNonZero);
+
+      final TopsisDetailedResult detailed =
+          await topsis.getTopsisDetailedResult(matrix: topsisRawMatrix);
+      expect(detailed.scores.length, 2);
     });
 
     test('AHP constructor directly accessible from barrel', () async {
@@ -167,6 +228,13 @@ void main() {
 
       expect(result.results, isNotNull);
       expect(result.results!.length, 2);
+
+      final AhpDetailedResult detailed = await ahp.getAhpDetailedResult(
+        hierarchy: ahpHierarchy,
+        inputsCriteria: ahpInputsCriteria,
+        inputsAlternative: ahpInputsAlternative,
+      );
+      expect(detailed.scores.length, 2);
     });
   });
 }

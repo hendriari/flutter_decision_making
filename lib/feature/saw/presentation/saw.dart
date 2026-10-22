@@ -1,5 +1,5 @@
+import 'package:decision_making_core/decision_making_core.dart';
 import 'package:flutter_decision_making/feature/saw/data/datasource/saw_local_datasource_impl.dart';
-import 'package:flutter_decision_making/core/decision_making_utils.dart';
 import 'saw_utils.dart';
 
 export 'saw_utils.dart';
@@ -97,5 +97,16 @@ class SAW {
     } catch (e) {
       rethrow;
     }
+  }
+
+  /// CALCULATE DETAILED SAW RESULT
+  ///
+  /// Returns a [SawDetailedResult] containing all intermediate computation steps:
+  /// initial matrix, normalized matrix ($r_{ij}$), normalized weights ($w_j$),
+  /// weighted matrix ($v_{ij}$), final scores, and ranks.
+  Future<SawDetailedResult> getSawDetailedResult({
+    required List<WeightedDecisionMatrix> matrix,
+  }) async {
+    return SawCalculator.calculateDetailed(matrix);
   }
 }
