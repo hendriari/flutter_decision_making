@@ -224,6 +224,67 @@ void main() {
 
 ---
 
+## Sensitivity Analysis & Rank Reversal Detection
+
+The library provides automated weight sensitivity analysis and rank reversal detection for **SAW** (`SawCalculator.analyzeSensitivity`) and **TOPSIS** (`TopsisCalculator.analyzeSensitivity`).
+
+> **Note:** This feature **detects** rank reversal phenomena; it does **not** prevent them. Rank reversal is an inherent mathematical characteristic of multi-criteria decision making methods where relative rankings naturally shift due to changing normalization boundaries or ideal reference points when alternatives are added or removed.
+
+### Definitions
+
+1. **Weight Sensitivity:**
+   - Evaluates systematic +/- delta (default 10% relative, `delta: 0.10`) perturbations across each criterion in deterministic order (input criteria order, then `+`, then `-`).
+   - Formula: `w_k' = w_k * (1 +/- delta)`, while all other criteria weights are rescaled by `(1 - w_k') / (1 - w_k)` so the total weight strictly equals 1.0.
+   - If `w_k' >= 1.0`, `w_k' <= 0.0`, or only 1 criterion exists, the case is safely skipped and its reason recorded in `skipReason`.
+
+2. **Pairwise Ranking Changes:**
+   - Order change is evaluated strictly pairwise between every alternative pair `(i, j)`: order is considered "changed" if the sign of `(score_i - score_j)` flips and the absolute difference on both sides is `> 1e-9`.
+   - Score differences `<= 1e-9` are treated as ties and do not trigger order change.
+
+3. **Rank Reversal Detection:**
+   - For datasets with `n >= 3` alternatives, each alternative `r` is removed one by one, scores are recalculated, and the relative ordering among remaining alternatives is compared to their original baseline order.
+   - For datasets with `n < 3`, rank reversal testing is skipped and documented in `skipReason`.
+
+4. **Stability Summary (`isStable`):**
+   - Returns `true` if and only if no ranking changes occur across all sensitivity perturbation cases and no rank reversals occur upon any alternative removal.
+
+> **Caution & Caveats:**
+> Sensitivity and rank reversal behaviors depend directly on the chosen `delta` parameter and the mathematical normalization technique (e.g. min/max boundary normalization in SAW vs Euclidean vector normalization in TOPSIS). Rank reversals can naturally occur in multi-criteria methods when an ideal point or normalization denominator shifts upon alternative removal.
+
+### Example: Sensitivity Analysis (SAW & TOPSIS)
+
+```dart
+import 'package:decision_making_core/decision_making_core.dart';
+
+void main() {
+  // SAW Sensitivity Analysis
+  final sawResult = SawCalculator.analyzeSensitivity(matrix, delta: 0.1);
+  print('SAW isStable: ${sawResult.isStable}');
+  for (final sCase in sawResult.sensitivityCases) {
+    if (sCase.hasOrderChanged) {
+      print('Criterion ${sCase.criterionId} ${sCase.direction.symbol}: order changed!');
+      for (final pair in sCase.swappedPairs) {
+        print('  Swapped pair: ${pair.firstId} <-> ${pair.secondId}');
+      }
+    }
+  }
+
+  // TOPSIS Sensitivity Analysis
+  final topsisResult = TopsisCalculator.analyzeSensitivity(rawMatrix, delta: 0.1);
+  print('TOPSIS isStable: ${topsisResult.isStable}');
+  for (final rCase in topsisResult.rankReversalCases) {
+    if (rCase.hasReversal) {
+      print('Rank reversal when removing ${rCase.removedAlternativeId}!');
+      for (final pair in rCase.reversedPairs) {
+        print('  Inverted relative order: ${pair.firstId} <-> ${pair.secondId}');
+      }
+    }
+  }
+}
+```
+
+---
+
 ## Existing Behavior & Edge Cases
 
 The core calculation engines maintain consistent mathematical specifications for edge cases:

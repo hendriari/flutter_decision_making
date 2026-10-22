@@ -1,6 +1,4 @@
-## Unreleased
-
-### Proposed version: 1.3.0
+### Proposed version: 2.0.0
 
 ### Breaking changes
 - **Isolate execution is now opt-in.** The automatic isolate threshold (>80 alternatives / >25 criteria) was removed. All calculation methods accept `useIsolate` (default `false`). In profile-mode benchmarks on Apple Silicon, the main-thread path was roughly 8–50x faster than the isolate path for SAW and TOPSIS up to 2000x50 (see README).
@@ -13,6 +11,8 @@
 - **Detailed self-explaining SAW results (`SawDetailedResult`):** Added `SawCalculator.calculateDetailed` and `SAW.getSawDetailedResult` returning all intermediate calculation steps: input matrix, cell-normalized matrix (r_ij), normalized weights (w_j), weighted cell matrix (v_ij), and final scores/ranks with JSON serialization support (`toJson()`).
 - **Detailed self-explaining TOPSIS results (`TopsisDetailedResult`):** Added `TopsisCalculator.calculateDetailed` and `TOPSIS.getTopsisDetailedResult` returning all intermediate calculation steps: input matrix, Euclidean-normalized matrix (r_ij), normalized weights (w_j), weighted cell matrix (v_ij), positive/negative ideal solutions (A+, A-), separation distances (D+, D-), and final relative closeness scores/ranks with JSON serialization support (`toJson()`).
 - **Detailed self-explaining AHP results (`AhpDetailedResult`, `AhpMatrixEvaluation`):** Added `AhpCalculator.calculateDetailed` and `AHP.getAhpDetailedResult` returning all intermediate comparison matrices, normalized matrices, weights (w_j), consistency metrics (lambda_max, CI, RI, CR), per-criteria local priority scores, weighted scores, and final synthesized scores with JSON serialization support (`toJson()`).
+- **Weight sensitivity analysis & rank reversal detection (SAW & TOPSIS):** Added `SawCalculator.analyzeSensitivity`, `TopsisCalculator.analyzeSensitivity`, `SAW.analyzeSensitivity`, and `TOPSIS.analyzeSensitivity` returning `SensitivityAnalysisResult` with systematic +/- delta perturbations, pairwise ranking change detection, alternative removal rank reversal tests, and JSON serialization support (`toJson()`).
+- Exported sensitivity entities: `AlternativePair`, `RankReversalCase`, `SensitivityAnalysisResult`, `SensitivityDirection`, and `WeightSensitivityCase`.
 
 ### Changed (API)
 - **AHP internal helper protection:** `AhpCalculator.getRI`, `riTable`, and `normalizeComparisonMatrix` are marked `@internal` from `package:meta`.

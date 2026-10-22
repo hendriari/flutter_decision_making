@@ -4,6 +4,8 @@ import '../common/matrix_validator.dart';
 import '../common/weighted_decision_criteria.dart';
 import '../common/weighted_decision_matrix.dart';
 import '../common/weighted_decision_result.dart';
+import '../sensitivity/sensitivity_analysis_result.dart';
+import '../sensitivity/sensitivity_calculator.dart';
 import 'topsis_detailed_result.dart';
 import 'topsis_ideal_value.dart';
 import 'topsis_matrix.dart';
@@ -258,6 +260,88 @@ class TopsisCalculator {
       separationPlus: separationPlus,
       separationMinus: separationMinus,
       scores: scores,
+    );
+  }
+
+  /// Performs weight sensitivity analysis and rank reversal detection for TOPSIS.
+  ///
+  /// - Tests +/- [delta] (default 10% relative, `0.10`) perturbation on each criterion.
+  /// - Tests rank reversal by removing each alternative (for n >= 3).
+  static SensitivityAnalysisResult analyzeSensitivity(
+    TopsisRawMatrix rawMatrix, {
+    double delta = 0.1,
+  }) {
+    MatrixValidator.validateMatrixValues(rawMatrix.matrixs);
+
+    final totalWeight = rawMatrix.criterias.fold<double>(
+      0.0,
+      (sum, c) => sum + c.weightPercent,
+    );
+    final weightRatio = (totalWeight != 100.0 && totalWeight > 0.0)
+        ? 100.0 / totalWeight
+        : 1.0;
+    final normalizedCriteria = rawMatrix.criterias.map((c) {
+      return weightRatio == 1.0
+          ? c
+          : c.copyWith(weightPercent: c.weightPercent * weightRatio);
+    }).toList();
+
+    final criteriaIds = <String>[];
+    final normalizedWeights = <String, double>{};
+    for (final c in normalizedCriteria) {
+      final id = c.id;
+      if (id == null) {
+        throw Exception('Found criteria without ID! Data invalid.');
+      }
+      criteriaIds.add(id);
+      normalizedWeights[id] = c.weightPercent / 100.0;
+    }
+
+    final alternativeIds = <String>[];
+    for (final row in rawMatrix.matrixs) {
+      final id = row.alternative.id;
+      if (id == null) {
+        throw Exception('Found alternative without ID! Data invalid.');
+      }
+      alternativeIds.add(id);
+    }
+
+    return SensitivityCalculator.run(
+      alternativeIds: alternativeIds,
+      criteriaIds: criteriaIds,
+      normalizedWeights: normalizedWeights,
+      calculateWithWeights: (weights) {
+        final newCriteria = normalizedCriteria.map((c) {
+          final w = (weights[c.id!] ?? 0.0) * 100.0;
+          return c.copyWith(weightPercent: w);
+        }).toList();
+
+        final newMatrix = rawMatrix.matrixs.map((row) {
+          final newRatings = row.ratings.map((r) {
+            final cid = r.criteria!.id!;
+            final w = (weights[cid] ?? 0.0) * 100.0;
+            return r.copyWith(
+              criteria: r.criteria!.copyWith(weightPercent: w),
+            );
+          }).toList();
+          return row.copyWith(ratings: newRatings);
+        }).toList();
+
+        final results = calculate(
+          TopsisRawMatrix(criterias: newCriteria, matrixs: newMatrix),
+        );
+        return {for (final r in results) r.alternative.id!: r.score};
+      },
+      calculateWithoutAlternative: (removedId) {
+        final subMatrix = rawMatrix.matrixs
+            .where((row) => row.alternative.id != removedId)
+            .toList();
+        final results = calculate(
+          TopsisRawMatrix(criterias: normalizedCriteria, matrixs: subMatrix),
+        );
+        return {for (final r in results) r.alternative.id!: r.score};
+      },
+      delta: delta,
     );
   }
 }

@@ -2,6 +2,8 @@ import '../common/matrix_validator.dart';
 import '../common/weighted_decision_matrix.dart';
 import '../common/weighted_decision_rating.dart';
 import '../common/weighted_decision_result.dart';
+import '../sensitivity/sensitivity_analysis_result.dart';
+import '../sensitivity/sensitivity_calculator.dart';
 import 'saw_detailed_result.dart';
 
 class _CriteriaStats {
@@ -140,6 +142,73 @@ class SawCalculator {
       normalizedWeights: normalizedWeights,
       weightedMatrix: weightedMatrix,
       scores: scores,
+    );
+  }
+
+  /// Performs weight sensitivity analysis and rank reversal detection for SAW.
+  ///
+  /// - Tests +/- [delta] (default 10% relative, `0.10`) perturbation on each criterion.
+  /// - Tests rank reversal by removing each alternative (for n >= 3).
+  static SensitivityAnalysisResult analyzeSensitivity(
+    List<WeightedDecisionMatrix> rawMatrix, {
+    double delta = 0.1,
+  }) {
+    MatrixValidator.validateMatrixValues(rawMatrix);
+
+    final normalizedWeightMatrix =
+        MatrixValidator.normalizeCriteriaWeights(rawMatrix);
+
+    final criteriaIds = <String>[];
+    final normalizedWeights = <String, double>{};
+
+    for (final rating in normalizedWeightMatrix.first.ratings) {
+      final c = rating.criteria;
+      if (c != null) {
+        final id = c.id;
+        if (id == null) {
+          throw Exception('Found rating without criteria ID! Data invalid.');
+        }
+        criteriaIds.add(id);
+        normalizedWeights[id] = c.weightPercent / 100.0;
+      }
+    }
+
+    final alternativeIds = <String>[];
+    for (final row in rawMatrix) {
+      final id = row.alternative.id;
+      if (id == null) {
+        throw Exception('Found alternative without ID! Data invalid.');
+      }
+      alternativeIds.add(id);
+    }
+
+    return SensitivityCalculator.run(
+      alternativeIds: alternativeIds,
+      criteriaIds: criteriaIds,
+      normalizedWeights: normalizedWeights,
+      calculateWithWeights: (weights) {
+        final perturbed = rawMatrix.map((row) {
+          final newRatings = row.ratings.map((r) {
+            final cid = r.criteria!.id!;
+            final w = (weights[cid] ?? 0.0) * 100.0;
+            return r.copyWith(
+              criteria: r.criteria!.copyWith(weightPercent: w),
+            );
+          }).toList();
+          return row.copyWith(ratings: newRatings);
+        }).toList();
+
+        final results = calculate(perturbed);
+        return {for (final r in results) r.alternative.id!: r.score};
+      },
+      calculateWithoutAlternative: (removedId) {
+        final subMatrix = rawMatrix
+            .where((row) => row.alternative.id != removedId)
+            .toList();
+        final results = calculate(subMatrix);
+        return {for (final r in results) r.alternative.id!: r.score};
+      },
+      delta: delta,
     );
   }
 

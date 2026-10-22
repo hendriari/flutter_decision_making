@@ -189,6 +189,28 @@ void main() {
       expect(detailed.isConsistent, isTrue);
       expect(detailed.toJson(), isA<Map<String, dynamic>>());
     });
+
+    test('SAW sensitivity analysis via fdm.saw returning SensitivityAnalysisResult', () async {
+      final SensitivityAnalysisResult sensitivity =
+          await fdm.saw.analyzeSensitivity(matrix: matrix, delta: 0.1);
+
+      expect(sensitivity.delta, 0.1);
+      expect(sensitivity.baseRanking.length, 2);
+      expect(sensitivity.sensitivityCases.isNotEmpty, isTrue);
+      expect(sensitivity.rankReversalCases.isNotEmpty, isTrue);
+      expect(sensitivity.toJson(), isA<Map<String, dynamic>>());
+    });
+
+    test('TOPSIS sensitivity analysis via fdm.topsis returning SensitivityAnalysisResult', () async {
+      final SensitivityAnalysisResult sensitivity =
+          await fdm.topsis.analyzeSensitivity(matrix: topsisRawMatrix, delta: 0.1);
+
+      expect(sensitivity.delta, 0.1);
+      expect(sensitivity.baseRanking.length, 2);
+      expect(sensitivity.sensitivityCases.isNotEmpty, isTrue);
+      expect(sensitivity.rankReversalCases.isNotEmpty, isTrue);
+      expect(sensitivity.toJson(), isA<Map<String, dynamic>>());
+    });
   });
 
   group('Public API Barrel Access via Direct Class Constructors', () {
@@ -203,6 +225,10 @@ void main() {
       final SawDetailedResult detailed =
           await saw.getSawDetailedResult(matrix: matrix);
       expect(detailed.scores.length, 2);
+
+      final SensitivityAnalysisResult sensitivity =
+          await saw.analyzeSensitivity(matrix: matrix);
+      expect(sensitivity.baseRanking.length, 2);
     });
 
     test('TOPSIS constructor directly accessible from barrel', () async {
@@ -216,6 +242,10 @@ void main() {
       final TopsisDetailedResult detailed =
           await topsis.getTopsisDetailedResult(matrix: topsisRawMatrix);
       expect(detailed.scores.length, 2);
+
+      final SensitivityAnalysisResult sensitivity =
+          await topsis.analyzeSensitivity(matrix: topsisRawMatrix);
+      expect(sensitivity.baseRanking.length, 2);
     });
 
     test('AHP constructor directly accessible from barrel', () async {

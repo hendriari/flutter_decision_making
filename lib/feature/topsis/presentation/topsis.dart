@@ -105,12 +105,23 @@ class TOPSIS {
   /// CALCULATE DETAILED TOPSIS RESULT
   ///
   /// Returns a [TopsisDetailedResult] containing all intermediate computation steps:
-  /// initial matrix, normalized matrix ($r_{ij}$), normalized weights ($w_j$),
-  /// weighted matrix ($v_{ij}$), positive/negative ideal solutions ($A^+$, $A^-$),
-  /// separation measures ($D^+$, $D^-$), relative closeness scores ($C_i$), and ranks.
+  /// initial matrix, normalized matrix (r_ij), normalized weights (w_j),
+  /// weighted matrix (v_ij), positive/negative ideal solutions (A+, A-),
+  /// separation measures (D+, D-), relative closeness scores (C_i), and ranks.
   Future<TopsisDetailedResult> getTopsisDetailedResult({
     required TopsisRawMatrix matrix,
   }) async {
     return TopsisCalculator.calculateDetailed(matrix);
+  }
+
+  /// ANALYZE WEIGHT SENSITIVITY & RANK REVERSAL
+  ///
+  /// Evaluates systematic +/- [delta] perturbations on each criterion and
+  /// tests rank reversal upon alternative removals. Runs synchronously without isolate overhead.
+  Future<SensitivityAnalysisResult> analyzeSensitivity({
+    required TopsisRawMatrix matrix,
+    double delta = 0.1,
+  }) async {
+    return TopsisCalculator.analyzeSensitivity(matrix, delta: delta);
   }
 }

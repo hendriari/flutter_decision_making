@@ -102,11 +102,22 @@ class SAW {
   /// CALCULATE DETAILED SAW RESULT
   ///
   /// Returns a [SawDetailedResult] containing all intermediate computation steps:
-  /// initial matrix, normalized matrix ($r_{ij}$), normalized weights ($w_j$),
-  /// weighted matrix ($v_{ij}$), final scores, and ranks.
+  /// initial matrix, normalized matrix (r_ij), normalized weights (w_j),
+  /// weighted matrix (v_ij), final scores, and ranks.
   Future<SawDetailedResult> getSawDetailedResult({
     required List<WeightedDecisionMatrix> matrix,
   }) async {
     return SawCalculator.calculateDetailed(matrix);
+  }
+
+  /// ANALYZE WEIGHT SENSITIVITY & RANK REVERSAL
+  ///
+  /// Evaluates systematic +/- [delta] perturbations on each criterion and
+  /// tests rank reversal upon alternative removals. Runs synchronously without isolate overhead.
+  Future<SensitivityAnalysisResult> analyzeSensitivity({
+    required List<WeightedDecisionMatrix> matrix,
+    double delta = 0.1,
+  }) async {
+    return SawCalculator.analyzeSensitivity(matrix, delta: delta);
   }
 }

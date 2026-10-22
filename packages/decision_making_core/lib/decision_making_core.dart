@@ -25,6 +25,13 @@ export 'src/topsis/topsis_ideal_value.dart';
 export 'src/topsis/topsis_matrix.dart';
 export 'src/topsis/topsis_raw_matrix.dart';
 
+// Sensitivity & Rank Reversal
+export 'src/sensitivity/alternative_pair.dart';
+export 'src/sensitivity/rank_reversal_case.dart';
+export 'src/sensitivity/sensitivity_analysis_result.dart';
+export 'src/sensitivity/sensitivity_direction.dart';
+export 'src/sensitivity/weight_sensitivity_case.dart';
+
 // AHP
 export 'src/ahp/ahp_calculator.dart';
 export 'src/ahp/ahp_comparison_scale.dart';
