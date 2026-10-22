@@ -6,7 +6,7 @@ import '../common/weighted_decision_result.dart';
 /// Contains all intermediate computation steps:
 /// - [initialMatrix]: The original decision matrix passed as input.
 /// - [normalizedMatrix]: Decision matrix normalized per cell according to SAW benefit/cost rules ($r_{ij}$).
-/// - [normalizedWeights]: Map of criteria IDs to their normalized weight fractions ($w_j \in [0, 1]$, summing to 1.0).
+/// - [normalizedWeights]: Map of criteria IDs to their normalized weight fractions (w_j between 0.0 and 1.0, summing to 1.0).
 /// - [weightedMatrix]: Matrix where each cell is weighted ($v_{ij} = r_{ij} \times w_j$).
 /// - [scores]: Final ranked alternatives with total scores and 1-based ranks ($S_i = \sum_j v_{ij}$).
 class SawDetailedResult {

@@ -30,6 +30,3 @@ packages/decision_making_core/pubspec.lock
 .flutter-plugins
 .flutter-plugins-dependencies
 build/
-packages/
-benchmark/
-.github/

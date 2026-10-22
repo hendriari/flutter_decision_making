@@ -7,7 +7,7 @@ import 'topsis_ideal_value.dart';
 /// Contains all intermediate computation steps:
 /// - [initialMatrix]: The original decision matrix passed as input.
 /// - [normalizedMatrix]: Decision matrix normalized per cell using Euclidean vector normalization ($r_{ij}$).
-/// - [normalizedWeights]: Map of criteria IDs to their normalized weight fractions ($w_j \in [0, 1]$, summing to 1.0).
+/// - [normalizedWeights]: Map of criteria IDs to their normalized weight fractions (w_j between 0.0 and 1.0, summing to 1.0).
 /// - [weightedMatrix]: Matrix where each cell is weighted ($v_{ij} = r_{ij} \times w_j$).
 /// - [positiveIdeal]: Positive Ideal Solution ($A_j^+$) per criteria ID.
 /// - [negativeIdeal]: Negative Ideal Solution ($A_j^-$) per criteria ID.
