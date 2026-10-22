@@ -32,7 +32,8 @@ void main() {
           id: 'm2',
           alternative: alternatives[1],
           ratings: [
-            WeightedDecisionRating(id: 'r2', criteria: criteria[0], value: 50.0),
+            WeightedDecisionRating(
+                id: 'r2', criteria: criteria[0], value: 50.0),
           ],
         ),
       ];
@@ -86,16 +87,20 @@ void main() {
           id: 'm1',
           alternative: alternatives[0],
           ratings: [
-            WeightedDecisionRating(id: 'r1_1', criteria: criteria[0], value: 75.0),
-            WeightedDecisionRating(id: 'r1_2', criteria: criteria[1], value: 20.0),
+            WeightedDecisionRating(
+                id: 'r1_1', criteria: criteria[0], value: 75.0),
+            WeightedDecisionRating(
+                id: 'r1_2', criteria: criteria[1], value: 20.0),
           ],
         ),
         WeightedDecisionMatrix(
           id: 'm2',
           alternative: alternatives[1],
           ratings: [
-            WeightedDecisionRating(id: 'r2_1', criteria: criteria[0], value: 75.0),
-            WeightedDecisionRating(id: 'r2_2', criteria: criteria[1], value: 20.0),
+            WeightedDecisionRating(
+                id: 'r2_1', criteria: criteria[0], value: 75.0),
+            WeightedDecisionRating(
+                id: 'r2_2', criteria: criteria[1], value: 20.0),
           ],
         ),
       ];
@@ -119,7 +124,9 @@ void main() {
       expect(detailed.scores[1].score, closeTo(1.0, 1e-4));
     });
 
-    test('Edge Case 3: Single alternative evaluates correctly to score 1.0 and rank 1', () {
+    test(
+        'Edge Case 3: Single alternative evaluates correctly to score 1.0 and rank 1',
+        () {
       // Perilaku saat ini: evaluasi dengan 1 alternatif diperbolehkan;
       // karena max == min untuk tiap kriteria, nilai ternormalisasi menjadi 1.0
       // dan skor total menjadi 1.0 dengan rank 1.
@@ -149,8 +156,10 @@ void main() {
           id: 'm_solo',
           alternative: alternatives[0],
           ratings: [
-            WeightedDecisionRating(id: 'r1', criteria: criteria[0], value: 80.0),
-            WeightedDecisionRating(id: 'r2', criteria: criteria[1], value: 30.0),
+            WeightedDecisionRating(
+                id: 'r1', criteria: criteria[0], value: 80.0),
+            WeightedDecisionRating(
+                id: 'r2', criteria: criteria[1], value: 30.0),
           ],
         ),
       ];
@@ -169,7 +178,9 @@ void main() {
       expect(detailed.weightedMatrix[0].ratings[1].value, closeTo(0.60, 1e-4));
     });
 
-    test('Edge Case 4: Criteria weights not summing to 100 are proportionally rescaled', () {
+    test(
+        'Edge Case 4: Criteria weights not summing to 100 are proportionally rescaled',
+        () {
       // Perilaku saat ini: jika total bobot tidak sama dengan 100 (misal: 20 dan 30, total 50),
       // MatrixValidator.normalizeCriteriaWeights mengalikan tiap bobot dengan faktor (100 / totalWeight).
       // Sehingga 20 -> 40% (0.4) dan 30 -> 60% (0.6).
@@ -200,16 +211,20 @@ void main() {
           id: 'm1',
           alternative: alternatives[0],
           ratings: [
-            WeightedDecisionRating(id: 'r1_1', criteria: criteria[0], value: 100.0),
-            WeightedDecisionRating(id: 'r1_2', criteria: criteria[1], value: 50.0),
+            WeightedDecisionRating(
+                id: 'r1_1', criteria: criteria[0], value: 100.0),
+            WeightedDecisionRating(
+                id: 'r1_2', criteria: criteria[1], value: 50.0),
           ],
         ),
         WeightedDecisionMatrix(
           id: 'm2',
           alternative: alternatives[1],
           ratings: [
-            WeightedDecisionRating(id: 'r2_1', criteria: criteria[0], value: 50.0),
-            WeightedDecisionRating(id: 'r2_2', criteria: criteria[1], value: 100.0),
+            WeightedDecisionRating(
+                id: 'r2_1', criteria: criteria[0], value: 50.0),
+            WeightedDecisionRating(
+                id: 'r2_2', criteria: criteria[1], value: 100.0),
           ],
         ),
       ];

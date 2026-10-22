@@ -13,7 +13,8 @@ class AlternativePair {
 
   /// Checks whether this pair matches the two specified alternative IDs in any order.
   bool matches(String idA, String idB) =>
-      (firstId == idA && secondId == idB) || (firstId == idB && secondId == idA);
+      (firstId == idA && secondId == idB) ||
+      (firstId == idB && secondId == idA);
 
   @override
   bool operator ==(Object other) =>

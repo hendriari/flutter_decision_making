@@ -6,7 +6,8 @@ void main() {
     // -------------------------------------------------------------------------
     // Negative Control 1: Golden SAW Case 1 (3x4)
     // -------------------------------------------------------------------------
-    test('Negative Control: Golden SAW Case 1 isStable = true, no reversal', () {
+    test('Negative Control: Golden SAW Case 1 isStable = true, no reversal',
+        () {
       final criteria = [
         WeightedDecisionCriteria(
           id: 'c1',
@@ -49,30 +50,39 @@ void main() {
           id: 'm1',
           alternative: alternatives[0],
           ratings: [
-            WeightedDecisionRating(id: 'r1_1', criteria: criteria[0], value: 100),
+            WeightedDecisionRating(
+                id: 'r1_1', criteria: criteria[0], value: 100),
             WeightedDecisionRating(id: 'r1_2', criteria: criteria[1], value: 3),
-            WeightedDecisionRating(id: 'r1_3', criteria: criteria[2], value: 3500),
-            WeightedDecisionRating(id: 'r1_4', criteria: criteria[3], value: 1.5),
+            WeightedDecisionRating(
+                id: 'r1_3', criteria: criteria[2], value: 3500),
+            WeightedDecisionRating(
+                id: 'r1_4', criteria: criteria[3], value: 1.5),
           ],
         ),
         WeightedDecisionMatrix(
           id: 'm2',
           alternative: alternatives[1],
           ratings: [
-            WeightedDecisionRating(id: 'r2_1', criteria: criteria[0], value: 150),
+            WeightedDecisionRating(
+                id: 'r2_1', criteria: criteria[0], value: 150),
             WeightedDecisionRating(id: 'r2_2', criteria: criteria[1], value: 2),
-            WeightedDecisionRating(id: 'r2_3', criteria: criteria[2], value: 4500),
-            WeightedDecisionRating(id: 'r2_4', criteria: criteria[3], value: 2.0),
+            WeightedDecisionRating(
+                id: 'r2_3', criteria: criteria[2], value: 4500),
+            WeightedDecisionRating(
+                id: 'r2_4', criteria: criteria[3], value: 2.0),
           ],
         ),
         WeightedDecisionMatrix(
           id: 'm3',
           alternative: alternatives[2],
           ratings: [
-            WeightedDecisionRating(id: 'r3_1', criteria: criteria[0], value: 200),
+            WeightedDecisionRating(
+                id: 'r3_1', criteria: criteria[0], value: 200),
             WeightedDecisionRating(id: 'r3_2', criteria: criteria[1], value: 3),
-            WeightedDecisionRating(id: 'r3_3', criteria: criteria[2], value: 3000),
-            WeightedDecisionRating(id: 'r3_4', criteria: criteria[3], value: 3.5),
+            WeightedDecisionRating(
+                id: 'r3_3', criteria: criteria[2], value: 3000),
+            WeightedDecisionRating(
+                id: 'r3_4', criteria: criteria[3], value: 3.5),
           ],
         ),
       ];
@@ -86,7 +96,9 @@ void main() {
 
       // Verify C1 +10% specific reference values
       final c1Plus = result.sensitivityCases.firstWhere(
-        (c) => c.criterionId == 'c1' && c.direction == SensitivityDirection.increase,
+        (c) =>
+            c.criterionId == 'c1' &&
+            c.direction == SensitivityDirection.increase,
       );
       expect(c1Plus.weights['c1'], closeTo(0.275000, 1e-4));
       expect(c1Plus.weights['c2'], closeTo(0.241667, 1e-4));
@@ -102,7 +114,8 @@ void main() {
     // -------------------------------------------------------------------------
     // Negative Control 2: Golden TOPSIS Case 1 (4x4)
     // -------------------------------------------------------------------------
-    test('Negative Control: Golden TOPSIS Case 1 isStable = true, no reversal', () {
+    test('Negative Control: Golden TOPSIS Case 1 isStable = true, no reversal',
+        () {
       final criteria = [
         WeightedDecisionCriteria(
           id: 'c1',
@@ -148,40 +161,56 @@ void main() {
             id: 'm1',
             alternative: alternatives[0],
             ratings: [
-              WeightedDecisionRating(id: 'r1_1', criteria: criteria[0], value: 5),
-              WeightedDecisionRating(id: 'r1_2', criteria: criteria[1], value: 8),
-              WeightedDecisionRating(id: 'r1_3', criteria: criteria[2], value: 4),
-              WeightedDecisionRating(id: 'r1_4', criteria: criteria[3], value: 7),
+              WeightedDecisionRating(
+                  id: 'r1_1', criteria: criteria[0], value: 5),
+              WeightedDecisionRating(
+                  id: 'r1_2', criteria: criteria[1], value: 8),
+              WeightedDecisionRating(
+                  id: 'r1_3', criteria: criteria[2], value: 4),
+              WeightedDecisionRating(
+                  id: 'r1_4', criteria: criteria[3], value: 7),
             ],
           ),
           WeightedDecisionMatrix(
             id: 'm2',
             alternative: alternatives[1],
             ratings: [
-              WeightedDecisionRating(id: 'r2_1', criteria: criteria[0], value: 7),
-              WeightedDecisionRating(id: 'r2_2', criteria: criteria[1], value: 6),
-              WeightedDecisionRating(id: 'r2_3', criteria: criteria[2], value: 8),
-              WeightedDecisionRating(id: 'r2_4', criteria: criteria[3], value: 9),
+              WeightedDecisionRating(
+                  id: 'r2_1', criteria: criteria[0], value: 7),
+              WeightedDecisionRating(
+                  id: 'r2_2', criteria: criteria[1], value: 6),
+              WeightedDecisionRating(
+                  id: 'r2_3', criteria: criteria[2], value: 8),
+              WeightedDecisionRating(
+                  id: 'r2_4', criteria: criteria[3], value: 9),
             ],
           ),
           WeightedDecisionMatrix(
             id: 'm3',
             alternative: alternatives[2],
             ratings: [
-              WeightedDecisionRating(id: 'r3_1', criteria: criteria[0], value: 8),
-              WeightedDecisionRating(id: 'r3_2', criteria: criteria[1], value: 9),
-              WeightedDecisionRating(id: 'r3_3', criteria: criteria[2], value: 6),
-              WeightedDecisionRating(id: 'r3_4', criteria: criteria[3], value: 6),
+              WeightedDecisionRating(
+                  id: 'r3_1', criteria: criteria[0], value: 8),
+              WeightedDecisionRating(
+                  id: 'r3_2', criteria: criteria[1], value: 9),
+              WeightedDecisionRating(
+                  id: 'r3_3', criteria: criteria[2], value: 6),
+              WeightedDecisionRating(
+                  id: 'r3_4', criteria: criteria[3], value: 6),
             ],
           ),
           WeightedDecisionMatrix(
             id: 'm4',
             alternative: alternatives[3],
             ratings: [
-              WeightedDecisionRating(id: 'r4_1', criteria: criteria[0], value: 7),
-              WeightedDecisionRating(id: 'r4_2', criteria: criteria[1], value: 7),
-              WeightedDecisionRating(id: 'r4_3', criteria: criteria[2], value: 7),
-              WeightedDecisionRating(id: 'r4_4', criteria: criteria[3], value: 7),
+              WeightedDecisionRating(
+                  id: 'r4_1', criteria: criteria[0], value: 7),
+              WeightedDecisionRating(
+                  id: 'r4_2', criteria: criteria[1], value: 7),
+              WeightedDecisionRating(
+                  id: 'r4_3', criteria: criteria[2], value: 7),
+              WeightedDecisionRating(
+                  id: 'r4_4', criteria: criteria[3], value: 7),
             ],
           ),
         ],
@@ -196,7 +225,9 @@ void main() {
 
       // Verify C3 +10% specific reference values
       final c3Plus = result.sensitivityCases.firstWhere(
-        (c) => c.criterionId == 'c3' && c.direction == SensitivityDirection.increase,
+        (c) =>
+            c.criterionId == 'c3' &&
+            c.direction == SensitivityDirection.increase,
       );
       expect(c3Plus.weights['c1'], closeTo(0.290000, 1e-4));
       expect(c3Plus.weights['c2'], closeTo(0.193333, 1e-4));
@@ -297,7 +328,9 @@ void main() {
 
       // C1 +10%
       final c1Plus = result.sensitivityCases.firstWhere(
-        (c) => c.criterionId == 'c1' && c.direction == SensitivityDirection.increase,
+        (c) =>
+            c.criterionId == 'c1' &&
+            c.direction == SensitivityDirection.increase,
       );
       expect(c1Plus.weights['c1'], closeTo(0.440000, 1e-4));
       expect(c1Plus.weights['c2'], closeTo(0.326667, 1e-4));
@@ -312,7 +345,9 @@ void main() {
 
       // C2 -10%
       final c2Minus = result.sensitivityCases.firstWhere(
-        (c) => c.criterionId == 'c2' && c.direction == SensitivityDirection.decrease,
+        (c) =>
+            c.criterionId == 'c2' &&
+            c.direction == SensitivityDirection.decrease,
       );
       expect(c2Minus.weights['c1'], closeTo(0.421538, 1e-4));
       expect(c2Minus.weights['c2'], closeTo(0.315000, 1e-4));
@@ -387,36 +422,48 @@ void main() {
             id: 'm1',
             alternative: alternatives[0],
             ratings: [
-              WeightedDecisionRating(id: 'r1_1', criteria: criteria[0], value: 8),
-              WeightedDecisionRating(id: 'r1_2', criteria: criteria[1], value: 7),
-              WeightedDecisionRating(id: 'r1_3', criteria: criteria[2], value: 1),
+              WeightedDecisionRating(
+                  id: 'r1_1', criteria: criteria[0], value: 8),
+              WeightedDecisionRating(
+                  id: 'r1_2', criteria: criteria[1], value: 7),
+              WeightedDecisionRating(
+                  id: 'r1_3', criteria: criteria[2], value: 1),
             ],
           ),
           WeightedDecisionMatrix(
             id: 'm2',
             alternative: alternatives[1],
             ratings: [
-              WeightedDecisionRating(id: 'r2_1', criteria: criteria[0], value: 2),
-              WeightedDecisionRating(id: 'r2_2', criteria: criteria[1], value: 6),
-              WeightedDecisionRating(id: 'r2_3', criteria: criteria[2], value: 9),
+              WeightedDecisionRating(
+                  id: 'r2_1', criteria: criteria[0], value: 2),
+              WeightedDecisionRating(
+                  id: 'r2_2', criteria: criteria[1], value: 6),
+              WeightedDecisionRating(
+                  id: 'r2_3', criteria: criteria[2], value: 9),
             ],
           ),
           WeightedDecisionMatrix(
             id: 'm3',
             alternative: alternatives[2],
             ratings: [
-              WeightedDecisionRating(id: 'r3_1', criteria: criteria[0], value: 9),
-              WeightedDecisionRating(id: 'r3_2', criteria: criteria[1], value: 2),
-              WeightedDecisionRating(id: 'r3_3', criteria: criteria[2], value: 6),
+              WeightedDecisionRating(
+                  id: 'r3_1', criteria: criteria[0], value: 9),
+              WeightedDecisionRating(
+                  id: 'r3_2', criteria: criteria[1], value: 2),
+              WeightedDecisionRating(
+                  id: 'r3_3', criteria: criteria[2], value: 6),
             ],
           ),
           WeightedDecisionMatrix(
             id: 'm4',
             alternative: alternatives[3],
             ratings: [
-              WeightedDecisionRating(id: 'r4_1', criteria: criteria[0], value: 1),
-              WeightedDecisionRating(id: 'r4_2', criteria: criteria[1], value: 2),
-              WeightedDecisionRating(id: 'r4_3', criteria: criteria[2], value: 2),
+              WeightedDecisionRating(
+                  id: 'r4_1', criteria: criteria[0], value: 1),
+              WeightedDecisionRating(
+                  id: 'r4_2', criteria: criteria[1], value: 2),
+              WeightedDecisionRating(
+                  id: 'r4_3', criteria: criteria[2], value: 2),
             ],
           ),
         ],
@@ -433,7 +480,9 @@ void main() {
 
       // C2 -10%
       final c2Minus = result.sensitivityCases.firstWhere(
-        (c) => c.criterionId == 'c2' && c.direction == SensitivityDirection.decrease,
+        (c) =>
+            c.criterionId == 'c2' &&
+            c.direction == SensitivityDirection.decrease,
       );
       expect(c2Minus.weights['c1'], closeTo(0.421538, 1e-4));
       expect(c2Minus.weights['c2'], closeTo(0.315000, 1e-4));
@@ -448,7 +497,9 @@ void main() {
 
       // C3 +10%
       final c3Plus = result.sensitivityCases.firstWhere(
-        (c) => c.criterionId == 'c3' && c.direction == SensitivityDirection.increase,
+        (c) =>
+            c.criterionId == 'c3' &&
+            c.direction == SensitivityDirection.increase,
       );
       expect(c3Plus.weights['c1'], closeTo(0.386667, 1e-4));
       expect(c3Plus.weights['c2'], closeTo(0.338333, 1e-4));
@@ -547,36 +598,48 @@ void main() {
             id: 'm1',
             alternative: alternatives[0],
             ratings: [
-              WeightedDecisionRating(id: 'r1_1', criteria: criteria[0], value: 8),
-              WeightedDecisionRating(id: 'r1_2', criteria: criteria[1], value: 5),
-              WeightedDecisionRating(id: 'r1_3', criteria: criteria[2], value: 7),
+              WeightedDecisionRating(
+                  id: 'r1_1', criteria: criteria[0], value: 8),
+              WeightedDecisionRating(
+                  id: 'r1_2', criteria: criteria[1], value: 5),
+              WeightedDecisionRating(
+                  id: 'r1_3', criteria: criteria[2], value: 7),
             ],
           ),
           WeightedDecisionMatrix(
             id: 'm2',
             alternative: alternatives[1],
             ratings: [
-              WeightedDecisionRating(id: 'r2_1', criteria: criteria[0], value: 3),
-              WeightedDecisionRating(id: 'r2_2', criteria: criteria[1], value: 1),
-              WeightedDecisionRating(id: 'r2_3', criteria: criteria[2], value: 1),
+              WeightedDecisionRating(
+                  id: 'r2_1', criteria: criteria[0], value: 3),
+              WeightedDecisionRating(
+                  id: 'r2_2', criteria: criteria[1], value: 1),
+              WeightedDecisionRating(
+                  id: 'r2_3', criteria: criteria[2], value: 1),
             ],
           ),
           WeightedDecisionMatrix(
             id: 'm3',
             alternative: alternatives[2],
             ratings: [
-              WeightedDecisionRating(id: 'r3_1', criteria: criteria[0], value: 9),
-              WeightedDecisionRating(id: 'r3_2', criteria: criteria[1], value: 9),
-              WeightedDecisionRating(id: 'r3_3', criteria: criteria[2], value: 3),
+              WeightedDecisionRating(
+                  id: 'r3_1', criteria: criteria[0], value: 9),
+              WeightedDecisionRating(
+                  id: 'r3_2', criteria: criteria[1], value: 9),
+              WeightedDecisionRating(
+                  id: 'r3_3', criteria: criteria[2], value: 3),
             ],
           ),
           WeightedDecisionMatrix(
             id: 'm4',
             alternative: alternatives[3],
             ratings: [
-              WeightedDecisionRating(id: 'r4_1', criteria: criteria[0], value: 4),
-              WeightedDecisionRating(id: 'r4_2', criteria: criteria[1], value: 3),
-              WeightedDecisionRating(id: 'r4_3', criteria: criteria[2], value: 2),
+              WeightedDecisionRating(
+                  id: 'r4_1', criteria: criteria[0], value: 4),
+              WeightedDecisionRating(
+                  id: 'r4_2', criteria: criteria[1], value: 3),
+              WeightedDecisionRating(
+                  id: 'r4_3', criteria: criteria[2], value: 2),
             ],
           ),
         ],
@@ -637,17 +700,49 @@ void main() {
     // -------------------------------------------------------------------------
     // Invariant Test: 80/70/50 weights produce identical results to 40/35/25
     // -------------------------------------------------------------------------
-    test('Invariant test: scaled criteria weights 80/70/50 yield identical results to 40/35/25 (SAW and TOPSIS)', () {
+    test(
+        'Invariant test: scaled criteria weights 80/70/50 yield identical results to 40/35/25 (SAW and TOPSIS)',
+        () {
       // 1. SAW S2 with 40/35/25 vs 80/70/50
       final criteria40Saw = [
-        WeightedDecisionCriteria(id: 'c1', name: 'C1', weightPercent: 40, isBenefit: true, maxValue: 10),
-        WeightedDecisionCriteria(id: 'c2', name: 'C2', weightPercent: 35, isBenefit: true, maxValue: 10),
-        WeightedDecisionCriteria(id: 'c3', name: 'C3', weightPercent: 25, isBenefit: false, maxValue: 10),
+        WeightedDecisionCriteria(
+            id: 'c1',
+            name: 'C1',
+            weightPercent: 40,
+            isBenefit: true,
+            maxValue: 10),
+        WeightedDecisionCriteria(
+            id: 'c2',
+            name: 'C2',
+            weightPercent: 35,
+            isBenefit: true,
+            maxValue: 10),
+        WeightedDecisionCriteria(
+            id: 'c3',
+            name: 'C3',
+            weightPercent: 25,
+            isBenefit: false,
+            maxValue: 10),
       ];
       final criteria80Saw = [
-        WeightedDecisionCriteria(id: 'c1', name: 'C1', weightPercent: 80, isBenefit: true, maxValue: 10),
-        WeightedDecisionCriteria(id: 'c2', name: 'C2', weightPercent: 70, isBenefit: true, maxValue: 10),
-        WeightedDecisionCriteria(id: 'c3', name: 'C3', weightPercent: 50, isBenefit: false, maxValue: 10),
+        WeightedDecisionCriteria(
+            id: 'c1',
+            name: 'C1',
+            weightPercent: 80,
+            isBenefit: true,
+            maxValue: 10),
+        WeightedDecisionCriteria(
+            id: 'c2',
+            name: 'C2',
+            weightPercent: 70,
+            isBenefit: true,
+            maxValue: 10),
+        WeightedDecisionCriteria(
+            id: 'c3',
+            name: 'C3',
+            weightPercent: 50,
+            isBenefit: false,
+            maxValue: 10),
       ];
       final alts = [
         WeightedDecisionAlternative(id: 'a1', name: 'A1'),
@@ -657,58 +752,86 @@ void main() {
       ];
       final matrix40Saw = [
         WeightedDecisionMatrix(id: 'm1', alternative: alts[0], ratings: [
-          WeightedDecisionRating(id: 'r1_1', criteria: criteria40Saw[0], value: 5),
-          WeightedDecisionRating(id: 'r1_2', criteria: criteria40Saw[1], value: 1),
-          WeightedDecisionRating(id: 'r1_3', criteria: criteria40Saw[2], value: 5),
+          WeightedDecisionRating(
+              id: 'r1_1', criteria: criteria40Saw[0], value: 5),
+          WeightedDecisionRating(
+              id: 'r1_2', criteria: criteria40Saw[1], value: 1),
+          WeightedDecisionRating(
+              id: 'r1_3', criteria: criteria40Saw[2], value: 5),
         ]),
         WeightedDecisionMatrix(id: 'm2', alternative: alts[1], ratings: [
-          WeightedDecisionRating(id: 'r2_1', criteria: criteria40Saw[0], value: 2),
-          WeightedDecisionRating(id: 'r2_2', criteria: criteria40Saw[1], value: 7),
-          WeightedDecisionRating(id: 'r2_3', criteria: criteria40Saw[2], value: 9),
+          WeightedDecisionRating(
+              id: 'r2_1', criteria: criteria40Saw[0], value: 2),
+          WeightedDecisionRating(
+              id: 'r2_2', criteria: criteria40Saw[1], value: 7),
+          WeightedDecisionRating(
+              id: 'r2_3', criteria: criteria40Saw[2], value: 9),
         ]),
         WeightedDecisionMatrix(id: 'm3', alternative: alts[2], ratings: [
-          WeightedDecisionRating(id: 'r3_1', criteria: criteria40Saw[0], value: 9),
-          WeightedDecisionRating(id: 'r3_2', criteria: criteria40Saw[1], value: 6),
-          WeightedDecisionRating(id: 'r3_3', criteria: criteria40Saw[2], value: 8),
+          WeightedDecisionRating(
+              id: 'r3_1', criteria: criteria40Saw[0], value: 9),
+          WeightedDecisionRating(
+              id: 'r3_2', criteria: criteria40Saw[1], value: 6),
+          WeightedDecisionRating(
+              id: 'r3_3', criteria: criteria40Saw[2], value: 8),
         ]),
         WeightedDecisionMatrix(id: 'm4', alternative: alts[3], ratings: [
-          WeightedDecisionRating(id: 'r4_1', criteria: criteria40Saw[0], value: 4),
-          WeightedDecisionRating(id: 'r4_2', criteria: criteria40Saw[1], value: 2),
-          WeightedDecisionRating(id: 'r4_3', criteria: criteria40Saw[2], value: 5),
+          WeightedDecisionRating(
+              id: 'r4_1', criteria: criteria40Saw[0], value: 4),
+          WeightedDecisionRating(
+              id: 'r4_2', criteria: criteria40Saw[1], value: 2),
+          WeightedDecisionRating(
+              id: 'r4_3', criteria: criteria40Saw[2], value: 5),
         ]),
       ];
       final matrix80Saw = [
         WeightedDecisionMatrix(id: 'm1', alternative: alts[0], ratings: [
-          WeightedDecisionRating(id: 'r1_1', criteria: criteria80Saw[0], value: 5),
-          WeightedDecisionRating(id: 'r1_2', criteria: criteria80Saw[1], value: 1),
-          WeightedDecisionRating(id: 'r1_3', criteria: criteria80Saw[2], value: 5),
+          WeightedDecisionRating(
+              id: 'r1_1', criteria: criteria80Saw[0], value: 5),
+          WeightedDecisionRating(
+              id: 'r1_2', criteria: criteria80Saw[1], value: 1),
+          WeightedDecisionRating(
+              id: 'r1_3', criteria: criteria80Saw[2], value: 5),
         ]),
         WeightedDecisionMatrix(id: 'm2', alternative: alts[1], ratings: [
-          WeightedDecisionRating(id: 'r2_1', criteria: criteria80Saw[0], value: 2),
-          WeightedDecisionRating(id: 'r2_2', criteria: criteria80Saw[1], value: 7),
-          WeightedDecisionRating(id: 'r2_3', criteria: criteria80Saw[2], value: 9),
+          WeightedDecisionRating(
+              id: 'r2_1', criteria: criteria80Saw[0], value: 2),
+          WeightedDecisionRating(
+              id: 'r2_2', criteria: criteria80Saw[1], value: 7),
+          WeightedDecisionRating(
+              id: 'r2_3', criteria: criteria80Saw[2], value: 9),
         ]),
         WeightedDecisionMatrix(id: 'm3', alternative: alts[2], ratings: [
-          WeightedDecisionRating(id: 'r3_1', criteria: criteria80Saw[0], value: 9),
-          WeightedDecisionRating(id: 'r3_2', criteria: criteria80Saw[1], value: 6),
-          WeightedDecisionRating(id: 'r3_3', criteria: criteria80Saw[2], value: 8),
+          WeightedDecisionRating(
+              id: 'r3_1', criteria: criteria80Saw[0], value: 9),
+          WeightedDecisionRating(
+              id: 'r3_2', criteria: criteria80Saw[1], value: 6),
+          WeightedDecisionRating(
+              id: 'r3_3', criteria: criteria80Saw[2], value: 8),
         ]),
         WeightedDecisionMatrix(id: 'm4', alternative: alts[3], ratings: [
-          WeightedDecisionRating(id: 'r4_1', criteria: criteria80Saw[0], value: 4),
-          WeightedDecisionRating(id: 'r4_2', criteria: criteria80Saw[1], value: 2),
-          WeightedDecisionRating(id: 'r4_3', criteria: criteria80Saw[2], value: 5),
+          WeightedDecisionRating(
+              id: 'r4_1', criteria: criteria80Saw[0], value: 4),
+          WeightedDecisionRating(
+              id: 'r4_2', criteria: criteria80Saw[1], value: 2),
+          WeightedDecisionRating(
+              id: 'r4_3', criteria: criteria80Saw[2], value: 5),
         ]),
       ];
 
-      final sawRes40 = SawCalculator.analyzeSensitivity(matrix40Saw, delta: 0.1);
-      final sawRes80 = SawCalculator.analyzeSensitivity(matrix80Saw, delta: 0.1);
+      final sawRes40 =
+          SawCalculator.analyzeSensitivity(matrix40Saw, delta: 0.1);
+      final sawRes80 =
+          SawCalculator.analyzeSensitivity(matrix80Saw, delta: 0.1);
 
       expect(sawRes80.isStable, sawRes40.isStable);
       expect(sawRes80.baseRanking, sawRes40.baseRanking);
       for (final altId in sawRes40.baseScores.keys) {
-        expect(sawRes80.baseScores[altId], closeTo(sawRes40.baseScores[altId]!, 1e-9));
+        expect(sawRes80.baseScores[altId],
+            closeTo(sawRes40.baseScores[altId]!, 1e-9));
       }
-      expect(sawRes80.sensitivityCases.length, sawRes40.sensitivityCases.length);
+      expect(
+          sawRes80.sensitivityCases.length, sawRes40.sensitivityCases.length);
       for (var i = 0; i < sawRes40.sensitivityCases.length; i++) {
         final c40 = sawRes40.sensitivityCases[i];
         final c80 = sawRes80.sensitivityCases[i];
@@ -718,7 +841,8 @@ void main() {
           expect(c80.scores[k], closeTo(c40.scores[k]!, 1e-9));
         }
       }
-      expect(sawRes80.rankReversalCases.length, sawRes40.rankReversalCases.length);
+      expect(
+          sawRes80.rankReversalCases.length, sawRes40.rankReversalCases.length);
       for (var i = 0; i < sawRes40.rankReversalCases.length; i++) {
         final r40 = sawRes40.rankReversalCases[i];
         final r80 = sawRes80.rankReversalCases[i];
@@ -734,24 +858,36 @@ void main() {
         criterias: criteria40Saw,
         matrixs: [
           WeightedDecisionMatrix(id: 'm1', alternative: alts[0], ratings: [
-            WeightedDecisionRating(id: 'r1_1', criteria: criteria40Saw[0], value: 8),
-            WeightedDecisionRating(id: 'r1_2', criteria: criteria40Saw[1], value: 7),
-            WeightedDecisionRating(id: 'r1_3', criteria: criteria40Saw[2], value: 1),
+            WeightedDecisionRating(
+                id: 'r1_1', criteria: criteria40Saw[0], value: 8),
+            WeightedDecisionRating(
+                id: 'r1_2', criteria: criteria40Saw[1], value: 7),
+            WeightedDecisionRating(
+                id: 'r1_3', criteria: criteria40Saw[2], value: 1),
           ]),
           WeightedDecisionMatrix(id: 'm2', alternative: alts[1], ratings: [
-            WeightedDecisionRating(id: 'r2_1', criteria: criteria40Saw[0], value: 2),
-            WeightedDecisionRating(id: 'r2_2', criteria: criteria40Saw[1], value: 6),
-            WeightedDecisionRating(id: 'r2_3', criteria: criteria40Saw[2], value: 9),
+            WeightedDecisionRating(
+                id: 'r2_1', criteria: criteria40Saw[0], value: 2),
+            WeightedDecisionRating(
+                id: 'r2_2', criteria: criteria40Saw[1], value: 6),
+            WeightedDecisionRating(
+                id: 'r2_3', criteria: criteria40Saw[2], value: 9),
           ]),
           WeightedDecisionMatrix(id: 'm3', alternative: alts[2], ratings: [
-            WeightedDecisionRating(id: 'r3_1', criteria: criteria40Saw[0], value: 9),
-            WeightedDecisionRating(id: 'r3_2', criteria: criteria40Saw[1], value: 2),
-            WeightedDecisionRating(id: 'r3_3', criteria: criteria40Saw[2], value: 6),
+            WeightedDecisionRating(
+                id: 'r3_1', criteria: criteria40Saw[0], value: 9),
+            WeightedDecisionRating(
+                id: 'r3_2', criteria: criteria40Saw[1], value: 2),
+            WeightedDecisionRating(
+                id: 'r3_3', criteria: criteria40Saw[2], value: 6),
           ]),
           WeightedDecisionMatrix(id: 'm4', alternative: alts[3], ratings: [
-            WeightedDecisionRating(id: 'r4_1', criteria: criteria40Saw[0], value: 1),
-            WeightedDecisionRating(id: 'r4_2', criteria: criteria40Saw[1], value: 2),
-            WeightedDecisionRating(id: 'r4_3', criteria: criteria40Saw[2], value: 2),
+            WeightedDecisionRating(
+                id: 'r4_1', criteria: criteria40Saw[0], value: 1),
+            WeightedDecisionRating(
+                id: 'r4_2', criteria: criteria40Saw[1], value: 2),
+            WeightedDecisionRating(
+                id: 'r4_3', criteria: criteria40Saw[2], value: 2),
           ]),
         ],
       );
@@ -759,37 +895,53 @@ void main() {
         criterias: criteria80Saw,
         matrixs: [
           WeightedDecisionMatrix(id: 'm1', alternative: alts[0], ratings: [
-            WeightedDecisionRating(id: 'r1_1', criteria: criteria80Saw[0], value: 8),
-            WeightedDecisionRating(id: 'r1_2', criteria: criteria80Saw[1], value: 7),
-            WeightedDecisionRating(id: 'r1_3', criteria: criteria80Saw[2], value: 1),
+            WeightedDecisionRating(
+                id: 'r1_1', criteria: criteria80Saw[0], value: 8),
+            WeightedDecisionRating(
+                id: 'r1_2', criteria: criteria80Saw[1], value: 7),
+            WeightedDecisionRating(
+                id: 'r1_3', criteria: criteria80Saw[2], value: 1),
           ]),
           WeightedDecisionMatrix(id: 'm2', alternative: alts[1], ratings: [
-            WeightedDecisionRating(id: 'r2_1', criteria: criteria80Saw[0], value: 2),
-            WeightedDecisionRating(id: 'r2_2', criteria: criteria80Saw[1], value: 6),
-            WeightedDecisionRating(id: 'r2_3', criteria: criteria80Saw[2], value: 9),
+            WeightedDecisionRating(
+                id: 'r2_1', criteria: criteria80Saw[0], value: 2),
+            WeightedDecisionRating(
+                id: 'r2_2', criteria: criteria80Saw[1], value: 6),
+            WeightedDecisionRating(
+                id: 'r2_3', criteria: criteria80Saw[2], value: 9),
           ]),
           WeightedDecisionMatrix(id: 'm3', alternative: alts[2], ratings: [
-            WeightedDecisionRating(id: 'r3_1', criteria: criteria80Saw[0], value: 9),
-            WeightedDecisionRating(id: 'r3_2', criteria: criteria80Saw[1], value: 2),
-            WeightedDecisionRating(id: 'r3_3', criteria: criteria80Saw[2], value: 6),
+            WeightedDecisionRating(
+                id: 'r3_1', criteria: criteria80Saw[0], value: 9),
+            WeightedDecisionRating(
+                id: 'r3_2', criteria: criteria80Saw[1], value: 2),
+            WeightedDecisionRating(
+                id: 'r3_3', criteria: criteria80Saw[2], value: 6),
           ]),
           WeightedDecisionMatrix(id: 'm4', alternative: alts[3], ratings: [
-            WeightedDecisionRating(id: 'r4_1', criteria: criteria80Saw[0], value: 1),
-            WeightedDecisionRating(id: 'r4_2', criteria: criteria80Saw[1], value: 2),
-            WeightedDecisionRating(id: 'r4_3', criteria: criteria80Saw[2], value: 2),
+            WeightedDecisionRating(
+                id: 'r4_1', criteria: criteria80Saw[0], value: 1),
+            WeightedDecisionRating(
+                id: 'r4_2', criteria: criteria80Saw[1], value: 2),
+            WeightedDecisionRating(
+                id: 'r4_3', criteria: criteria80Saw[2], value: 2),
           ]),
         ],
       );
 
-      final topsisRes40 = TopsisCalculator.analyzeSensitivity(topsisRaw40, delta: 0.1);
-      final topsisRes80 = TopsisCalculator.analyzeSensitivity(topsisRaw80, delta: 0.1);
+      final topsisRes40 =
+          TopsisCalculator.analyzeSensitivity(topsisRaw40, delta: 0.1);
+      final topsisRes80 =
+          TopsisCalculator.analyzeSensitivity(topsisRaw80, delta: 0.1);
 
       expect(topsisRes80.isStable, topsisRes40.isStable);
       expect(topsisRes80.baseRanking, topsisRes40.baseRanking);
       for (final altId in topsisRes40.baseScores.keys) {
-        expect(topsisRes80.baseScores[altId], closeTo(topsisRes40.baseScores[altId]!, 1e-9));
+        expect(topsisRes80.baseScores[altId],
+            closeTo(topsisRes40.baseScores[altId]!, 1e-9));
       }
-      expect(topsisRes80.sensitivityCases.length, topsisRes40.sensitivityCases.length);
+      expect(topsisRes80.sensitivityCases.length,
+          topsisRes40.sensitivityCases.length);
       for (var i = 0; i < topsisRes40.sensitivityCases.length; i++) {
         final c40 = topsisRes40.sensitivityCases[i];
         final c80 = topsisRes80.sensitivityCases[i];
@@ -799,7 +951,8 @@ void main() {
           expect(c80.scores[k], closeTo(c40.scores[k]!, 1e-9));
         }
       }
-      expect(topsisRes80.rankReversalCases.length, topsisRes40.rankReversalCases.length);
+      expect(topsisRes80.rankReversalCases.length,
+          topsisRes40.rankReversalCases.length);
       for (var i = 0; i < topsisRes40.rankReversalCases.length; i++) {
         final r40 = topsisRes40.rankReversalCases[i];
         final r80 = topsisRes80.rankReversalCases[i];
@@ -814,7 +967,8 @@ void main() {
     // -------------------------------------------------------------------------
     // JSON Serialization Check
     // -------------------------------------------------------------------------
-    test('SensitivityAnalysisResult and components serialize to JSON correctly', () {
+    test('SensitivityAnalysisResult and components serialize to JSON correctly',
+        () {
       final pair = AlternativePair('a1', 'a2');
       final pairJson = pair.toJson();
       expect(pairJson['first_id'], 'a1');

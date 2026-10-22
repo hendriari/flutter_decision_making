@@ -1,4 +1,4 @@
-### Proposed version: 2.0.0
+## 2.0.0
 
 ### Breaking changes
 - **Isolate execution is now opt-in.** The automatic isolate threshold (>80 alternatives / >25 criteria) was removed. All calculation methods accept `useIsolate` (default `false`). In profile-mode benchmarks on Apple Silicon, the main-thread path was roughly 8–50x faster than the isolate path for SAW and TOPSIS up to 2000x50 (see README).

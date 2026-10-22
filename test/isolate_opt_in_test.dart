@@ -14,7 +14,9 @@ void main() {
   });
 
   group('Isolate Opt-In & Lazy Lifecycle Tests', () {
-    test('Instantiating SAW, TOPSIS, and AHP does not initialize DecisionIsolateMain', () {
+    test(
+        'Instantiating SAW, TOPSIS, and AHP does not initialize DecisionIsolateMain',
+        () {
       expect(DecisionIsolateMain.hasInstance, isFalse);
       expect(DecisionIsolateMain.isWorkerRunning, isFalse);
 
@@ -30,7 +32,9 @@ void main() {
       expect(DecisionIsolateMain.isWorkerRunning, isFalse);
     });
 
-    test('getSawResult with useIsolate: false does not initialize DecisionIsolateMain even for >80 alternatives', () async {
+    test(
+        'getSawResult with useIsolate: false does not initialize DecisionIsolateMain even for >80 alternatives',
+        () async {
       final saw = SAW();
 
       // Create 85 alternatives and 2 criteria (exceeding old threshold of 80)
@@ -39,8 +43,18 @@ void main() {
         (i) => WeightedDecisionAlternative(id: 'a$i', name: 'Alt $i'),
       );
       final crts = [
-        WeightedDecisionCriteria(id: 'c1', name: 'C1', weightPercent: 50, isBenefit: true, maxValue: 100),
-        WeightedDecisionCriteria(id: 'c2', name: 'C2', weightPercent: 50, isBenefit: true, maxValue: 100),
+        WeightedDecisionCriteria(
+            id: 'c1',
+            name: 'C1',
+            weightPercent: 50,
+            isBenefit: true,
+            maxValue: 100),
+        WeightedDecisionCriteria(
+            id: 'c2',
+            name: 'C2',
+            weightPercent: 50,
+            isBenefit: true,
+            maxValue: 100),
       ];
 
       final matrix = alts.map((a) {
@@ -48,8 +62,10 @@ void main() {
           id: 'm_${a.id}',
           alternative: a,
           ratings: [
-            WeightedDecisionRating(id: 'r_${a.id}_1', criteria: crts[0], value: 50),
-            WeightedDecisionRating(id: 'r_${a.id}_2', criteria: crts[1], value: 60),
+            WeightedDecisionRating(
+                id: 'r_${a.id}_1', criteria: crts[0], value: 50),
+            WeightedDecisionRating(
+                id: 'r_${a.id}_2', criteria: crts[1], value: 60),
           ],
         );
       }).toList();
@@ -60,11 +76,14 @@ void main() {
 
       expect(result.length, 85);
       expect(DecisionIsolateMain.hasInstance, isFalse,
-          reason: 'DecisionIsolateMain should not be initialized when useIsolate: false');
+          reason:
+              'DecisionIsolateMain should not be initialized when useIsolate: false');
       expect(DecisionIsolateMain.isWorkerRunning, isFalse);
     });
 
-    test('getTopsisResult with useIsolate: false does not initialize DecisionIsolateMain even for >80 alternatives', () async {
+    test(
+        'getTopsisResult with useIsolate: false does not initialize DecisionIsolateMain even for >80 alternatives',
+        () async {
       final topsis = TOPSIS();
 
       final alts = List.generate(
@@ -72,8 +91,18 @@ void main() {
         (i) => WeightedDecisionAlternative(id: 'a$i', name: 'Alt $i'),
       );
       final crts = [
-        WeightedDecisionCriteria(id: 'c1', name: 'C1', weightPercent: 50, isBenefit: true, maxValue: 100),
-        WeightedDecisionCriteria(id: 'c2', name: 'C2', weightPercent: 50, isBenefit: true, maxValue: 100),
+        WeightedDecisionCriteria(
+            id: 'c1',
+            name: 'C1',
+            weightPercent: 50,
+            isBenefit: true,
+            maxValue: 100),
+        WeightedDecisionCriteria(
+            id: 'c2',
+            name: 'C2',
+            weightPercent: 50,
+            isBenefit: true,
+            maxValue: 100),
       ];
 
       final matrix = alts.map((a) {
@@ -81,8 +110,10 @@ void main() {
           id: 'm_${a.id}',
           alternative: a,
           ratings: [
-            WeightedDecisionRating(id: 'r_${a.id}_1', criteria: crts[0], value: 50),
-            WeightedDecisionRating(id: 'r_${a.id}_2', criteria: crts[1], value: 60),
+            WeightedDecisionRating(
+                id: 'r_${a.id}_1', criteria: crts[0], value: 50),
+            WeightedDecisionRating(
+                id: 'r_${a.id}_2', criteria: crts[1], value: 60),
           ],
         );
       }).toList();
@@ -91,15 +122,19 @@ void main() {
 
       expect(DecisionIsolateMain.hasInstance, isFalse);
 
-      final result = await topsis.getTopsisResult(matrix: rawMatrix, useIsolate: false);
+      final result =
+          await topsis.getTopsisResult(matrix: rawMatrix, useIsolate: false);
 
       expect(result.length, 85);
       expect(DecisionIsolateMain.hasInstance, isFalse,
-          reason: 'DecisionIsolateMain should not be initialized when useIsolate: false');
+          reason:
+              'DecisionIsolateMain should not be initialized when useIsolate: false');
       expect(DecisionIsolateMain.isWorkerRunning, isFalse);
     });
 
-    test('getAhpResult with useIsolate: false does not initialize DecisionIsolateMain', () async {
+    test(
+        'getAhpResult with useIsolate: false does not initialize DecisionIsolateMain',
+        () async {
       final ahp = AHP();
 
       final c1 = AhpItem(id: 'c1', name: 'Criteria 1');
@@ -113,15 +148,30 @@ void main() {
       ];
 
       final inputsCriteria = [
-        PairwiseComparisonInput(id: 'p_c', left: c1, right: c2, preferenceValue: 1, isLeftMoreImportant: true),
+        PairwiseComparisonInput(
+            id: 'p_c',
+            left: c1,
+            right: c2,
+            preferenceValue: 1,
+            isLeftMoreImportant: true),
       ];
 
       final inputsAlternative = [
         PairwiseAlternativeInput(criteria: c1, alternative: [
-          PairwiseComparisonInput(id: 'p_a_1', left: a1, right: a2, preferenceValue: 1, isLeftMoreImportant: true),
+          PairwiseComparisonInput(
+              id: 'p_a_1',
+              left: a1,
+              right: a2,
+              preferenceValue: 1,
+              isLeftMoreImportant: true),
         ]),
         PairwiseAlternativeInput(criteria: c2, alternative: [
-          PairwiseComparisonInput(id: 'p_a_2', left: a1, right: a2, preferenceValue: 1, isLeftMoreImportant: true),
+          PairwiseComparisonInput(
+              id: 'p_a_2',
+              left: a1,
+              right: a2,
+              preferenceValue: 1,
+              isLeftMoreImportant: true),
         ]),
       ];
 
@@ -136,11 +186,14 @@ void main() {
 
       expect(result.results?.length, 2);
       expect(DecisionIsolateMain.hasInstance, isFalse,
-          reason: 'DecisionIsolateMain should not be initialized when useIsolate: false');
+          reason:
+              'DecisionIsolateMain should not be initialized when useIsolate: false');
       expect(DecisionIsolateMain.isWorkerRunning, isFalse);
     });
 
-    test('useIsolate: true initializes DecisionIsolateMain and produces identical result to useIsolate: false', () async {
+    test(
+        'useIsolate: true initializes DecisionIsolateMain and produces identical result to useIsolate: false',
+        () async {
       final saw = SAW();
 
       final alts = [
@@ -148,8 +201,18 @@ void main() {
         WeightedDecisionAlternative(id: 'a2', name: 'Alt 2'),
       ];
       final crts = [
-        WeightedDecisionCriteria(id: 'c1', name: 'C1', weightPercent: 60, isBenefit: true, maxValue: 100),
-        WeightedDecisionCriteria(id: 'c2', name: 'C2', weightPercent: 40, isBenefit: false, maxValue: 100),
+        WeightedDecisionCriteria(
+            id: 'c1',
+            name: 'C1',
+            weightPercent: 60,
+            isBenefit: true,
+            maxValue: 100),
+        WeightedDecisionCriteria(
+            id: 'c2',
+            name: 'C2',
+            weightPercent: 40,
+            isBenefit: false,
+            maxValue: 100),
       ];
       final matrix = [
         WeightedDecisionMatrix(id: 'm1', alternative: alts[0], ratings: [
@@ -162,10 +225,12 @@ void main() {
         ]),
       ];
 
-      final resDirect = await saw.getSawResult(matrix: matrix, useIsolate: false);
+      final resDirect =
+          await saw.getSawResult(matrix: matrix, useIsolate: false);
       expect(DecisionIsolateMain.hasInstance, isFalse);
 
-      final resIsolate = await saw.getSawResult(matrix: matrix, useIsolate: true);
+      final resIsolate =
+          await saw.getSawResult(matrix: matrix, useIsolate: true);
       expect(DecisionIsolateMain.hasInstance, isTrue);
 
       expect(resIsolate.length, resDirect.length);

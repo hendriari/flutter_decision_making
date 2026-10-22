@@ -26,7 +26,9 @@ void main() {
   });
 
   group('Worker Routing Audit Tests: AHP Commands', () {
-    test('AhpProcessingIsolateCommand.generateInputPairwiseAlternative matches direct function', () async {
+    test(
+        'AhpProcessingIsolateCommand.generateInputPairwiseAlternative matches direct function',
+        () async {
       final payload = {
         'data': [
           {
@@ -55,11 +57,15 @@ void main() {
       expect(workerAlts.length, equals(directAlts.length));
       expect(workerAlts[0]['left'], equals(directAlts[0]['left']));
       expect(workerAlts[0]['right'], equals(directAlts[0]['right']));
-      expect(workerAlts[0]['preference_value'], equals(directAlts[0]['preference_value']));
-      expect(workerAlts[0]['is_left_more_important'], equals(directAlts[0]['is_left_more_important']));
+      expect(workerAlts[0]['preference_value'],
+          equals(directAlts[0]['preference_value']));
+      expect(workerAlts[0]['is_left_more_important'],
+          equals(directAlts[0]['is_left_more_important']));
     });
 
-    test('AhpProcessingIsolateCommand.generateResultPairwiseMatrixCriteria matches direct function', () async {
+    test(
+        'AhpProcessingIsolateCommand.generateResultPairwiseMatrixCriteria matches direct function',
+        () async {
       final payload = {
         'items': [
           {'id': 'c1', 'name': 'Cost'},
@@ -86,7 +92,9 @@ void main() {
       expect(worker, equals(direct));
     });
 
-    test('AhpProcessingIsolateCommand.generateResultPairwiseMatrixAlternative matches direct function', () async {
+    test(
+        'AhpProcessingIsolateCommand.generateResultPairwiseMatrixAlternative matches direct function',
+        () async {
       final payload = {
         'items': [
           {'id': 'a1', 'name': 'Alt 1'},
@@ -118,7 +126,9 @@ void main() {
       expect(worker, equals(direct));
     });
 
-    test('AhpProcessingIsolateCommand.calculateEigenVectorCriteria matches direct function', () async {
+    test(
+        'AhpProcessingIsolateCommand.calculateEigenVectorCriteria matches direct function',
+        () async {
       final payload = {
         'matrix': [
           [1.0, 3.0],
@@ -139,7 +149,9 @@ void main() {
       }
     });
 
-    test('AhpProcessingIsolateCommand.calculateEigenVectorAlternative matches direct function', () async {
+    test(
+        'AhpProcessingIsolateCommand.calculateEigenVectorAlternative matches direct function',
+        () async {
       final payload = {
         'matrix': [
           [1.0, 2.0],
@@ -160,7 +172,9 @@ void main() {
       }
     });
 
-    test('AhpProcessingIsolateCommand.checkConsistencyRatio matches direct function', () async {
+    test(
+        'AhpProcessingIsolateCommand.checkConsistencyRatio matches direct function',
+        () async {
       final payload = {
         'matrix': [
           [1.0, 3.0],
@@ -182,7 +196,9 @@ void main() {
       expect(worker['lambda_max'], closeTo(direct['lambda_max'], 1e-6));
     });
 
-    test('AhpProcessingIsolateCommand.calculateFinalScore matches direct function', () async {
+    test(
+        'AhpProcessingIsolateCommand.calculateFinalScore matches direct function',
+        () async {
       final payload = {
         'eigen_vector_criteria': [0.6, 0.4],
         'eigen_vector_alternative': [
@@ -193,7 +209,11 @@ void main() {
           {'id': 'a1', 'name': 'Alt 1'},
           {'id': 'a2', 'name': 'Alt 2'},
         ],
-        'consistency_criteria_raw': {'source': 'criteria', 'ratio': 0.01, 'is_consistent': true},
+        'consistency_criteria_raw': {
+          'source': 'criteria',
+          'ratio': 0.01,
+          'is_consistent': true
+        },
         'consistency_alternative_raw': [
           {'source': 'c1', 'ratio': 0.01, 'is_consistent': true},
           {'source': 'c2', 'ratio': 0.01, 'is_consistent': true},
@@ -207,23 +227,38 @@ void main() {
         payload,
       );
 
-      expect(worker['is_consistent_criteria'], equals(direct['is_consistent_criteria']));
+      expect(worker['is_consistent_criteria'],
+          equals(direct['is_consistent_criteria']));
       final directResults = direct['results'] as List;
       final workerResults = worker['results'] as List;
       expect(workerResults.length, directResults.length);
       for (int i = 0; i < directResults.length; i++) {
         expect(workerResults[i]['id'], equals(directResults[i]['id']));
-        expect(workerResults[i]['value'], closeTo(directResults[i]['value'], 1e-6));
+        expect(workerResults[i]['value'],
+            closeTo(directResults[i]['value'], 1e-6));
       }
     });
   });
 
   group('Worker Routing Audit Tests: SAW Commands', () {
-    test('SawProcessingIsolateCommand.generateMatrix matches direct function', () async {
+    test('SawProcessingIsolateCommand.generateMatrix matches direct function',
+        () async {
       final payload = {
         'list_criteria': [
-          {'id': 'c1', 'name': 'C1', 'weight_percent': 50.0, 'is_benefit': true, 'max_value': 100.0},
-          {'id': 'c2', 'name': 'C2', 'weight_percent': 50.0, 'is_benefit': true, 'max_value': 100.0},
+          {
+            'id': 'c1',
+            'name': 'C1',
+            'weight_percent': 50.0,
+            'is_benefit': true,
+            'max_value': 100.0
+          },
+          {
+            'id': 'c2',
+            'name': 'C2',
+            'weight_percent': 50.0,
+            'is_benefit': true,
+            'max_value': 100.0
+          },
         ],
         'list_alternative': [
           {'id': 'a1', 'name': 'A1'},
@@ -240,18 +275,21 @@ void main() {
 
       expect((worker as List).length, (direct as List).length);
       for (int i = 0; i < direct.length; i++) {
-        expect(worker[i]['alternative']['id'], equals(direct[i]['alternative']['id']));
+        expect(worker[i]['alternative']['id'],
+            equals(direct[i]['alternative']['id']));
         final directRatings = direct[i]['ratings'] as List;
         final workerRatings = worker[i]['ratings'] as List;
         expect(workerRatings.length, directRatings.length);
         for (int j = 0; j < directRatings.length; j++) {
-          expect(workerRatings[j]['criteria']['id'], equals(directRatings[j]['criteria']['id']));
+          expect(workerRatings[j]['criteria']['id'],
+              equals(directRatings[j]['criteria']['id']));
           expect(workerRatings[j]['value'], equals(directRatings[j]['value']));
         }
       }
     });
 
-    test('SawProcessingIsolateCommand.normalizeMatrix matches direct function', () async {
+    test('SawProcessingIsolateCommand.normalizeMatrix matches direct function',
+        () async {
       final payload = {
         'matrix': [
           {
@@ -260,12 +298,24 @@ void main() {
             'ratings': [
               {
                 'id': 'r1',
-                'criteria': {'id': 'c1', 'name': 'C1', 'weight_percent': 50.0, 'is_benefit': true, 'max_value': 100.0},
+                'criteria': {
+                  'id': 'c1',
+                  'name': 'C1',
+                  'weight_percent': 50.0,
+                  'is_benefit': true,
+                  'max_value': 100.0
+                },
                 'value': 80.0,
               },
               {
                 'id': 'r2',
-                'criteria': {'id': 'c2', 'name': 'C2', 'weight_percent': 50.0, 'is_benefit': false, 'max_value': 100.0},
+                'criteria': {
+                  'id': 'c2',
+                  'name': 'C2',
+                  'weight_percent': 50.0,
+                  'is_benefit': false,
+                  'max_value': 100.0
+                },
                 'value': 40.0,
               },
             ],
@@ -276,12 +326,24 @@ void main() {
             'ratings': [
               {
                 'id': 'r3',
-                'criteria': {'id': 'c1', 'name': 'C1', 'weight_percent': 50.0, 'is_benefit': true, 'max_value': 100.0},
+                'criteria': {
+                  'id': 'c1',
+                  'name': 'C1',
+                  'weight_percent': 50.0,
+                  'is_benefit': true,
+                  'max_value': 100.0
+                },
                 'value': 60.0,
               },
               {
                 'id': 'r4',
-                'criteria': {'id': 'c2', 'name': 'C2', 'weight_percent': 50.0, 'is_benefit': false, 'max_value': 100.0},
+                'criteria': {
+                  'id': 'c2',
+                  'name': 'C2',
+                  'weight_percent': 50.0,
+                  'is_benefit': false,
+                  'max_value': 100.0
+                },
                 'value': 20.0,
               },
             ],
@@ -310,10 +372,18 @@ void main() {
   });
 
   group('Worker Routing Audit Tests: TOPSIS Commands', () {
-    test('TopsisProcessingIsolateCommand.generateMatrix matches direct function', () async {
+    test(
+        'TopsisProcessingIsolateCommand.generateMatrix matches direct function',
+        () async {
       final payload = {
         'list_criteria': [
-          {'id': 'c1', 'name': 'C1', 'weight_percent': 50.0, 'is_benefit': true, 'max_value': 100.0},
+          {
+            'id': 'c1',
+            'name': 'C1',
+            'weight_percent': 50.0,
+            'is_benefit': true,
+            'max_value': 100.0
+          },
         ],
         'list_alternative': [
           {'id': 'a1', 'name': 'A1'},
@@ -330,11 +400,25 @@ void main() {
       expect((worker as List).length, (direct as List).length);
     });
 
-    test('TopsisProcessingIsolateCommand.normalizeEuclidean matches normalizeEuclideanMatrixIsolate', () async {
+    test(
+        'TopsisProcessingIsolateCommand.normalizeEuclidean matches normalizeEuclideanMatrixIsolate',
+        () async {
       final payload = {
         'criteria': [
-          {'id': 'c1', 'name': 'C1', 'weight_percent': 50.0, 'is_benefit': true, 'max_value': 10.0},
-          {'id': 'c2', 'name': 'C2', 'weight_percent': 50.0, 'is_benefit': false, 'max_value': 10.0},
+          {
+            'id': 'c1',
+            'name': 'C1',
+            'weight_percent': 50.0,
+            'is_benefit': true,
+            'max_value': 10.0
+          },
+          {
+            'id': 'c2',
+            'name': 'C2',
+            'weight_percent': 50.0,
+            'is_benefit': false,
+            'max_value': 10.0
+          },
         ],
         'matrix': [
           {
@@ -343,12 +427,24 @@ void main() {
             'ratings': [
               {
                 'id': 'r1',
-                'criteria': {'id': 'c1', 'name': 'C1', 'weight_percent': 50.0, 'is_benefit': true, 'max_value': 10.0},
+                'criteria': {
+                  'id': 'c1',
+                  'name': 'C1',
+                  'weight_percent': 50.0,
+                  'is_benefit': true,
+                  'max_value': 10.0
+                },
                 'value': 4.0,
               },
               {
                 'id': 'r2',
-                'criteria': {'id': 'c2', 'name': 'C2', 'weight_percent': 50.0, 'is_benefit': false, 'max_value': 10.0},
+                'criteria': {
+                  'id': 'c2',
+                  'name': 'C2',
+                  'weight_percent': 50.0,
+                  'is_benefit': false,
+                  'max_value': 10.0
+                },
                 'value': 3.0,
               },
             ],
@@ -359,12 +455,24 @@ void main() {
             'ratings': [
               {
                 'id': 'r3',
-                'criteria': {'id': 'c1', 'name': 'C1', 'weight_percent': 50.0, 'is_benefit': true, 'max_value': 10.0},
+                'criteria': {
+                  'id': 'c1',
+                  'name': 'C1',
+                  'weight_percent': 50.0,
+                  'is_benefit': true,
+                  'max_value': 10.0
+                },
                 'value': 3.0,
               },
               {
                 'id': 'r4',
-                'criteria': {'id': 'c2', 'name': 'C2', 'weight_percent': 50.0, 'is_benefit': false, 'max_value': 10.0},
+                'criteria': {
+                  'id': 'c2',
+                  'name': 'C2',
+                  'weight_percent': 50.0,
+                  'is_benefit': false,
+                  'max_value': 10.0
+                },
                 'value': 4.0,
               },
             ],

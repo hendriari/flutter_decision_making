@@ -303,7 +303,8 @@ void main() {
     });
   });
 
-  group('TOPSIS Detailed Results Tests - Intermediate Values (Tolerance 1e-4)', () {
+  group('TOPSIS Detailed Results Tests - Intermediate Values (Tolerance 1e-4)',
+      () {
     test('Case 1: Intermediate values for consistent 4x4 case', () {
       // Label: cross-checked (Python 3.9)
 
@@ -406,64 +407,98 @@ void main() {
 
       // 3. Euclidean normalized matrix check (per cell)
       // Row 0 (a1): [0.365636, 0.527504, 0.311400, 0.477396]
-      expect(detailed.normalizedMatrix[0].ratings[0].value, closeTo(0.365636, 1e-4));
-      expect(detailed.normalizedMatrix[0].ratings[1].value, closeTo(0.527504, 1e-4));
-      expect(detailed.normalizedMatrix[0].ratings[2].value, closeTo(0.311400, 1e-4));
-      expect(detailed.normalizedMatrix[0].ratings[3].value, closeTo(0.477396, 1e-4));
+      expect(detailed.normalizedMatrix[0].ratings[0].value,
+          closeTo(0.365636, 1e-4));
+      expect(detailed.normalizedMatrix[0].ratings[1].value,
+          closeTo(0.527504, 1e-4));
+      expect(detailed.normalizedMatrix[0].ratings[2].value,
+          closeTo(0.311400, 1e-4));
+      expect(detailed.normalizedMatrix[0].ratings[3].value,
+          closeTo(0.477396, 1e-4));
 
       // Row 1 (a2): [0.511891, 0.395628, 0.622799, 0.613795]
-      expect(detailed.normalizedMatrix[1].ratings[0].value, closeTo(0.511891, 1e-4));
-      expect(detailed.normalizedMatrix[1].ratings[1].value, closeTo(0.395628, 1e-4));
-      expect(detailed.normalizedMatrix[1].ratings[2].value, closeTo(0.622799, 1e-4));
-      expect(detailed.normalizedMatrix[1].ratings[3].value, closeTo(0.613795, 1e-4));
+      expect(detailed.normalizedMatrix[1].ratings[0].value,
+          closeTo(0.511891, 1e-4));
+      expect(detailed.normalizedMatrix[1].ratings[1].value,
+          closeTo(0.395628, 1e-4));
+      expect(detailed.normalizedMatrix[1].ratings[2].value,
+          closeTo(0.622799, 1e-4));
+      expect(detailed.normalizedMatrix[1].ratings[3].value,
+          closeTo(0.613795, 1e-4));
 
       // Row 2 (a3): [0.585018, 0.593442, 0.467099, 0.409197]
-      expect(detailed.normalizedMatrix[2].ratings[0].value, closeTo(0.585018, 1e-4));
-      expect(detailed.normalizedMatrix[2].ratings[1].value, closeTo(0.593442, 1e-4));
-      expect(detailed.normalizedMatrix[2].ratings[2].value, closeTo(0.467099, 1e-4));
-      expect(detailed.normalizedMatrix[2].ratings[3].value, closeTo(0.409197, 1e-4));
+      expect(detailed.normalizedMatrix[2].ratings[0].value,
+          closeTo(0.585018, 1e-4));
+      expect(detailed.normalizedMatrix[2].ratings[1].value,
+          closeTo(0.593442, 1e-4));
+      expect(detailed.normalizedMatrix[2].ratings[2].value,
+          closeTo(0.467099, 1e-4));
+      expect(detailed.normalizedMatrix[2].ratings[3].value,
+          closeTo(0.409197, 1e-4));
 
       // Row 3 (a4): [0.511891, 0.461566, 0.544949, 0.477396]
-      expect(detailed.normalizedMatrix[3].ratings[0].value, closeTo(0.511891, 1e-4));
-      expect(detailed.normalizedMatrix[3].ratings[1].value, closeTo(0.461566, 1e-4));
-      expect(detailed.normalizedMatrix[3].ratings[2].value, closeTo(0.544949, 1e-4));
-      expect(detailed.normalizedMatrix[3].ratings[3].value, closeTo(0.477396, 1e-4));
+      expect(detailed.normalizedMatrix[3].ratings[0].value,
+          closeTo(0.511891, 1e-4));
+      expect(detailed.normalizedMatrix[3].ratings[1].value,
+          closeTo(0.461566, 1e-4));
+      expect(detailed.normalizedMatrix[3].ratings[2].value,
+          closeTo(0.544949, 1e-4));
+      expect(detailed.normalizedMatrix[3].ratings[3].value,
+          closeTo(0.477396, 1e-4));
 
       // 4. Weighted matrix check (per cell)
       // Row 0 (a1): [0.109691, 0.105501, 0.077850, 0.119349]
-      expect(detailed.weightedMatrix[0].ratings[0].value, closeTo(0.109691, 1e-4));
-      expect(detailed.weightedMatrix[0].ratings[1].value, closeTo(0.105501, 1e-4));
-      expect(detailed.weightedMatrix[0].ratings[2].value, closeTo(0.077850, 1e-4));
-      expect(detailed.weightedMatrix[0].ratings[3].value, closeTo(0.119349, 1e-4));
+      expect(
+          detailed.weightedMatrix[0].ratings[0].value, closeTo(0.109691, 1e-4));
+      expect(
+          detailed.weightedMatrix[0].ratings[1].value, closeTo(0.105501, 1e-4));
+      expect(
+          detailed.weightedMatrix[0].ratings[2].value, closeTo(0.077850, 1e-4));
+      expect(
+          detailed.weightedMatrix[0].ratings[3].value, closeTo(0.119349, 1e-4));
 
       // Row 1 (a2): [0.153567, 0.079126, 0.155700, 0.153449]
-      expect(detailed.weightedMatrix[1].ratings[0].value, closeTo(0.153567, 1e-4));
-      expect(detailed.weightedMatrix[1].ratings[1].value, closeTo(0.079126, 1e-4));
-      expect(detailed.weightedMatrix[1].ratings[2].value, closeTo(0.155700, 1e-4));
-      expect(detailed.weightedMatrix[1].ratings[3].value, closeTo(0.153449, 1e-4));
+      expect(
+          detailed.weightedMatrix[1].ratings[0].value, closeTo(0.153567, 1e-4));
+      expect(
+          detailed.weightedMatrix[1].ratings[1].value, closeTo(0.079126, 1e-4));
+      expect(
+          detailed.weightedMatrix[1].ratings[2].value, closeTo(0.155700, 1e-4));
+      expect(
+          detailed.weightedMatrix[1].ratings[3].value, closeTo(0.153449, 1e-4));
 
       // Row 2 (a3): [0.175505, 0.118688, 0.116775, 0.102299]
-      expect(detailed.weightedMatrix[2].ratings[0].value, closeTo(0.175505, 1e-4));
-      expect(detailed.weightedMatrix[2].ratings[1].value, closeTo(0.118688, 1e-4));
-      expect(detailed.weightedMatrix[2].ratings[2].value, closeTo(0.116775, 1e-4));
-      expect(detailed.weightedMatrix[2].ratings[3].value, closeTo(0.102299, 1e-4));
+      expect(
+          detailed.weightedMatrix[2].ratings[0].value, closeTo(0.175505, 1e-4));
+      expect(
+          detailed.weightedMatrix[2].ratings[1].value, closeTo(0.118688, 1e-4));
+      expect(
+          detailed.weightedMatrix[2].ratings[2].value, closeTo(0.116775, 1e-4));
+      expect(
+          detailed.weightedMatrix[2].ratings[3].value, closeTo(0.102299, 1e-4));
 
       // Row 3 (a4): [0.153567, 0.092313, 0.136237, 0.119349]
-      expect(detailed.weightedMatrix[3].ratings[0].value, closeTo(0.153567, 1e-4));
-      expect(detailed.weightedMatrix[3].ratings[1].value, closeTo(0.092313, 1e-4));
-      expect(detailed.weightedMatrix[3].ratings[2].value, closeTo(0.136237, 1e-4));
-      expect(detailed.weightedMatrix[3].ratings[3].value, closeTo(0.119349, 1e-4));
+      expect(
+          detailed.weightedMatrix[3].ratings[0].value, closeTo(0.153567, 1e-4));
+      expect(
+          detailed.weightedMatrix[3].ratings[1].value, closeTo(0.092313, 1e-4));
+      expect(
+          detailed.weightedMatrix[3].ratings[2].value, closeTo(0.136237, 1e-4));
+      expect(
+          detailed.weightedMatrix[3].ratings[3].value, closeTo(0.119349, 1e-4));
 
       // 5. Positive and Negative Ideal Solutions check
       expect(detailed.positiveIdeal['c1'], closeTo(0.175505, 1e-4));
       expect(detailed.positiveIdeal['c2'], closeTo(0.118688, 1e-4));
       expect(detailed.positiveIdeal['c3'], closeTo(0.155700, 1e-4));
-      expect(detailed.positiveIdeal['c4'], closeTo(0.102299, 1e-4)); // Cost: min
+      expect(
+          detailed.positiveIdeal['c4'], closeTo(0.102299, 1e-4)); // Cost: min
 
       expect(detailed.negativeIdeal['c1'], closeTo(0.109691, 1e-4));
       expect(detailed.negativeIdeal['c2'], closeTo(0.079126, 1e-4));
       expect(detailed.negativeIdeal['c3'], closeTo(0.077850, 1e-4));
-      expect(detailed.negativeIdeal['c4'], closeTo(0.153449, 1e-4)); // Cost: max
+      expect(
+          detailed.negativeIdeal['c4'], closeTo(0.153449, 1e-4)); // Cost: max
 
       // 6. Separation distances check (D+ and D-)
       expect(detailed.separationPlus['a1'], closeTo(0.104196, 1e-4));
@@ -506,7 +541,9 @@ void main() {
       expect(json['scores'], isA<List>());
     });
 
-    test('Case 2: Intermediate values for vendor selection (Multiple Cost Criteria)', () {
+    test(
+        'Case 2: Intermediate values for vendor selection (Multiple Cost Criteria)',
+        () {
       // Label: cross-checked (Python 3.9)
 
       final alternatives = [
@@ -544,26 +581,34 @@ void main() {
           id: 'm1',
           alternative: alternatives[0],
           ratings: [
-            WeightedDecisionRating(id: 'r1_1', criteria: criteria[0], value: 80),
-            WeightedDecisionRating(id: 'r1_2', criteria: criteria[1], value: 20),
-            WeightedDecisionRating(id: 'r1_3', criteria: criteria[2], value: 10),
+            WeightedDecisionRating(
+                id: 'r1_1', criteria: criteria[0], value: 80),
+            WeightedDecisionRating(
+                id: 'r1_2', criteria: criteria[1], value: 20),
+            WeightedDecisionRating(
+                id: 'r1_3', criteria: criteria[2], value: 10),
           ],
         ),
         WeightedDecisionMatrix(
           id: 'm2',
           alternative: alternatives[1],
           ratings: [
-            WeightedDecisionRating(id: 'r2_1', criteria: criteria[0], value: 90),
-            WeightedDecisionRating(id: 'r2_2', criteria: criteria[1], value: 30),
-            WeightedDecisionRating(id: 'r2_3', criteria: criteria[2], value: 15),
+            WeightedDecisionRating(
+                id: 'r2_1', criteria: criteria[0], value: 90),
+            WeightedDecisionRating(
+                id: 'r2_2', criteria: criteria[1], value: 30),
+            WeightedDecisionRating(
+                id: 'r2_3', criteria: criteria[2], value: 15),
           ],
         ),
         WeightedDecisionMatrix(
           id: 'm3',
           alternative: alternatives[2],
           ratings: [
-            WeightedDecisionRating(id: 'r3_1', criteria: criteria[0], value: 70),
-            WeightedDecisionRating(id: 'r3_2', criteria: criteria[1], value: 15),
+            WeightedDecisionRating(
+                id: 'r3_1', criteria: criteria[0], value: 70),
+            WeightedDecisionRating(
+                id: 'r3_2', criteria: criteria[1], value: 15),
             WeightedDecisionRating(id: 'r3_3', criteria: criteria[2], value: 8),
           ],
         ),
@@ -618,7 +663,9 @@ void main() {
       expect(detailed.scores[2].score, closeTo(0.346610, 1e-4));
     });
 
-    test('Case 1: Halved criteria weights (15/10/12.5/12.5) produce normalizedWeights [0.3, 0.2, 0.25, 0.25] and identical intermediate values and calculate() scores', () {
+    test(
+        'Case 1: Halved criteria weights (15/10/12.5/12.5) produce normalizedWeights [0.3, 0.2, 0.25, 0.25] and identical intermediate values and calculate() scores',
+        () {
       final alternatives = [
         WeightedDecisionAlternative(id: 'a1', name: 'Alternative 1'),
         WeightedDecisionAlternative(id: 'a2', name: 'Alternative 2'),
@@ -693,40 +740,56 @@ void main() {
           id: 'm1',
           alternative: alternatives[0],
           ratings: [
-            WeightedDecisionRating(id: 'r1_1', criteria: standardCriteria[0], value: 5),
-            WeightedDecisionRating(id: 'r1_2', criteria: standardCriteria[1], value: 8),
-            WeightedDecisionRating(id: 'r1_3', criteria: standardCriteria[2], value: 4),
-            WeightedDecisionRating(id: 'r1_4', criteria: standardCriteria[3], value: 7),
+            WeightedDecisionRating(
+                id: 'r1_1', criteria: standardCriteria[0], value: 5),
+            WeightedDecisionRating(
+                id: 'r1_2', criteria: standardCriteria[1], value: 8),
+            WeightedDecisionRating(
+                id: 'r1_3', criteria: standardCriteria[2], value: 4),
+            WeightedDecisionRating(
+                id: 'r1_4', criteria: standardCriteria[3], value: 7),
           ],
         ),
         WeightedDecisionMatrix(
           id: 'm2',
           alternative: alternatives[1],
           ratings: [
-            WeightedDecisionRating(id: 'r2_1', criteria: standardCriteria[0], value: 7),
-            WeightedDecisionRating(id: 'r2_2', criteria: standardCriteria[1], value: 6),
-            WeightedDecisionRating(id: 'r2_3', criteria: standardCriteria[2], value: 8),
-            WeightedDecisionRating(id: 'r2_4', criteria: standardCriteria[3], value: 9),
+            WeightedDecisionRating(
+                id: 'r2_1', criteria: standardCriteria[0], value: 7),
+            WeightedDecisionRating(
+                id: 'r2_2', criteria: standardCriteria[1], value: 6),
+            WeightedDecisionRating(
+                id: 'r2_3', criteria: standardCriteria[2], value: 8),
+            WeightedDecisionRating(
+                id: 'r2_4', criteria: standardCriteria[3], value: 9),
           ],
         ),
         WeightedDecisionMatrix(
           id: 'm3',
           alternative: alternatives[2],
           ratings: [
-            WeightedDecisionRating(id: 'r3_1', criteria: standardCriteria[0], value: 8),
-            WeightedDecisionRating(id: 'r3_2', criteria: standardCriteria[1], value: 9),
-            WeightedDecisionRating(id: 'r3_3', criteria: standardCriteria[2], value: 6),
-            WeightedDecisionRating(id: 'r3_4', criteria: standardCriteria[3], value: 6),
+            WeightedDecisionRating(
+                id: 'r3_1', criteria: standardCriteria[0], value: 8),
+            WeightedDecisionRating(
+                id: 'r3_2', criteria: standardCriteria[1], value: 9),
+            WeightedDecisionRating(
+                id: 'r3_3', criteria: standardCriteria[2], value: 6),
+            WeightedDecisionRating(
+                id: 'r3_4', criteria: standardCriteria[3], value: 6),
           ],
         ),
         WeightedDecisionMatrix(
           id: 'm4',
           alternative: alternatives[3],
           ratings: [
-            WeightedDecisionRating(id: 'r4_1', criteria: standardCriteria[0], value: 7),
-            WeightedDecisionRating(id: 'r4_2', criteria: standardCriteria[1], value: 7),
-            WeightedDecisionRating(id: 'r4_3', criteria: standardCriteria[2], value: 7),
-            WeightedDecisionRating(id: 'r4_4', criteria: standardCriteria[3], value: 7),
+            WeightedDecisionRating(
+                id: 'r4_1', criteria: standardCriteria[0], value: 7),
+            WeightedDecisionRating(
+                id: 'r4_2', criteria: standardCriteria[1], value: 7),
+            WeightedDecisionRating(
+                id: 'r4_3', criteria: standardCriteria[2], value: 7),
+            WeightedDecisionRating(
+                id: 'r4_4', criteria: standardCriteria[3], value: 7),
           ],
         ),
       ];
@@ -736,40 +799,56 @@ void main() {
           id: 'm1',
           alternative: alternatives[0],
           ratings: [
-            WeightedDecisionRating(id: 'r1_1', criteria: halvedCriteria[0], value: 5),
-            WeightedDecisionRating(id: 'r1_2', criteria: halvedCriteria[1], value: 8),
-            WeightedDecisionRating(id: 'r1_3', criteria: halvedCriteria[2], value: 4),
-            WeightedDecisionRating(id: 'r1_4', criteria: halvedCriteria[3], value: 7),
+            WeightedDecisionRating(
+                id: 'r1_1', criteria: halvedCriteria[0], value: 5),
+            WeightedDecisionRating(
+                id: 'r1_2', criteria: halvedCriteria[1], value: 8),
+            WeightedDecisionRating(
+                id: 'r1_3', criteria: halvedCriteria[2], value: 4),
+            WeightedDecisionRating(
+                id: 'r1_4', criteria: halvedCriteria[3], value: 7),
           ],
         ),
         WeightedDecisionMatrix(
           id: 'm2',
           alternative: alternatives[1],
           ratings: [
-            WeightedDecisionRating(id: 'r2_1', criteria: halvedCriteria[0], value: 7),
-            WeightedDecisionRating(id: 'r2_2', criteria: halvedCriteria[1], value: 6),
-            WeightedDecisionRating(id: 'r2_3', criteria: halvedCriteria[2], value: 8),
-            WeightedDecisionRating(id: 'r2_4', criteria: halvedCriteria[3], value: 9),
+            WeightedDecisionRating(
+                id: 'r2_1', criteria: halvedCriteria[0], value: 7),
+            WeightedDecisionRating(
+                id: 'r2_2', criteria: halvedCriteria[1], value: 6),
+            WeightedDecisionRating(
+                id: 'r2_3', criteria: halvedCriteria[2], value: 8),
+            WeightedDecisionRating(
+                id: 'r2_4', criteria: halvedCriteria[3], value: 9),
           ],
         ),
         WeightedDecisionMatrix(
           id: 'm3',
           alternative: alternatives[2],
           ratings: [
-            WeightedDecisionRating(id: 'r3_1', criteria: halvedCriteria[0], value: 8),
-            WeightedDecisionRating(id: 'r3_2', criteria: halvedCriteria[1], value: 9),
-            WeightedDecisionRating(id: 'r3_3', criteria: halvedCriteria[2], value: 6),
-            WeightedDecisionRating(id: 'r3_4', criteria: halvedCriteria[3], value: 6),
+            WeightedDecisionRating(
+                id: 'r3_1', criteria: halvedCriteria[0], value: 8),
+            WeightedDecisionRating(
+                id: 'r3_2', criteria: halvedCriteria[1], value: 9),
+            WeightedDecisionRating(
+                id: 'r3_3', criteria: halvedCriteria[2], value: 6),
+            WeightedDecisionRating(
+                id: 'r3_4', criteria: halvedCriteria[3], value: 6),
           ],
         ),
         WeightedDecisionMatrix(
           id: 'm4',
           alternative: alternatives[3],
           ratings: [
-            WeightedDecisionRating(id: 'r4_1', criteria: halvedCriteria[0], value: 7),
-            WeightedDecisionRating(id: 'r4_2', criteria: halvedCriteria[1], value: 7),
-            WeightedDecisionRating(id: 'r4_3', criteria: halvedCriteria[2], value: 7),
-            WeightedDecisionRating(id: 'r4_4', criteria: halvedCriteria[3], value: 7),
+            WeightedDecisionRating(
+                id: 'r4_1', criteria: halvedCriteria[0], value: 7),
+            WeightedDecisionRating(
+                id: 'r4_2', criteria: halvedCriteria[1], value: 7),
+            WeightedDecisionRating(
+                id: 'r4_3', criteria: halvedCriteria[2], value: 7),
+            WeightedDecisionRating(
+                id: 'r4_4', criteria: halvedCriteria[3], value: 7),
           ],
         ),
       ];
@@ -793,7 +872,9 @@ void main() {
       // Verify intermediate values match standard 30/20/25/25
       // 1. weightedMatrix
       for (int i = 0; i < standardDetailed.weightedMatrix.length; i++) {
-        for (int j = 0; j < standardDetailed.weightedMatrix[i].ratings.length; j++) {
+        for (int j = 0;
+            j < standardDetailed.weightedMatrix[i].ratings.length;
+            j++) {
           expect(
             halvedDetailed.weightedMatrix[i].ratings[j].value,
             closeTo(standardDetailed.weightedMatrix[i].ratings[j].value!, 1e-4),
@@ -803,22 +884,28 @@ void main() {
 
       // 2. ideal values
       for (final key in standardDetailed.positiveIdeal.keys) {
-        expect(halvedDetailed.positiveIdeal[key], closeTo(standardDetailed.positiveIdeal[key]!, 1e-4));
-        expect(halvedDetailed.negativeIdeal[key], closeTo(standardDetailed.negativeIdeal[key]!, 1e-4));
+        expect(halvedDetailed.positiveIdeal[key],
+            closeTo(standardDetailed.positiveIdeal[key]!, 1e-4));
+        expect(halvedDetailed.negativeIdeal[key],
+            closeTo(standardDetailed.negativeIdeal[key]!, 1e-4));
       }
 
       // 3. separationPlus and separationMinus
       for (final key in standardDetailed.separationPlus.keys) {
-        expect(halvedDetailed.separationPlus[key], closeTo(standardDetailed.separationPlus[key]!, 1e-4));
-        expect(halvedDetailed.separationMinus[key], closeTo(standardDetailed.separationMinus[key]!, 1e-4));
+        expect(halvedDetailed.separationPlus[key],
+            closeTo(standardDetailed.separationPlus[key]!, 1e-4));
+        expect(halvedDetailed.separationMinus[key],
+            closeTo(standardDetailed.separationMinus[key]!, 1e-4));
       }
 
       // 4. scores identical to calculate()
       expect(halvedDetailed.scores.length, calculatedScores.length);
       for (int i = 0; i < calculatedScores.length; i++) {
-        expect(halvedDetailed.scores[i].alternative.id, calculatedScores[i].alternative.id);
+        expect(halvedDetailed.scores[i].alternative.id,
+            calculatedScores[i].alternative.id);
         expect(halvedDetailed.scores[i].rank, calculatedScores[i].rank);
-        expect(halvedDetailed.scores[i].score, closeTo(calculatedScores[i].score, 1e-4));
+        expect(halvedDetailed.scores[i].score,
+            closeTo(calculatedScores[i].score, 1e-4));
       }
     });
   });

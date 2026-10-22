@@ -35,7 +35,8 @@ class BenchmarkMetric {
         'median': double.parse(median.toStringAsFixed(3)),
         'min': double.parse(min.toStringAsFixed(3)),
         'max': double.parse(max.toStringAsFixed(3)),
-        'samples': samples.map((e) => double.parse(e.toStringAsFixed(3))).toList(),
+        'samples':
+            samples.map((e) => double.parse(e.toStringAsFixed(3))).toList(),
       };
 }
 
@@ -72,11 +73,13 @@ class BenchmarkCaseResult {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MaterialApp(home: Scaffold(body: Center(child: Text('Running benchmark...')))));
+  runApp(const MaterialApp(
+      home: Scaffold(body: Center(child: Text('Running benchmark...')))));
 
   stdout.writeln('===========================================================');
   stdout.writeln('🚀 STARTING BENCHMARK: flutter_decision_making (Public API)');
-  stdout.writeln('Mode: ${kProfileMode ? "profile" : (kReleaseMode ? "release" : "debug")}');
+  stdout.writeln(
+      'Mode: ${kProfileMode ? "profile" : (kReleaseMode ? "release" : "debug")}');
   stdout.writeln('Platform: ${Platform.operatingSystem} (${Platform.version})');
   stdout.writeln('===========================================================');
 
@@ -131,10 +134,14 @@ void main() async {
 }
 
 void _printResult(BenchmarkCaseResult result) {
-  stdout.writeln('   - Main Thread:       ${result.mainThread.median.toStringAsFixed(3)} ms (min: ${result.mainThread.min.toStringAsFixed(3)}, max: ${result.mainThread.max.toStringAsFixed(3)})');
-  stdout.writeln('   - Isolate (1st call): ${result.isolateFirstCall.median.toStringAsFixed(3)} ms (min: ${result.isolateFirstCall.min.toStringAsFixed(3)}, max: ${result.isolateFirstCall.max.toStringAsFixed(3)})');
-  stdout.writeln('   - Isolate (warm):     ${result.isolateSubsequent.median.toStringAsFixed(3)} ms (min: ${result.isolateSubsequent.min.toStringAsFixed(3)}, max: ${result.isolateSubsequent.max.toStringAsFixed(3)})');
-  stdout.writeln('   - Main Thread Block: ${result.mainThreadBlocked.median.toStringAsFixed(3)} ms (min: ${result.mainThreadBlocked.min.toStringAsFixed(3)}, max: ${result.mainThreadBlocked.max.toStringAsFixed(3)})');
+  stdout.writeln(
+      '   - Main Thread:       ${result.mainThread.median.toStringAsFixed(3)} ms (min: ${result.mainThread.min.toStringAsFixed(3)}, max: ${result.mainThread.max.toStringAsFixed(3)})');
+  stdout.writeln(
+      '   - Isolate (1st call): ${result.isolateFirstCall.median.toStringAsFixed(3)} ms (min: ${result.isolateFirstCall.min.toStringAsFixed(3)}, max: ${result.isolateFirstCall.max.toStringAsFixed(3)})');
+  stdout.writeln(
+      '   - Isolate (warm):     ${result.isolateSubsequent.median.toStringAsFixed(3)} ms (min: ${result.isolateSubsequent.min.toStringAsFixed(3)}, max: ${result.isolateSubsequent.max.toStringAsFixed(3)})');
+  stdout.writeln(
+      '   - Main Thread Block: ${result.mainThreadBlocked.median.toStringAsFixed(3)} ms (min: ${result.mainThreadBlocked.min.toStringAsFixed(3)}, max: ${result.mainThreadBlocked.max.toStringAsFixed(3)})');
 }
 
 // ==================== LAG MONITOR HELPER ====================
@@ -440,7 +447,8 @@ Future<void> saveBenchmarkResults(List<BenchmarkCaseResult> results) async {
   sb.writeln();
   sb.writeln('- **Tanggal:** $dateStr');
   sb.writeln('- **Mode:** `$mode`');
-  sb.writeln('- **Perangkat / OS:** `${Platform.operatingSystem} (${Platform.version})`');
+  sb.writeln(
+      '- **Perangkat / OS:** `${Platform.operatingSystem} (${Platform.version})`');
   sb.writeln('- **Pengulangan:** 10 iterasi (setelah 3x warm-up)');
   sb.writeln();
 

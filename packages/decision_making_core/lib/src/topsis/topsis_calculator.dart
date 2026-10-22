@@ -198,9 +198,8 @@ class TopsisCalculator {
       0.0,
       (sum, c) => sum + c.weightPercent,
     );
-    final weightRatio = (totalWeight != 100.0 && totalWeight > 0.0)
-        ? 100.0 / totalWeight
-        : 1.0;
+    final weightRatio =
+        (totalWeight != 100.0 && totalWeight > 0.0) ? 100.0 / totalWeight : 1.0;
     final normalizedCriteria = rawMatrix.criterias.map((c) {
       return weightRatio == 1.0
           ? c
@@ -277,9 +276,8 @@ class TopsisCalculator {
       0.0,
       (sum, c) => sum + c.weightPercent,
     );
-    final weightRatio = (totalWeight != 100.0 && totalWeight > 0.0)
-        ? 100.0 / totalWeight
-        : 1.0;
+    final weightRatio =
+        (totalWeight != 100.0 && totalWeight > 0.0) ? 100.0 / totalWeight : 1.0;
     final normalizedCriteria = rawMatrix.criterias.map((c) {
       return weightRatio == 1.0
           ? c

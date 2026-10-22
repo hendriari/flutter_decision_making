@@ -202,9 +202,8 @@ class SawCalculator {
         return {for (final r in results) r.alternative.id!: r.score};
       },
       calculateWithoutAlternative: (removedId) {
-        final subMatrix = rawMatrix
-            .where((row) => row.alternative.id != removedId)
-            .toList();
+        final subMatrix =
+            rawMatrix.where((row) => row.alternative.id != removedId).toList();
         final results = calculate(subMatrix);
         return {for (final r in results) r.alternative.id!: r.score};
       },

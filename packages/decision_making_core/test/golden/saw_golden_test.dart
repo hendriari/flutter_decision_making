@@ -299,7 +299,8 @@ void main() {
     });
   });
 
-  group('SAW Detailed Results Tests - Intermediate Values (Tolerance 1e-4)', () {
+  group('SAW Detailed Results Tests - Intermediate Values (Tolerance 1e-4)',
+      () {
     test('Case 1: Intermediate values for mixed benefit and cost 3x4 case', () {
       // Label: cross-checked (Python 3.9)
 
@@ -428,34 +429,34 @@ void main() {
 
       // 4. Weighted matrix check (per cell, v_ij = r_ij * w_j)
       // Row 0 (a1): [0.25, 0.25, 0.194444, 0.25]
-      expect(detailed.weightedMatrix[0].ratings[0].value,
-          closeTo(0.250000, 1e-4));
-      expect(detailed.weightedMatrix[0].ratings[1].value,
-          closeTo(0.250000, 1e-4));
-      expect(detailed.weightedMatrix[0].ratings[2].value,
-          closeTo(0.194444, 1e-4));
-      expect(detailed.weightedMatrix[0].ratings[3].value,
-          closeTo(0.250000, 1e-4));
+      expect(
+          detailed.weightedMatrix[0].ratings[0].value, closeTo(0.250000, 1e-4));
+      expect(
+          detailed.weightedMatrix[0].ratings[1].value, closeTo(0.250000, 1e-4));
+      expect(
+          detailed.weightedMatrix[0].ratings[2].value, closeTo(0.194444, 1e-4));
+      expect(
+          detailed.weightedMatrix[0].ratings[3].value, closeTo(0.250000, 1e-4));
 
       // Row 1 (a2): [0.166667, 0.166667, 0.25, 0.1875]
-      expect(detailed.weightedMatrix[1].ratings[0].value,
-          closeTo(0.166667, 1e-4));
-      expect(detailed.weightedMatrix[1].ratings[1].value,
-          closeTo(0.166667, 1e-4));
-      expect(detailed.weightedMatrix[1].ratings[2].value,
-          closeTo(0.250000, 1e-4));
-      expect(detailed.weightedMatrix[1].ratings[3].value,
-          closeTo(0.187500, 1e-4));
+      expect(
+          detailed.weightedMatrix[1].ratings[0].value, closeTo(0.166667, 1e-4));
+      expect(
+          detailed.weightedMatrix[1].ratings[1].value, closeTo(0.166667, 1e-4));
+      expect(
+          detailed.weightedMatrix[1].ratings[2].value, closeTo(0.250000, 1e-4));
+      expect(
+          detailed.weightedMatrix[1].ratings[3].value, closeTo(0.187500, 1e-4));
 
       // Row 2 (a3): [0.125, 0.25, 0.166667, 0.107143]
-      expect(detailed.weightedMatrix[2].ratings[0].value,
-          closeTo(0.125000, 1e-4));
-      expect(detailed.weightedMatrix[2].ratings[1].value,
-          closeTo(0.250000, 1e-4));
-      expect(detailed.weightedMatrix[2].ratings[2].value,
-          closeTo(0.166667, 1e-4));
-      expect(detailed.weightedMatrix[2].ratings[3].value,
-          closeTo(0.107143, 1e-4));
+      expect(
+          detailed.weightedMatrix[2].ratings[0].value, closeTo(0.125000, 1e-4));
+      expect(
+          detailed.weightedMatrix[2].ratings[1].value, closeTo(0.250000, 1e-4));
+      expect(
+          detailed.weightedMatrix[2].ratings[2].value, closeTo(0.166667, 1e-4));
+      expect(
+          detailed.weightedMatrix[2].ratings[3].value, closeTo(0.107143, 1e-4));
 
       // 5. Final scores & rankings check
       expect(detailed.scores.length, 3);
@@ -482,7 +483,8 @@ void main() {
       expect(json['normalized_weights']['c1'], closeTo(0.25, 1e-4));
     });
 
-    test('Case 2: Intermediate values for employee performance (All Benefit)', () {
+    test('Case 2: Intermediate values for employee performance (All Benefit)',
+        () {
       // Label: cross-checked (Python 3.9)
 
       final alternatives = [
@@ -576,45 +578,69 @@ void main() {
 
       // Normalized matrix:
       // Row 0 (e1): [0.888889, 0.777778, 1.000000]
-      expect(detailed.normalizedMatrix[0].ratings[0].value, closeTo(0.888889, 1e-4));
-      expect(detailed.normalizedMatrix[0].ratings[1].value, closeTo(0.777778, 1e-4));
-      expect(detailed.normalizedMatrix[0].ratings[2].value, closeTo(1.000000, 1e-4));
+      expect(detailed.normalizedMatrix[0].ratings[0].value,
+          closeTo(0.888889, 1e-4));
+      expect(detailed.normalizedMatrix[0].ratings[1].value,
+          closeTo(0.777778, 1e-4));
+      expect(detailed.normalizedMatrix[0].ratings[2].value,
+          closeTo(1.000000, 1e-4));
 
       // Row 1 (e2): [1.000000, 0.888889, 0.777778]
-      expect(detailed.normalizedMatrix[1].ratings[0].value, closeTo(1.000000, 1e-4));
-      expect(detailed.normalizedMatrix[1].ratings[1].value, closeTo(0.888889, 1e-4));
-      expect(detailed.normalizedMatrix[1].ratings[2].value, closeTo(0.777778, 1e-4));
+      expect(detailed.normalizedMatrix[1].ratings[0].value,
+          closeTo(1.000000, 1e-4));
+      expect(detailed.normalizedMatrix[1].ratings[1].value,
+          closeTo(0.888889, 1e-4));
+      expect(detailed.normalizedMatrix[1].ratings[2].value,
+          closeTo(0.777778, 1e-4));
 
       // Row 2 (e3): [0.833333, 1.000000, 0.944444]
-      expect(detailed.normalizedMatrix[2].ratings[0].value, closeTo(0.833333, 1e-4));
-      expect(detailed.normalizedMatrix[2].ratings[1].value, closeTo(1.000000, 1e-4));
-      expect(detailed.normalizedMatrix[2].ratings[2].value, closeTo(0.944444, 1e-4));
+      expect(detailed.normalizedMatrix[2].ratings[0].value,
+          closeTo(0.833333, 1e-4));
+      expect(detailed.normalizedMatrix[2].ratings[1].value,
+          closeTo(1.000000, 1e-4));
+      expect(detailed.normalizedMatrix[2].ratings[2].value,
+          closeTo(0.944444, 1e-4));
 
       // Row 3 (e4): [0.944444, 0.666667, 0.888889]
-      expect(detailed.normalizedMatrix[3].ratings[0].value, closeTo(0.944444, 1e-4));
-      expect(detailed.normalizedMatrix[3].ratings[1].value, closeTo(0.666667, 1e-4));
-      expect(detailed.normalizedMatrix[3].ratings[2].value, closeTo(0.888889, 1e-4));
+      expect(detailed.normalizedMatrix[3].ratings[0].value,
+          closeTo(0.944444, 1e-4));
+      expect(detailed.normalizedMatrix[3].ratings[1].value,
+          closeTo(0.666667, 1e-4));
+      expect(detailed.normalizedMatrix[3].ratings[2].value,
+          closeTo(0.888889, 1e-4));
 
       // Weighted matrix:
       // Row 0 (e1): [0.355556, 0.233333, 0.300000]
-      expect(detailed.weightedMatrix[0].ratings[0].value, closeTo(0.355556, 1e-4));
-      expect(detailed.weightedMatrix[0].ratings[1].value, closeTo(0.233333, 1e-4));
-      expect(detailed.weightedMatrix[0].ratings[2].value, closeTo(0.300000, 1e-4));
+      expect(
+          detailed.weightedMatrix[0].ratings[0].value, closeTo(0.355556, 1e-4));
+      expect(
+          detailed.weightedMatrix[0].ratings[1].value, closeTo(0.233333, 1e-4));
+      expect(
+          detailed.weightedMatrix[0].ratings[2].value, closeTo(0.300000, 1e-4));
 
       // Row 1 (e2): [0.400000, 0.266667, 0.233333]
-      expect(detailed.weightedMatrix[1].ratings[0].value, closeTo(0.400000, 1e-4));
-      expect(detailed.weightedMatrix[1].ratings[1].value, closeTo(0.266667, 1e-4));
-      expect(detailed.weightedMatrix[1].ratings[2].value, closeTo(0.233333, 1e-4));
+      expect(
+          detailed.weightedMatrix[1].ratings[0].value, closeTo(0.400000, 1e-4));
+      expect(
+          detailed.weightedMatrix[1].ratings[1].value, closeTo(0.266667, 1e-4));
+      expect(
+          detailed.weightedMatrix[1].ratings[2].value, closeTo(0.233333, 1e-4));
 
       // Row 2 (e3): [0.333333, 0.300000, 0.283333]
-      expect(detailed.weightedMatrix[2].ratings[0].value, closeTo(0.333333, 1e-4));
-      expect(detailed.weightedMatrix[2].ratings[1].value, closeTo(0.300000, 1e-4));
-      expect(detailed.weightedMatrix[2].ratings[2].value, closeTo(0.283333, 1e-4));
+      expect(
+          detailed.weightedMatrix[2].ratings[0].value, closeTo(0.333333, 1e-4));
+      expect(
+          detailed.weightedMatrix[2].ratings[1].value, closeTo(0.300000, 1e-4));
+      expect(
+          detailed.weightedMatrix[2].ratings[2].value, closeTo(0.283333, 1e-4));
 
       // Row 3 (e4): [0.377778, 0.200000, 0.266667]
-      expect(detailed.weightedMatrix[3].ratings[0].value, closeTo(0.377778, 1e-4));
-      expect(detailed.weightedMatrix[3].ratings[1].value, closeTo(0.200000, 1e-4));
-      expect(detailed.weightedMatrix[3].ratings[2].value, closeTo(0.266667, 1e-4));
+      expect(
+          detailed.weightedMatrix[3].ratings[0].value, closeTo(0.377778, 1e-4));
+      expect(
+          detailed.weightedMatrix[3].ratings[1].value, closeTo(0.200000, 1e-4));
+      expect(
+          detailed.weightedMatrix[3].ratings[2].value, closeTo(0.266667, 1e-4));
 
       // Scores:
       expect(detailed.scores[0].alternative.id, 'e3');

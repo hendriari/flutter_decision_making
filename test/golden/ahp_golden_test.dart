@@ -177,7 +177,8 @@ void main() {
       for (int i = 0; i < expected.results!.length; i++) {
         expect(result.results![i].id, expected.results![i].id);
         expect(result.results![i].name, expected.results![i].name);
-        expect(result.results![i].value, closeTo(expected.results![i].value, 1e-6));
+        expect(result.results![i].value,
+            closeTo(expected.results![i].value, 1e-6));
       }
 
       // Verify wrapper (isolate) produces identical output to core
@@ -186,7 +187,8 @@ void main() {
         expect(isolateResult.consistencyCriteriaRatio,
             closeTo(expected.consistencyCriteriaRatio!, 1e-6));
       }
-      expect(isolateResult.isConsistentAlternative, expected.isConsistentAlternative);
+      expect(isolateResult.isConsistentAlternative,
+          expected.isConsistentAlternative);
       if (expected.consistencyAlternativeRatio != null) {
         expect(isolateResult.consistencyAlternativeRatio,
             closeTo(expected.consistencyAlternativeRatio!, 1e-6));
@@ -297,7 +299,8 @@ void main() {
         'source': 'criteria',
       });
 
-      expect(criteriaCR['lambda_max'], closeTo(expectedCriteriaCR.lambdaMax!, 1e-6));
+      expect(criteriaCR['lambda_max'],
+          closeTo(expectedCriteriaCR.lambdaMax!, 1e-6));
       expect(criteriaCR['ci'], closeTo(expectedCriteriaCR.ci!, 1e-6));
       expect(criteriaCR['ratio'], closeTo(expectedCriteriaCR.ratio, 1e-6));
       expect(criteriaCR['is_consistent'], expectedCriteriaCR.isConsistent);
@@ -453,7 +456,8 @@ void main() {
       for (int i = 0; i < expected.results!.length; i++) {
         expect(result.results![i].id, expected.results![i].id);
         expect(result.results![i].name, expected.results![i].name);
-        expect(result.results![i].value, closeTo(expected.results![i].value, 1e-6));
+        expect(result.results![i].value,
+            closeTo(expected.results![i].value, 1e-6));
       }
 
       // Verify wrapper (isolate) produces identical output to core
@@ -462,7 +466,8 @@ void main() {
         expect(isolateResult.consistencyCriteriaRatio,
             closeTo(expected.consistencyCriteriaRatio!, 1e-6));
       }
-      expect(isolateResult.isConsistentAlternative, expected.isConsistentAlternative);
+      expect(isolateResult.isConsistentAlternative,
+          expected.isConsistentAlternative);
       if (expected.consistencyAlternativeRatio != null) {
         expect(isolateResult.consistencyAlternativeRatio,
             closeTo(expected.consistencyAlternativeRatio!, 1e-6));
@@ -528,7 +533,8 @@ void main() {
       }
     });
 
-    test('Case 3 (Edge Case): Inconsistent Comparison Matrix with CR > 0.1', () async {
+    test('Case 3 (Edge Case): Inconsistent Comparison Matrix with CR > 0.1',
+        () async {
       // Ground truth verified against core (decision_making_core)
 
       final criteriaItems = [
@@ -573,7 +579,8 @@ void main() {
         'source': 'criteria',
       });
 
-      expect(consistencyResult['lambda_max'], closeTo(expectedCR.lambdaMax!, 1e-6));
+      expect(consistencyResult['lambda_max'],
+          closeTo(expectedCR.lambdaMax!, 1e-6));
       expect(consistencyResult['ci'], closeTo(expectedCR.ci!, 1e-6));
       expect(consistencyResult['ratio'], closeTo(expectedCR.ratio, 1e-6));
       expect(consistencyResult['is_consistent'], expectedCR.isConsistent);
@@ -685,7 +692,8 @@ void main() {
       for (int i = 0; i < expected.results!.length; i++) {
         expect(result.results![i].id, expected.results![i].id);
         expect(result.results![i].name, expected.results![i].name);
-        expect(result.results![i].value, closeTo(expected.results![i].value, 1e-6));
+        expect(result.results![i].value,
+            closeTo(expected.results![i].value, 1e-6));
       }
 
       // Verify wrapper (isolate) produces identical output to core
@@ -694,7 +702,8 @@ void main() {
         expect(isolateResult.consistencyCriteriaRatio,
             closeTo(expected.consistencyCriteriaRatio!, 1e-6));
       }
-      expect(isolateResult.isConsistentAlternative, expected.isConsistentAlternative);
+      expect(isolateResult.isConsistentAlternative,
+          expected.isConsistentAlternative);
       if (expected.consistencyAlternativeRatio != null) {
         expect(isolateResult.consistencyAlternativeRatio,
             closeTo(expected.consistencyAlternativeRatio!, 1e-6));

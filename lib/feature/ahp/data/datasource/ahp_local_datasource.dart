@@ -508,8 +508,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
             "source": 'alternative',
           });
         } else {
-          altConsistencyRatio = await isolateMain.runTask(
-              DecisionAlgorithm.ahp,
+          altConsistencyRatio = await isolateMain.runTask(DecisionAlgorithm.ahp,
               AhpProcessingIsolateCommand.checkConsistencyRatio, {
             "matrix": matrixAlt,
             "priority_vector": eigenVectorAlt,

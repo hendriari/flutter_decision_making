@@ -68,55 +68,69 @@ class TopsisDetailedResult {
 
   /// Converts the detailed result and all intermediate calculation steps into a JSON-compatible map.
   Map<String, dynamic> toJson() => {
-        'initial_matrix': initialMatrix.map((m) => {
-              'alternative': {
-                'id': m.alternative.id,
-                'name': m.alternative.name,
-              },
-              'ratings': m.ratings.map((r) => {
-                    'id': r.id,
-                    'criteria_id': r.criteria?.id,
-                    'criteria_name': r.criteria?.name,
-                    'value': r.value,
-                  }).toList(),
-            }).toList(),
-        'normalized_matrix': normalizedMatrix.map((m) => {
-              'alternative': {
-                'id': m.alternative.id,
-                'name': m.alternative.name,
-              },
-              'ratings': m.ratings.map((r) => {
-                    'id': r.id,
-                    'criteria_id': r.criteria?.id,
-                    'criteria_name': r.criteria?.name,
-                    'value': r.value,
-                  }).toList(),
-            }).toList(),
+        'initial_matrix': initialMatrix
+            .map((m) => {
+                  'alternative': {
+                    'id': m.alternative.id,
+                    'name': m.alternative.name,
+                  },
+                  'ratings': m.ratings
+                      .map((r) => {
+                            'id': r.id,
+                            'criteria_id': r.criteria?.id,
+                            'criteria_name': r.criteria?.name,
+                            'value': r.value,
+                          })
+                      .toList(),
+                })
+            .toList(),
+        'normalized_matrix': normalizedMatrix
+            .map((m) => {
+                  'alternative': {
+                    'id': m.alternative.id,
+                    'name': m.alternative.name,
+                  },
+                  'ratings': m.ratings
+                      .map((r) => {
+                            'id': r.id,
+                            'criteria_id': r.criteria?.id,
+                            'criteria_name': r.criteria?.name,
+                            'value': r.value,
+                          })
+                      .toList(),
+                })
+            .toList(),
         'normalized_weights': Map<String, double>.from(normalizedWeights),
-        'weighted_matrix': weightedMatrix.map((m) => {
-              'alternative': {
-                'id': m.alternative.id,
-                'name': m.alternative.name,
-              },
-              'ratings': m.ratings.map((r) => {
-                    'id': r.id,
-                    'criteria_id': r.criteria?.id,
-                    'criteria_name': r.criteria?.name,
-                    'value': r.value,
-                  }).toList(),
-            }).toList(),
+        'weighted_matrix': weightedMatrix
+            .map((m) => {
+                  'alternative': {
+                    'id': m.alternative.id,
+                    'name': m.alternative.name,
+                  },
+                  'ratings': m.ratings
+                      .map((r) => {
+                            'id': r.id,
+                            'criteria_id': r.criteria?.id,
+                            'criteria_name': r.criteria?.name,
+                            'value': r.value,
+                          })
+                      .toList(),
+                })
+            .toList(),
         'positive_ideal': Map<String, double>.from(positiveIdeal),
         'negative_ideal': Map<String, double>.from(negativeIdeal),
         'separation_plus': Map<String, double>.from(separationPlus),
         'separation_minus': Map<String, double>.from(separationMinus),
-        'scores': scores.map((s) => {
-              'id': s.id,
-              'alternative': {
-                'id': s.alternative.id,
-                'name': s.alternative.name,
-              },
-              'score': s.score,
-              'rank': s.rank,
-            }).toList(),
+        'scores': scores
+            .map((s) => {
+                  'id': s.id,
+                  'alternative': {
+                    'id': s.alternative.id,
+                    'name': s.alternative.name,
+                  },
+                  'score': s.score,
+                  'rank': s.rank,
+                })
+            .toList(),
       };
 }

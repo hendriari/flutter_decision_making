@@ -57,12 +57,10 @@ class AhpMatrixEvaluation {
         'id': id,
         'name': name,
         'item_ids': itemIds,
-        'comparison_matrix': comparisonMatrix
-            .map((row) => List<double>.from(row))
-            .toList(),
-        'normalized_matrix': normalizedMatrix
-            .map((row) => List<double>.from(row))
-            .toList(),
+        'comparison_matrix':
+            comparisonMatrix.map((row) => List<double>.from(row)).toList(),
+        'normalized_matrix':
+            normalizedMatrix.map((row) => List<double>.from(row)).toList(),
         'weights': Map<String, double>.from(weights),
         'lambda_max': lambdaMax,
         'ci': ci,

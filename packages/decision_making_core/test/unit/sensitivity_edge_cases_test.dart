@@ -6,7 +6,9 @@ void main() {
     // -------------------------------------------------------------------------
     // Edge Case 1: n = 2 alternatives (rank reversal skipped)
     // -------------------------------------------------------------------------
-    test('Edge Case 1: n = 2 alternatives skips rank reversal and records reason', () {
+    test(
+        'Edge Case 1: n = 2 alternatives skips rank reversal and records reason',
+        () {
       final criteria = [
         WeightedDecisionCriteria(
           id: 'c1',
@@ -60,7 +62,9 @@ void main() {
     // -------------------------------------------------------------------------
     // Edge Case 2: 1 criterion (sensitivity skipped)
     // -------------------------------------------------------------------------
-    test('Edge Case 2: Single criterion skips sensitivity perturbation and records reason', () {
+    test(
+        'Edge Case 2: Single criterion skips sensitivity perturbation and records reason',
+        () {
       final criteria = [
         WeightedDecisionCriteria(
           id: 'c1',
@@ -113,7 +117,9 @@ void main() {
     // -------------------------------------------------------------------------
     // Edge Case 3: Weight very close to 1 / Perturbed weight >= 1.0 (skipped)
     // -------------------------------------------------------------------------
-    test("Edge Case 3: Perturbed weight w_k' >= 1.0 is skipped and records reason", () {
+    test(
+        "Edge Case 3: Perturbed weight w_k' >= 1.0 is skipped and records reason",
+        () {
       final criteria = [
         WeightedDecisionCriteria(
           id: 'c1',
@@ -168,7 +174,9 @@ void main() {
       final result = SawCalculator.analyzeSensitivity(matrix, delta: 0.1);
 
       final c1Increase = result.sensitivityCases.firstWhere(
-        (c) => c.criterionId == 'c1' && c.direction == SensitivityDirection.increase,
+        (c) =>
+            c.criterionId == 'c1' &&
+            c.direction == SensitivityDirection.increase,
       );
 
       expect(c1Increase.isSkipped, isTrue);
@@ -178,7 +186,9 @@ void main() {
     // -------------------------------------------------------------------------
     // Edge Case 4: Tied scores (|score_i - score_j| <= 1e-9) are not counted as changed
     // -------------------------------------------------------------------------
-    test('Edge Case 4: Identical/tied alternatives do not count as order change or rank reversal', () {
+    test(
+        'Edge Case 4: Identical/tied alternatives do not count as order change or rank reversal',
+        () {
       final criteria = [
         WeightedDecisionCriteria(
           id: 'c1',

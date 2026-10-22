@@ -506,7 +506,8 @@ void main() {
     });
   });
 
-  group('AHP Detailed Results Tests - Intermediate Values (Tolerance 1e-4)', () {
+  group('AHP Detailed Results Tests - Intermediate Values (Tolerance 1e-4)',
+      () {
     test('Case 1: Intermediate values for consistent 3x3 case', () {
       // Label: cross-checked (Python 3.9)
       final criteriaItems = [
@@ -639,11 +640,16 @@ void main() {
       );
 
       // 1. Criteria Matrix and Normalization
-      expect(detailed.criteriaEvaluation.comparisonMatrix[0][1], closeTo(3.0, 1e-4));
-      expect(detailed.criteriaEvaluation.comparisonMatrix[1][0], closeTo(1.0 / 3.0, 1e-4));
-      expect(detailed.criteriaEvaluation.normalizedMatrix[0][0], closeTo(0.652174, 1e-4));
-      expect(detailed.criteriaEvaluation.normalizedMatrix[0][1], closeTo(0.666667, 1e-4));
-      expect(detailed.criteriaEvaluation.normalizedMatrix[0][2], closeTo(0.625000, 1e-4));
+      expect(detailed.criteriaEvaluation.comparisonMatrix[0][1],
+          closeTo(3.0, 1e-4));
+      expect(detailed.criteriaEvaluation.comparisonMatrix[1][0],
+          closeTo(1.0 / 3.0, 1e-4));
+      expect(detailed.criteriaEvaluation.normalizedMatrix[0][0],
+          closeTo(0.652174, 1e-4));
+      expect(detailed.criteriaEvaluation.normalizedMatrix[0][1],
+          closeTo(0.666667, 1e-4));
+      expect(detailed.criteriaEvaluation.normalizedMatrix[0][2],
+          closeTo(0.625000, 1e-4));
       expect(detailed.criteriaWeights['c1'], closeTo(0.647947, 1e-4));
       expect(detailed.criteriaWeights['c2'], closeTo(0.229871, 1e-4));
       expect(detailed.criteriaWeights['c3'], closeTo(0.122182, 1e-4));
@@ -834,17 +840,26 @@ void main() {
       expect(detailed.criteriaEvaluation.cr, closeTo(0.015797, 1e-4));
 
       // Alternative checks
-      expect(detailed.scoresPerCriteria['c1']!['john'], closeTo(0.647947, 1e-4));
-      expect(detailed.scoresPerCriteria['c1']!['mary'], closeTo(0.229871, 1e-4));
-      expect(detailed.scoresPerCriteria['c1']!['david'], closeTo(0.122182, 1e-4));
+      expect(
+          detailed.scoresPerCriteria['c1']!['john'], closeTo(0.647947, 1e-4));
+      expect(
+          detailed.scoresPerCriteria['c1']!['mary'], closeTo(0.229871, 1e-4));
+      expect(
+          detailed.scoresPerCriteria['c1']!['david'], closeTo(0.122182, 1e-4));
 
-      expect(detailed.scoresPerCriteria['c2']!['john'], closeTo(0.297258, 1e-4));
-      expect(detailed.scoresPerCriteria['c2']!['mary'], closeTo(0.538961, 1e-4));
-      expect(detailed.scoresPerCriteria['c2']!['david'], closeTo(0.163781, 1e-4));
+      expect(
+          detailed.scoresPerCriteria['c2']!['john'], closeTo(0.297258, 1e-4));
+      expect(
+          detailed.scoresPerCriteria['c2']!['mary'], closeTo(0.538961, 1e-4));
+      expect(
+          detailed.scoresPerCriteria['c2']!['david'], closeTo(0.163781, 1e-4));
 
-      expect(detailed.scoresPerCriteria['c3']!['john'], closeTo(0.297258, 1e-4));
-      expect(detailed.scoresPerCriteria['c3']!['mary'], closeTo(0.163781, 1e-4));
-      expect(detailed.scoresPerCriteria['c3']!['david'], closeTo(0.538961, 1e-4));
+      expect(
+          detailed.scoresPerCriteria['c3']!['john'], closeTo(0.297258, 1e-4));
+      expect(
+          detailed.scoresPerCriteria['c3']!['mary'], closeTo(0.163781, 1e-4));
+      expect(
+          detailed.scoresPerCriteria['c3']!['david'], closeTo(0.538961, 1e-4));
 
       // Final Scores check
       expect(detailed.scores[0].id, 'john');

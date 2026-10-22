@@ -19,7 +19,9 @@ void main() {
     }) {
       final crits = criteria ?? validCriteria;
       final alts = alternatives ?? validAlternatives;
-      return crits.map((c) => AhpHierarchy(criteria: c, alternative: alts)).toList();
+      return crits
+          .map((c) => AhpHierarchy(criteria: c, alternative: alts))
+          .toList();
     }
 
     List<PairwiseComparisonInput> makeInputsCriteria({
@@ -147,7 +149,8 @@ void main() {
       );
     });
 
-    test('Throws Exception when criteria in inputsCriteria has null/empty ID', () {
+    test('Throws Exception when criteria in inputsCriteria has null/empty ID',
+        () {
       final badInputsCriteria = [
         PairwiseComparisonInput(
           id: 'p_crit_1_2',
@@ -174,7 +177,9 @@ void main() {
       );
     });
 
-    test('Throws Exception when alternative in inputsAlternative has null/empty ID', () {
+    test(
+        'Throws Exception when alternative in inputsAlternative has null/empty ID',
+        () {
       final badInputsAlternative = [
         PairwiseAlternativeInput(
           criteria: validCriteria[0],
@@ -240,7 +245,9 @@ void main() {
       );
     });
 
-    test('calculate() produces identical results to calculateDetailed().toAhpResult()', () {
+    test(
+        'calculate() produces identical results to calculateDetailed().toAhpResult()',
+        () {
       final detailed = AhpCalculator.calculateDetailed(
         hierarchy: makeHierarchy(),
         inputsCriteria: makeInputsCriteria(),
@@ -254,10 +261,14 @@ void main() {
         inputsAlternative: makeInputsAlternative(),
       );
 
-      expect(direct.isConsistentCriteria, equals(converted.isConsistentCriteria));
-      expect(direct.consistencyCriteriaRatio, equals(converted.consistencyCriteriaRatio));
-      expect(direct.isConsistentAlternative, equals(converted.isConsistentAlternative));
-      expect(direct.consistencyAlternativeRatio, equals(converted.consistencyAlternativeRatio));
+      expect(
+          direct.isConsistentCriteria, equals(converted.isConsistentCriteria));
+      expect(direct.consistencyCriteriaRatio,
+          equals(converted.consistencyCriteriaRatio));
+      expect(direct.isConsistentAlternative,
+          equals(converted.isConsistentAlternative));
+      expect(direct.consistencyAlternativeRatio,
+          equals(converted.consistencyAlternativeRatio));
       expect(direct.note, equals(converted.note));
       expect(direct.results?.length, equals(converted.results?.length));
 

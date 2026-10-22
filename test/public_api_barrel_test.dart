@@ -116,7 +116,8 @@ void main() {
       expect(results[1].rank, 2);
     });
 
-    test('SAW detailed calculation via fdm.saw returning SawDetailedResult', () async {
+    test('SAW detailed calculation via fdm.saw returning SawDetailedResult',
+        () async {
       final SawDetailedResult detailed =
           await fdm.saw.getSawDetailedResult(matrix: matrix);
 
@@ -190,7 +191,9 @@ void main() {
       expect(detailed.toJson(), isA<Map<String, dynamic>>());
     });
 
-    test('SAW sensitivity analysis via fdm.saw returning SensitivityAnalysisResult', () async {
+    test(
+        'SAW sensitivity analysis via fdm.saw returning SensitivityAnalysisResult',
+        () async {
       final SensitivityAnalysisResult sensitivity =
           await fdm.saw.analyzeSensitivity(matrix: matrix, delta: 0.1);
 
@@ -201,9 +204,11 @@ void main() {
       expect(sensitivity.toJson(), isA<Map<String, dynamic>>());
     });
 
-    test('TOPSIS sensitivity analysis via fdm.topsis returning SensitivityAnalysisResult', () async {
-      final SensitivityAnalysisResult sensitivity =
-          await fdm.topsis.analyzeSensitivity(matrix: topsisRawMatrix, delta: 0.1);
+    test(
+        'TOPSIS sensitivity analysis via fdm.topsis returning SensitivityAnalysisResult',
+        () async {
+      final SensitivityAnalysisResult sensitivity = await fdm.topsis
+          .analyzeSensitivity(matrix: topsisRawMatrix, delta: 0.1);
 
       expect(sensitivity.delta, 0.1);
       expect(sensitivity.baseRanking.length, 2);

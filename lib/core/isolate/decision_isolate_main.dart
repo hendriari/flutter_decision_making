@@ -43,7 +43,8 @@ import 'decision_isolate_worker.dart';
 class DecisionIsolateMain with WidgetsBindingObserver {
   static DecisionIsolateMain? _instance;
 
-  factory DecisionIsolateMain() => _instance ??= DecisionIsolateMain._internal();
+  factory DecisionIsolateMain() =>
+      _instance ??= DecisionIsolateMain._internal();
 
   /// Whether the singleton instance has been created.
   @visibleForTesting

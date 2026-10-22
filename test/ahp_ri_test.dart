@@ -18,7 +18,8 @@ void main() {
     test('n = 3: uses Saaty RI = 0.58', () async {
       const n = 3;
       final matrix = createPerturbedMatrix(n);
-      final priority = await ahpCalculateEigenVectorCriteria({'matrix': matrix});
+      final priority =
+          await ahpCalculateEigenVectorCriteria({'matrix': matrix});
 
       final result = await ahpCheckConsistencyRatio({
         'matrix': matrix,
@@ -36,7 +37,8 @@ void main() {
     test('n = 10: uses Saaty RI = 1.49', () async {
       const n = 10;
       final matrix = createPerturbedMatrix(n);
-      final priority = await ahpCalculateEigenVectorCriteria({'matrix': matrix});
+      final priority =
+          await ahpCalculateEigenVectorCriteria({'matrix': matrix});
 
       final result = await ahpCheckConsistencyRatio({
         'matrix': matrix,
@@ -51,10 +53,12 @@ void main() {
       expect(derivedRI, closeTo(1.49, 1e-4));
     });
 
-    test('n = 15: uses Saaty RI = 1.59 (maximum defined entry in table)', () async {
+    test('n = 15: uses Saaty RI = 1.59 (maximum defined entry in table)',
+        () async {
       const n = 15;
       final matrix = createPerturbedMatrix(n);
-      final priority = await ahpCalculateEigenVectorCriteria({'matrix': matrix});
+      final priority =
+          await ahpCalculateEigenVectorCriteria({'matrix': matrix});
 
       final result = await ahpCheckConsistencyRatio({
         'matrix': matrix,
@@ -69,10 +73,12 @@ void main() {
       expect(derivedRI, closeTo(1.59, 1e-4));
     });
 
-    test('n = 16 (out of table): falls back to 1.59 without throwing', () async {
+    test('n = 16 (out of table): falls back to 1.59 without throwing',
+        () async {
       const n = 16;
       final matrix = createPerturbedMatrix(n);
-      final priority = await ahpCalculateEigenVectorCriteria({'matrix': matrix});
+      final priority =
+          await ahpCalculateEigenVectorCriteria({'matrix': matrix});
 
       final result = await ahpCheckConsistencyRatio({
         'matrix': matrix,
@@ -88,10 +94,12 @@ void main() {
       expect(derivedRI, closeTo(1.59, 1e-4));
     });
 
-    test('n = 80 (large dataset): falls back to 1.59 without throwing', () async {
+    test('n = 80 (large dataset): falls back to 1.59 without throwing',
+        () async {
       const n = 80;
       final matrix = createPerturbedMatrix(n);
-      final priority = await ahpCalculateEigenVectorCriteria({'matrix': matrix});
+      final priority =
+          await ahpCalculateEigenVectorCriteria({'matrix': matrix});
 
       final result = await ahpCheckConsistencyRatio({
         'matrix': matrix,

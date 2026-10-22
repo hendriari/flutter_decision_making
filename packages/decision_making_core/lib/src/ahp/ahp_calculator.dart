@@ -522,8 +522,7 @@ ${consistencyAlternatives.any((e) => e.isConsistent == false) ? '* Inconsistency
     // 1. Criteria Matrix, Normalized Matrix & Priority Vector
     final itemCriteria =
         hierarchy.map((e) => e.criteria).toList(growable: false);
-    final criteriaIds =
-        itemCriteria.map((c) => c.id!).toList(growable: false);
+    final criteriaIds = itemCriteria.map((c) => c.id!).toList(growable: false);
     final matrixCriteria = generateResultPairwiseMatrixCriteria(
       itemCriteria,
       inputsCriteria,
@@ -567,8 +566,7 @@ ${consistencyAlternatives.any((e) => e.isConsistent == false) ? '* Inconsistency
           .expand((e) => [e.left, e.right])
           .toSet()
           .toList(growable: false);
-      final altIds =
-          itemAlternative.map((a) => a.id!).toList(growable: false);
+      final altIds = itemAlternative.map((a) => a.id!).toList(growable: false);
 
       final matrixAlt = generateResultPairwiseMatrixAlternative(
         itemAlternative,
@@ -622,8 +620,8 @@ ${consistencyAlternatives.any((e) => e.isConsistent == false) ? '* Inconsistency
         final altPriority = scoresPerCriteria[critId]?[altId] ?? 0.0;
         final weightedScore = critWeight * altPriority;
 
-        weightedScoresPerCriteria
-            .putIfAbsent(critId, () => <String, double>{})[altId] = weightedScore;
+        weightedScoresPerCriteria.putIfAbsent(
+            critId, () => <String, double>{})[altId] = weightedScore;
         resultScores[i] += weightedScore;
       }
     }

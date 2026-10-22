@@ -137,5 +137,3 @@ Future<Map<String, dynamic>> ahpCheckConsistencyRatio(
     endPerformanceProfiling('check consistency ratio');
   }
 }
-
-

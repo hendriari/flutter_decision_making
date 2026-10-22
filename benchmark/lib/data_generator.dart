@@ -3,17 +3,22 @@ import 'dart:math';
 import 'package:flutter_decision_making/flutter_decision_making.dart';
 
 class BenchmarkDataGenerator {
-  static (List<WeightedDecisionAlternative>, List<WeightedDecisionCriteria>,
-      List<WeightedDecisionMatrix>) generateDataset({
+  static (
+    List<WeightedDecisionAlternative>,
+    List<WeightedDecisionCriteria>,
+    List<WeightedDecisionMatrix>
+  ) generateDataset({
     required int alternativesCount,
     required int criteriaCount,
     int seed = 42,
   }) {
     final rng = Random(seed);
 
-    final rawWeights = List.generate(criteriaCount, (_) => 10.0 + rng.nextDouble() * 90.0);
+    final rawWeights =
+        List.generate(criteriaCount, (_) => 10.0 + rng.nextDouble() * 90.0);
     final totalRawWeight = rawWeights.fold<double>(0.0, (sum, w) => sum + w);
-    final normalizedWeights = rawWeights.map((w) => (w / totalRawWeight) * 100.0).toList();
+    final normalizedWeights =
+        rawWeights.map((w) => (w / totalRawWeight) * 100.0).toList();
 
     final criteria = List.generate(criteriaCount, (j) {
       final isBenefit = rng.nextDouble() < 0.7; // 70% benefit, 30% cost

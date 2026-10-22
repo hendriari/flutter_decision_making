@@ -57,30 +57,39 @@ void main() {
           id: 'm1',
           alternative: alternatives[0],
           ratings: [
-            WeightedDecisionRating(id: 'r1_1', criteria: criteria[0], value: 100),
+            WeightedDecisionRating(
+                id: 'r1_1', criteria: criteria[0], value: 100),
             WeightedDecisionRating(id: 'r1_2', criteria: criteria[1], value: 3),
-            WeightedDecisionRating(id: 'r1_3', criteria: criteria[2], value: 3500),
-            WeightedDecisionRating(id: 'r1_4', criteria: criteria[3], value: 1.5),
+            WeightedDecisionRating(
+                id: 'r1_3', criteria: criteria[2], value: 3500),
+            WeightedDecisionRating(
+                id: 'r1_4', criteria: criteria[3], value: 1.5),
           ],
         ),
         WeightedDecisionMatrix(
           id: 'm2',
           alternative: alternatives[1],
           ratings: [
-            WeightedDecisionRating(id: 'r2_1', criteria: criteria[0], value: 150),
+            WeightedDecisionRating(
+                id: 'r2_1', criteria: criteria[0], value: 150),
             WeightedDecisionRating(id: 'r2_2', criteria: criteria[1], value: 2),
-            WeightedDecisionRating(id: 'r2_3', criteria: criteria[2], value: 4500),
-            WeightedDecisionRating(id: 'r2_4', criteria: criteria[3], value: 2.0),
+            WeightedDecisionRating(
+                id: 'r2_3', criteria: criteria[2], value: 4500),
+            WeightedDecisionRating(
+                id: 'r2_4', criteria: criteria[3], value: 2.0),
           ],
         ),
         WeightedDecisionMatrix(
           id: 'm3',
           alternative: alternatives[2],
           ratings: [
-            WeightedDecisionRating(id: 'r3_1', criteria: criteria[0], value: 200),
+            WeightedDecisionRating(
+                id: 'r3_1', criteria: criteria[0], value: 200),
             WeightedDecisionRating(id: 'r3_2', criteria: criteria[1], value: 3),
-            WeightedDecisionRating(id: 'r3_3', criteria: criteria[2], value: 3000),
-            WeightedDecisionRating(id: 'r3_4', criteria: criteria[3], value: 3.5),
+            WeightedDecisionRating(
+                id: 'r3_3', criteria: criteria[2], value: 3000),
+            WeightedDecisionRating(
+                id: 'r3_4', criteria: criteria[3], value: 3.5),
           ],
         ),
       ];
@@ -144,8 +153,7 @@ void main() {
             j++) {
           expect(
             detailedResult.weightedMatrix[i].ratings[j].value,
-            closeTo(
-                expectedDetailed.weightedMatrix[i].ratings[j].value!, 1e-4),
+            closeTo(expectedDetailed.weightedMatrix[i].ratings[j].value!, 1e-4),
           );
         }
       }
@@ -199,36 +207,48 @@ void main() {
           id: 'm1',
           alternative: alternatives[0],
           ratings: [
-            WeightedDecisionRating(id: 'r1_1', criteria: criteria[0], value: 80),
-            WeightedDecisionRating(id: 'r1_2', criteria: criteria[1], value: 90),
-            WeightedDecisionRating(id: 'r1_3', criteria: criteria[2], value: 70),
+            WeightedDecisionRating(
+                id: 'r1_1', criteria: criteria[0], value: 80),
+            WeightedDecisionRating(
+                id: 'r1_2', criteria: criteria[1], value: 90),
+            WeightedDecisionRating(
+                id: 'r1_3', criteria: criteria[2], value: 70),
           ],
         ),
         WeightedDecisionMatrix(
           id: 'm2',
           alternative: alternatives[1],
           ratings: [
-            WeightedDecisionRating(id: 'r2_1', criteria: criteria[0], value: 90),
-            WeightedDecisionRating(id: 'r2_2', criteria: criteria[1], value: 80),
-            WeightedDecisionRating(id: 'r2_3', criteria: criteria[2], value: 75),
+            WeightedDecisionRating(
+                id: 'r2_1', criteria: criteria[0], value: 90),
+            WeightedDecisionRating(
+                id: 'r2_2', criteria: criteria[1], value: 80),
+            WeightedDecisionRating(
+                id: 'r2_3', criteria: criteria[2], value: 75),
           ],
         ),
         WeightedDecisionMatrix(
           id: 'm3',
           alternative: alternatives[2],
           ratings: [
-            WeightedDecisionRating(id: 'r3_1', criteria: criteria[0], value: 85),
-            WeightedDecisionRating(id: 'r3_2', criteria: criteria[1], value: 85),
-            WeightedDecisionRating(id: 'r3_3', criteria: criteria[2], value: 80),
+            WeightedDecisionRating(
+                id: 'r3_1', criteria: criteria[0], value: 85),
+            WeightedDecisionRating(
+                id: 'r3_2', criteria: criteria[1], value: 85),
+            WeightedDecisionRating(
+                id: 'r3_3', criteria: criteria[2], value: 80),
           ],
         ),
         WeightedDecisionMatrix(
           id: 'm4',
           alternative: alternatives[3],
           ratings: [
-            WeightedDecisionRating(id: 'r4_1', criteria: criteria[0], value: 75),
-            WeightedDecisionRating(id: 'r4_2', criteria: criteria[1], value: 70),
-            WeightedDecisionRating(id: 'r4_3', criteria: criteria[2], value: 85),
+            WeightedDecisionRating(
+                id: 'r4_1', criteria: criteria[0], value: 75),
+            WeightedDecisionRating(
+                id: 'r4_2', criteria: criteria[1], value: 70),
+            WeightedDecisionRating(
+                id: 'r4_3', criteria: criteria[2], value: 85),
           ],
         ),
       ];
@@ -292,8 +312,7 @@ void main() {
             j++) {
           expect(
             detailedResult.weightedMatrix[i].ratings[j].value,
-            closeTo(
-                expectedDetailed.weightedMatrix[i].ratings[j].value!, 1e-4),
+            closeTo(expectedDetailed.weightedMatrix[i].ratings[j].value!, 1e-4),
           );
         }
       }
@@ -308,7 +327,8 @@ void main() {
       }
     });
 
-    test('Case 3 (Edge Case): Cost Criteria and Identical Alternatives (Tie)', () async {
+    test('Case 3 (Edge Case): Cost Criteria and Identical Alternatives (Tie)',
+        () async {
       // Ground truth verified against core (decision_making_core)
 
       final alternatives = [
@@ -340,24 +360,30 @@ void main() {
           id: 'm1',
           alternative: alternatives[0],
           ratings: [
-            WeightedDecisionRating(id: 'r1_1', criteria: criteria[0], value: 40),
-            WeightedDecisionRating(id: 'r1_2', criteria: criteria[1], value: 80),
+            WeightedDecisionRating(
+                id: 'r1_1', criteria: criteria[0], value: 40),
+            WeightedDecisionRating(
+                id: 'r1_2', criteria: criteria[1], value: 80),
           ],
         ),
         WeightedDecisionMatrix(
           id: 'm2',
           alternative: alternatives[1],
           ratings: [
-            WeightedDecisionRating(id: 'r2_1', criteria: criteria[0], value: 40),
-            WeightedDecisionRating(id: 'r2_2', criteria: criteria[1], value: 80),
+            WeightedDecisionRating(
+                id: 'r2_1', criteria: criteria[0], value: 40),
+            WeightedDecisionRating(
+                id: 'r2_2', criteria: criteria[1], value: 80),
           ],
         ),
         WeightedDecisionMatrix(
           id: 'm3',
           alternative: alternatives[2],
           ratings: [
-            WeightedDecisionRating(id: 'r3_1', criteria: criteria[0], value: 60),
-            WeightedDecisionRating(id: 'r3_2', criteria: criteria[1], value: 60),
+            WeightedDecisionRating(
+                id: 'r3_1', criteria: criteria[0], value: 60),
+            WeightedDecisionRating(
+                id: 'r3_2', criteria: criteria[1], value: 60),
           ],
         ),
       ];
@@ -421,8 +447,7 @@ void main() {
             j++) {
           expect(
             detailedResult.weightedMatrix[i].ratings[j].value,
-            closeTo(
-                expectedDetailed.weightedMatrix[i].ratings[j].value!, 1e-4),
+            closeTo(expectedDetailed.weightedMatrix[i].ratings[j].value!, 1e-4),
           );
         }
       }
