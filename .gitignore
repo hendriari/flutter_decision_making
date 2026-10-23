@@ -25,6 +25,7 @@ migrate_working_dir/
 # Libraries should not include pubspec.lock, per https://dart.dev/guides/libraries/private-files#pubspeclock.
 /pubspec.lock
 packages/decision_making_core/pubspec.lock
+pubspec_overrides.yaml
 **/doc/api/
 .dart_tool/
 .flutter-plugins

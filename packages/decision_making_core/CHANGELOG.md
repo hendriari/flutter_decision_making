@@ -14,3 +14,6 @@ All notable changes to `decision_making_core` will be documented in this file.
 - Low-level AHP helpers (`getRI`, `riTable`, `normalizeComparisonMatrix`) are marked `@internal`.
 - Pure domain models and validation utilities (`MatrixValidator`).
 - Comprehensive unit and golden test suite verified with tolerance 1e-4.
+
+### Added
+- **Objective criteria weighting (Shannon Entropy & CRITIC):** Added `ObjectiveWeightCalculator.calculateEntropy`, `ObjectiveWeightCalculator.calculateCritic`, `ObjectiveWeightCalculator.applyWeightsToCriteria`, `ObjectiveWeightCalculator.applyWeightsToMatrix`, and `ObjectiveWeightCalculator.applyWeightsToTopsisMatrix`, returning `EntropyWeightResult` (`proportionMatrix`, `entropy`, `divergence`, `weights`, `toJson()`) and `CriticWeightResult` (`normalizedMatrix`, `standardDeviations`, `correlationMatrix`, `informationContent`, `weights`, `toJson()`).

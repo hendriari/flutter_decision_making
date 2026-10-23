@@ -216,6 +216,66 @@ void main() {
       expect(sensitivity.rankReversalCases.isNotEmpty, isTrue);
       expect(sensitivity.toJson(), isA<Map<String, dynamic>>());
     });
+
+    test(
+        'SAW objective weighting (Entropy & CRITIC) via fdm.saw returning EntropyWeightResult & CriticWeightResult',
+        () async {
+      final EntropyWeightResult entropy =
+          await fdm.saw.calculateEntropyWeights(matrix: matrix);
+      expect(entropy.weights.length, 2);
+      expect(entropy.entropy.length, 2);
+      expect(entropy.divergence.length, 2);
+      expect(entropy.toJson(), isA<Map<String, dynamic>>());
+
+      final CriticWeightResult critic =
+          await fdm.saw.calculateCriticWeights(matrix: matrix);
+      expect(critic.weights.length, 2);
+      expect(critic.standardDeviations.length, 2);
+      expect(critic.correlationMatrix.length, 2);
+      expect(critic.informationContent.length, 2);
+      expect(critic.toJson(), isA<Map<String, dynamic>>());
+
+      final updatedCriteria = fdm.saw.applyObjectiveWeightsToCriteria(
+        listCriteria: criteria,
+        weights: entropy.weights,
+      );
+      expect(updatedCriteria.length, 2);
+
+      final updatedMatrix = fdm.saw.applyObjectiveWeightsToMatrix(
+        matrix: matrix,
+        weights: critic.weights,
+      );
+      final sawRes = await fdm.saw.getSawDetailedResult(matrix: updatedMatrix);
+      expect(sawRes.scores.length, 2);
+    });
+
+    test(
+        'TOPSIS objective weighting (Entropy & CRITIC) via fdm.topsis returning EntropyWeightResult & CriticWeightResult',
+        () async {
+      final EntropyWeightResult entropy =
+          await fdm.topsis.calculateEntropyWeights(matrix: topsisRawMatrix);
+      expect(entropy.weights.length, 2);
+      expect(entropy.toJson(), isA<Map<String, dynamic>>());
+
+      final CriticWeightResult critic =
+          await fdm.topsis.calculateCriticWeights(matrix: topsisRawMatrix);
+      expect(critic.weights.length, 2);
+      expect(critic.toJson(), isA<Map<String, dynamic>>());
+
+      final updatedCriteria = fdm.topsis.applyObjectiveWeightsToCriteria(
+        listCriteria: criteria,
+        weights: entropy.weights,
+      );
+      expect(updatedCriteria.length, 2);
+
+      final updatedTopsisMatrix = fdm.topsis.applyObjectiveWeightsToMatrix(
+        matrix: topsisRawMatrix,
+        weights: critic.weights,
+      );
+      final topsisRes =
+          await fdm.topsis.getTopsisDetailedResult(matrix: updatedTopsisMatrix);
+      expect(topsisRes.scores.length, 2);
+    });
   });
 
   group('Public API Barrel Access via Direct Class Constructors', () {
@@ -234,6 +294,18 @@ void main() {
       final SensitivityAnalysisResult sensitivity =
           await saw.analyzeSensitivity(matrix: matrix);
       expect(sensitivity.baseRanking.length, 2);
+
+      final EntropyWeightResult entropy =
+          await saw.calculateEntropyWeights(matrix: matrix);
+      expect(entropy.weights.length, 2);
+
+      final CriticWeightResult critic =
+          await saw.calculateCriticWeights(matrix: matrix);
+      expect(critic.weights.length, 2);
+
+      final EntropyWeightResult directEntropy =
+          ObjectiveWeightCalculator.calculateEntropy(matrix);
+      expect(directEntropy.weights.length, 2);
     });
 
     test('TOPSIS constructor directly accessible from barrel', () async {
@@ -251,6 +323,14 @@ void main() {
       final SensitivityAnalysisResult sensitivity =
           await topsis.analyzeSensitivity(matrix: topsisRawMatrix);
       expect(sensitivity.baseRanking.length, 2);
+
+      final EntropyWeightResult entropy =
+          await topsis.calculateEntropyWeights(matrix: topsisRawMatrix);
+      expect(entropy.weights.length, 2);
+
+      final CriticWeightResult critic =
+          await topsis.calculateCriticWeights(matrix: topsisRawMatrix);
+      expect(critic.weights.length, 2);
     });
 
     test('AHP constructor directly accessible from barrel', () async {

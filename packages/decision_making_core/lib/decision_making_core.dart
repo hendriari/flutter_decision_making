@@ -32,6 +32,11 @@ export 'src/sensitivity/sensitivity_analysis_result.dart';
 export 'src/sensitivity/sensitivity_direction.dart';
 export 'src/sensitivity/weight_sensitivity_case.dart';
 
+// Objective Weighting (Entropy & CRITIC)
+export 'src/weighting/critic_weight_result.dart';
+export 'src/weighting/entropy_weight_result.dart';
+export 'src/weighting/objective_weight_calculator.dart';
+
 // AHP
 export 'src/ahp/ahp_calculator.dart';
 export 'src/ahp/ahp_comparison_scale.dart';

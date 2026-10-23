@@ -13,6 +13,7 @@
 - **Detailed self-explaining AHP results (`AhpDetailedResult`, `AhpMatrixEvaluation`):** Added `AhpCalculator.calculateDetailed` and `AHP.getAhpDetailedResult` returning all intermediate comparison matrices, normalized matrices, weights (w_j), consistency metrics (lambda_max, CI, RI, CR), per-criteria local priority scores, weighted scores, and final synthesized scores with JSON serialization support (`toJson()`).
 - **Weight sensitivity analysis & rank reversal detection (SAW & TOPSIS):** Added `SawCalculator.analyzeSensitivity`, `TopsisCalculator.analyzeSensitivity`, `SAW.analyzeSensitivity`, and `TOPSIS.analyzeSensitivity` returning `SensitivityAnalysisResult` with systematic +/- delta perturbations, pairwise ranking change detection, alternative removal rank reversal tests, and JSON serialization support (`toJson()`).
 - Exported sensitivity entities: `AlternativePair`, `RankReversalCase`, `SensitivityAnalysisResult`, `SensitivityDirection`, and `WeightSensitivityCase`.
+- **Objective criteria weighting (Shannon Entropy & CRITIC):** Added `calculateEntropyWeights`, `calculateCriticWeights`, `applyObjectiveWeightsToCriteria`, and `applyObjectiveWeightsToMatrix` on `SAW` and `TOPSIS`, and exported `ObjectiveWeightCalculator`, `EntropyWeightResult`, and `CriticWeightResult` from `package:flutter_decision_making/flutter_decision_making.dart`.
 
 ### Fixed
 - **TOPSIS ranking was wrong in 1.2.0 for datasets above 80 alternatives or 25 criteria**, because the isolate worker called the SAW normalization instead of the Euclidean one.
