@@ -372,10 +372,14 @@ class ObjectiveWeightCalculator {
       if (cid == null || cid.isEmpty) {
         throw Exception('Found rating without criteria ID! Data invalid.');
       }
-      if (!criteriaMap.containsKey(cid)) {
-        criteriaIds.add(cid);
-        criteriaMap[cid] = c;
+      if (criteriaMap.containsKey(cid)) {
+        throw Exception(
+          'Duplicate criterion ID "$cid" found in row for alternative '
+          '"${firstRow.alternative.id ?? firstRow.alternative.name}".',
+        );
       }
+      criteriaIds.add(cid);
+      criteriaMap[cid] = c;
     }
 
     final alternativeIds = <String>[];
@@ -386,6 +390,9 @@ class ObjectiveWeightCalculator {
       if (altId == null || altId.isEmpty) {
         throw Exception('Found alternative without ID! Data invalid.');
       }
+      if (values.containsKey(altId)) {
+        throw Exception('Duplicate alternative ID "$altId" found in matrix.');
+      }
       alternativeIds.add(altId);
 
       final rowValues = <String, double>{};
@@ -393,6 +400,11 @@ class ObjectiveWeightCalculator {
         final cid = rating.criteria?.id;
         if (cid == null || cid.isEmpty) {
           throw Exception('Found rating without criteria ID! Data invalid.');
+        }
+        if (rowValues.containsKey(cid)) {
+          throw Exception(
+            'Duplicate criterion ID "$cid" found in row for alternative "$altId".',
+          );
         }
         final v = rating.value;
         if (v == null || v.isNaN || v.isInfinite) {

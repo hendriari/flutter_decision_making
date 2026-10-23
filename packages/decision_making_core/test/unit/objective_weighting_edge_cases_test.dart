@@ -272,4 +272,151 @@ void main() {
       expect(result.weights['c2'], closeTo(0.5, 1e-9));
     });
   });
+
+  group('Matrix Validation - Edge Cases (Entropy & CRITIC)', () {
+    test('duplicate alternative ID throws Exception (Entropy and CRITIC)', () {
+      final matrix = _buildMatrix(
+        altIds: ['a1', 'a1', 'a3'],
+        critIds: ['c1', 'c2'],
+        isBenefits: [true, true],
+        values: [
+          [10.0, 20.0],
+          [15.0, 25.0],
+          [20.0, 30.0],
+        ],
+      );
+
+      expect(
+        () => ObjectiveWeightCalculator.calculateEntropy(matrix),
+        throwsException,
+      );
+      expect(
+        () => ObjectiveWeightCalculator.calculateCritic(matrix),
+        throwsException,
+      );
+    });
+
+    test(
+        'duplicate criterion ID in a row throws Exception (Entropy and CRITIC)',
+        () {
+      final matrix = _buildMatrix(
+        altIds: ['a1', 'a2', 'a3'],
+        critIds: ['c1', 'c1'],
+        isBenefits: [true, false],
+        values: [
+          [10.0, 20.0],
+          [15.0, 25.0],
+          [20.0, 30.0],
+        ],
+      );
+
+      expect(
+        () => ObjectiveWeightCalculator.calculateEntropy(matrix),
+        throwsException,
+      );
+      expect(
+        () => ObjectiveWeightCalculator.calculateCritic(matrix),
+        throwsException,
+      );
+    });
+
+    test('NaN value throws Exception (Entropy and CRITIC)', () {
+      final matrix = _buildMatrix(
+        altIds: ['a1', 'a2', 'a3'],
+        critIds: ['c1', 'c2'],
+        isBenefits: [true, true],
+        values: [
+          [10.0, 20.0],
+          [double.nan, 25.0],
+          [20.0, 30.0],
+        ],
+      );
+
+      expect(
+        () => ObjectiveWeightCalculator.calculateEntropy(matrix),
+        throwsException,
+      );
+      expect(
+        () => ObjectiveWeightCalculator.calculateCritic(matrix),
+        throwsException,
+      );
+    });
+
+    test('Infinity value throws Exception (Entropy and CRITIC)', () {
+      final c1 = WeightedDecisionCriteria(
+        id: 'c1',
+        name: 'C1',
+        isBenefit: true,
+        weightPercent: 50.0,
+        maxValue: double.infinity,
+      );
+      final c2 = WeightedDecisionCriteria(
+        id: 'c2',
+        name: 'C2',
+        isBenefit: true,
+        weightPercent: 50.0,
+        maxValue: double.infinity,
+      );
+      final matrix = [
+        WeightedDecisionMatrix(
+          id: 'm1',
+          alternative: WeightedDecisionAlternative(id: 'a1', name: 'A1'),
+          ratings: [
+            WeightedDecisionRating(id: 'r1_1', criteria: c1, value: 10.0),
+            WeightedDecisionRating(id: 'r1_2', criteria: c2, value: 20.0),
+          ],
+        ),
+        WeightedDecisionMatrix(
+          id: 'm2',
+          alternative: WeightedDecisionAlternative(id: 'a2', name: 'A2'),
+          ratings: [
+            WeightedDecisionRating(
+              id: 'r2_1',
+              criteria: c1,
+              value: double.infinity,
+            ),
+            WeightedDecisionRating(id: 'r2_2', criteria: c2, value: 25.0),
+          ],
+        ),
+      ];
+
+      expect(
+        () => ObjectiveWeightCalculator.calculateEntropy(matrix),
+        throwsException,
+      );
+      expect(
+        () => ObjectiveWeightCalculator.calculateCritic(matrix),
+        throwsException,
+      );
+    });
+
+    test('missing rating in a row throws Exception (Entropy and CRITIC)', () {
+      final base = _buildMatrix(
+        altIds: ['a1', 'a2', 'a3'],
+        critIds: ['c1', 'c2'],
+        isBenefits: [true, true],
+        values: [
+          [10.0, 20.0],
+          [15.0, 25.0],
+          [20.0, 30.0],
+        ],
+      );
+
+      // Remove second rating from second row
+      final incompleteMatrix = [
+        base[0],
+        base[1].copyWith(ratings: [base[1].ratings.first]),
+        base[2],
+      ];
+
+      expect(
+        () => ObjectiveWeightCalculator.calculateEntropy(incompleteMatrix),
+        throwsException,
+      );
+      expect(
+        () => ObjectiveWeightCalculator.calculateCritic(incompleteMatrix),
+        throwsException,
+      );
+    });
+  });
 }
