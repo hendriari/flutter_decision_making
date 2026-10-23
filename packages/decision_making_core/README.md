@@ -8,17 +8,6 @@ A pure Dart multi-criteria decision-making (MCDM) library implementing **SAW**, 
 
 ---
 
-## Installation
-
-Add `decision_making_core` to your `pubspec.yaml`:
-
-```yaml
-dependencies:
-  decision_making_core: ^0.1.0
-```
-
----
-
 ## Usage Examples
 
 ### 1. Simple Additive Weighting (SAW)
