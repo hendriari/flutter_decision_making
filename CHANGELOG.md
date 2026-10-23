@@ -1,3 +1,10 @@
+## 2.1.0
+
+### Added
+- **Objective criteria weighting (Shannon Entropy & CRITIC):** Added `calculateEntropyWeights`, `calculateCriticWeights`, `applyObjectiveWeightsToCriteria`, and `applyObjectiveWeightsToMatrix` on `SAW` and `TOPSIS`, and exported `ObjectiveWeightCalculator`, `EntropyWeightResult`, and `CriticWeightResult` from `package:flutter_decision_making/flutter_decision_making.dart`.
+
+---
+
 ## 2.0.0
 
 ### Breaking changes

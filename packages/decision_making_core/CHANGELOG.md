@@ -2,6 +2,11 @@
 
 All notable changes to `decision_making_core` will be documented in this file.
 
+## 0.2.0
+
+### Added
+- **Objective criteria weighting (Shannon Entropy & CRITIC):** Added `ObjectiveWeightCalculator.calculateEntropy`, `ObjectiveWeightCalculator.calculateCritic`, `ObjectiveWeightCalculator.applyWeightsToCriteria`, `ObjectiveWeightCalculator.applyWeightsToMatrix`, and `ObjectiveWeightCalculator.applyWeightsToTopsisMatrix`, returning `EntropyWeightResult` (`proportionMatrix`, `entropy`, `divergence`, `weights`, `toJson()`) and `CriticWeightResult` (`normalizedMatrix`, `standardDeviations`, `correlationMatrix`, `informationContent`, `weights`, `toJson()`).
+
 ## 0.1.0
 
 ### Initial Release

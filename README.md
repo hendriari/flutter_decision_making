@@ -140,6 +140,41 @@ result.rankReversalCases;     // each alternative removed in turn (needs 3+ alte
 
 ---
 
+## ⚖️ Objective Criteria Weighting (Entropy & CRITIC)
+
+Derive data-driven criteria weights (summing to 1.0) directly from a decision matrix (`m` alternatives by `n` criteria) and apply them to SAW or TOPSIS:
+
+- **Shannon Entropy (`calculateEntropyWeights` / `ObjectiveWeightCalculator.calculateEntropy`):**
+  - Uses raw values (`benefit`/`cost` direction is ignored; values must be non-negative): `p_ij = x_ij / sum_i(x_ij)`, `k = 1 / ln(m)`, `e_j = -k * sum_i(p_ij * ln(p_ij))` with `0 * ln(0) = 0`, `d_j = 1 - e_j`, and `w_j = d_j / sum_j(d_j)`.
+  - Edge cases: throws an `Exception` if `m < 2`, any value is negative, or a column sum is `0`; `0` cell values are allowed; if all `d_j == 0` (all columns constant), returns equal weights (`1 / n`).
+- **CRITIC (`calculateCriticWeights` / `ObjectiveWeightCalculator.calculateCritic`):**
+  - Applies min-max normalization per column (`(x - min) / (max - min)` for benefit, `(max - x) / (max - min)` for cost), computes sample standard deviation `sigma_j` (divisor `m - 1`) and the Pearson correlation matrix `R = [r_jk]` between normalized columns, `C_j = sigma_j * sum_k(1 - r_jk)`, and `w_j = C_j / sum_j(C_j)`.
+  - Edge cases: throws an `Exception` if `m < 2`; a constant column (`max == min`) gets normalized values `0.0`, `sigma_j = 0.0`, and `0.0` correlation with other columns; if `sum_j(C_j) == 0`, returns equal weights (`1 / n`).
+
+```dart
+final entropy = await _decisionMaking.saw.calculateEntropyWeights(matrix: matrix);
+entropy.entropy;     // e_j
+entropy.divergence;  // d_j
+entropy.weights;     // w_j (sum = 1)
+
+final critic = await _decisionMaking.saw.calculateCriticWeights(matrix: matrix);
+critic.standardDeviations; // sigma_j (sample std dev, divisor m - 1)
+critic.correlationMatrix;  // Pearson correlation matrix R
+critic.informationContent; // C_j
+critic.weights;            // w_j (sum = 1)
+
+// Apply objective weights (weightPercent = w_j * 100, benefit/cost preserved) and run SAW:
+final weightedMatrix = _decisionMaking.saw.applyObjectiveWeightsToMatrix(
+  matrix: matrix,
+  weights: entropy.weights,
+);
+final ranked = await _decisionMaking.saw.getResultWithExistingMatrix(
+  sawMatrix: weightedMatrix,
+);
+```
+
+---
+
 ## 📖 Algorithm Docs
 For details on how to use the algorithm, you can visit the following documentation.
 

@@ -285,6 +285,72 @@ void main() {
 
 ---
 
+## Objective Weighting (Shannon Entropy & CRITIC)
+
+When subjective criteria weights are unavailable or data-driven objectivity is required, `decision_making_core` provides two objective weighting methods via `ObjectiveWeightCalculator`:
+
+1. **Shannon Entropy (`ObjectiveWeightCalculator.calculateEntropy`):**
+   - Computes proportions per column from raw values: `p_ij = x_ij / sum_i(x_ij)` (benefit/cost direction is ignored; all values must be non-negative).
+   - Computes entropy per criterion: `e_j = -k * sum_i(p_ij * ln(p_ij))` where `k = 1 / ln(m)` and `0 * ln(0) = 0`.
+   - Computes degree of divergence: `d_j = 1 - e_j`.
+   - Normalizes weights: `w_j = d_j / sum_j(d_j)`.
+   - Returns `EntropyWeightResult` containing `proportionMatrix`, `entropy`, `divergence`, `weights`, and `toJson()`.
+
+2. **CRITIC (`ObjectiveWeightCalculator.calculateCritic`):**
+   - Applies min-max normalization per column:
+     - Benefit: `r_ij = (x_ij - min_j) / (max_j - min_j)`
+     - Cost: `r_ij = (max_j - x_ij) / (max_j - min_j)`
+   - Computes sample standard deviation `sigma_j` (divisor `m - 1`) for each normalized column.
+   - Computes the Pearson correlation matrix `R = [r_jk]` between normalized columns.
+   - Computes information content: `C_j = sigma_j * sum_k(1 - r_jk)`.
+   - Normalizes weights: `w_j = C_j / sum_j(C_j)`.
+   - Returns `CriticWeightResult` containing `normalizedMatrix`, `standardDeviations`, `correlationMatrix`, `informationContent`, `weights`, and `toJson()`.
+
+### Objective Weighting Edge Cases (No NaN Guarantee)
+
+- **Entropy:**
+  - `m < 2` (fewer than 2 alternatives): throws an `Exception`.
+  - Negative value (`x_ij < 0`): throws an `Exception`.
+  - Column sum equals 0 (`sum_i(x_ij) == 0`): throws an `Exception`.
+  - Zero cell value (`x_ij == 0` with positive column sum): allowed (`0 * ln(0) = 0`).
+  - All `d_j == 0` (all columns constant): returns equal weights (`w_j = 1 / n`).
+- **CRITIC:**
+  - `m < 2` (fewer than 2 alternatives): throws an `Exception`.
+  - Constant column (`max_j == min_j`): normalized values are `0.0`, `sigma_j = 0.0`, and correlation with other columns is `0.0`.
+  - `sum_j(C_j) == 0` (all columns constant or perfectly correlated): returns equal weights (`w_j = 1 / n`).
+
+### Example: Combined Objective Weighting with SAW and TOPSIS
+
+```dart
+import 'package:decision_making_core/decision_making_core.dart';
+
+void main() {
+  // 1. Calculate Entropy and CRITIC objective weights from a decision matrix
+  final entropyResult = ObjectiveWeightCalculator.calculateEntropy(matrix);
+  print('Entropy weights: ${entropyResult.weights}'); // sums to 1.0
+  print('Entropy e_j: ${entropyResult.entropy}');
+  print('Divergence d_j: ${entropyResult.divergence}');
+
+  final criticResult = ObjectiveWeightCalculator.calculateCritic(matrix);
+  print('CRITIC weights: ${criticResult.weights}'); // sums to 1.0
+  print('CRITIC sigma_j: ${criticResult.standardDeviations}');
+  print('CRITIC C_j: ${criticResult.informationContent}');
+
+  // 2. Apply objective weights to criteria list (weightPercent = w_j * 100, benefit/cost preserved)
+  final updatedCriteria = entropyResult.applyToCriteria(criteria);
+
+  // 3. Apply directly to SAW matrix and calculate ranked results
+  final sawMatrixWithEntropy = entropyResult.applyToMatrix(matrix);
+  final sawResults = SawCalculator.calculate(sawMatrixWithEntropy);
+
+  // 4. Apply directly to TOPSIS raw matrix and calculate ranked results
+  final topsisWithCritic = criticResult.applyToTopsisRawMatrix(rawMatrix);
+  final topsisResults = TopsisCalculator.calculate(topsisWithCritic);
+}
+```
+
+---
+
 ## Existing Behavior & Edge Cases
 
 The core calculation engines maintain consistent mathematical specifications for edge cases:

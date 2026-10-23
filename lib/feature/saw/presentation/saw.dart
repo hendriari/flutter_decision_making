@@ -120,4 +120,49 @@ class SAW {
   }) async {
     return SawCalculator.analyzeSensitivity(matrix, delta: delta);
   }
+
+  /// CALCULATE SHANNON ENTROPY OBJECTIVE WEIGHTS
+  ///
+  /// Computes objective criteria weights (`w_j` summing to 1.0) and intermediate
+  /// values (`p_ij`, `e_j`, `d_j`) using the Shannon Entropy method.
+  Future<EntropyWeightResult> calculateEntropyWeights({
+    required List<WeightedDecisionMatrix> matrix,
+  }) async {
+    return ObjectiveWeightCalculator.calculateEntropy(matrix);
+  }
+
+  /// CALCULATE CRITIC OBJECTIVE WEIGHTS
+  ///
+  /// Computes objective criteria weights (`w_j` summing to 1.0) and intermediate
+  /// values (`r_ij`, `sigma_j`, `R`, `C_j`) using the CRITIC method.
+  Future<CriticWeightResult> calculateCriticWeights({
+    required List<WeightedDecisionMatrix> matrix,
+  }) async {
+    return ObjectiveWeightCalculator.calculateCritic(matrix);
+  }
+
+  /// APPLY OBJECTIVE WEIGHTS TO CRITERIA LIST
+  ///
+  /// Sets `weightPercent = w_j * 100` for each criterion while preserving
+  /// its benefit/cost type and other attributes.
+  List<WeightedDecisionCriteria> applyObjectiveWeightsToCriteria({
+    required List<WeightedDecisionCriteria> listCriteria,
+    required Map<String, double> weights,
+  }) {
+    return ObjectiveWeightCalculator.applyWeightsToCriteria(
+      listCriteria,
+      weights,
+    );
+  }
+
+  /// APPLY OBJECTIVE WEIGHTS TO SAW MATRIX
+  ///
+  /// Sets `weightPercent = w_j * 100` on all criteria inside [matrix] so it can
+  /// be passed directly to [getResultWithExistingMatrix] or [getSawDetailedResult].
+  List<WeightedDecisionMatrix> applyObjectiveWeightsToMatrix({
+    required List<WeightedDecisionMatrix> matrix,
+    required Map<String, double> weights,
+  }) {
+    return ObjectiveWeightCalculator.applyWeightsToMatrix(matrix, weights);
+  }
 }

@@ -1,6 +1,6 @@
 name: flutter_decision_making
 description: "Flutter package for multi-criteria decision-making using AHP, SAW, and TOPSIS algorithms."
-version: 2.0.0
+version: 2.1.0
 homepage: https://github.com/hendriari/flutter_decision_making
 repository: https://github.com/hendriari/flutter_decision_making
 issue_tracker: https://github.com/hendriari/flutter_decision_making/issues
