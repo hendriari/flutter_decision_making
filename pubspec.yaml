@@ -12,7 +12,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  decision_making_core: ^0.1.0
+  decision_making_core: ^0.2.1
   synchronized: ^3.4.0
   uuid: ^4.5.2
 
