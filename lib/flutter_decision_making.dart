@@ -15,6 +15,7 @@ export 'package:decision_making_core/decision_making_core.dart'
         AhpResultDetail,
         AlternativePair,
         CriticWeightResult,
+        DecisionInputException,
         EntropyWeightResult,
         ObjectiveWeightCalculator,
         PairwiseAlternativeInput,

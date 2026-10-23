@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import '../common/decision_input_exception.dart';
 import '../common/matrix_validator.dart';
 import '../common/weighted_decision_criteria.dart';
 import '../common/weighted_decision_matrix.dart';
@@ -43,7 +44,7 @@ class ObjectiveWeightCalculator {
       for (final altId in extracted.alternativeIds) {
         final val = extracted.values[altId]![critId]!;
         if (val < 0.0) {
-          throw Exception(
+          throw DecisionInputException(
             'Entropy weighting does not allow negative values '
             '(found $val for alternative "$altId", criterion "$critId").',
           );
@@ -51,7 +52,7 @@ class ObjectiveWeightCalculator {
         sum += val;
       }
       if (sum <= 0.0) {
-        throw Exception(
+        throw DecisionInputException(
           'Entropy weighting requires column sum > 0 '
           '(criterion "$critId" has column sum $sum).',
         );
@@ -290,11 +291,11 @@ class ObjectiveWeightCalculator {
     return criteria.map((c) {
       final id = c.id;
       if (id == null || id.isEmpty) {
-        throw Exception('Criteria ID cannot be null or empty.');
+        throw DecisionInputException('Criteria ID cannot be null or empty.');
       }
       final w = weights[id];
       if (w == null) {
-        throw Exception('Missing weight for criterion ID "$id".');
+        throw DecisionInputException('Missing weight for criterion ID "$id".');
       }
       return c.copyWith(weightPercent: w * 100.0);
     }).toList();
@@ -310,17 +311,18 @@ class ObjectiveWeightCalculator {
       final updatedRatings = row.ratings.map((r) {
         final c = r.criteria;
         if (c == null) {
-          throw Exception(
+          throw DecisionInputException(
             'Rating on ${row.alternative.name} has no criteria.',
           );
         }
         final id = c.id;
         if (id == null || id.isEmpty) {
-          throw Exception('Criteria ID cannot be null or empty.');
+          throw DecisionInputException('Criteria ID cannot be null or empty.');
         }
         final w = weights[id];
         if (w == null) {
-          throw Exception('Missing weight for criterion ID "$id".');
+          throw DecisionInputException(
+              'Missing weight for criterion ID "$id".');
         }
         return r.copyWith(
           criteria: c.copyWith(weightPercent: w * 100.0),
@@ -350,14 +352,14 @@ class ObjectiveWeightCalculator {
 
     final m = rawMatrix.length;
     if (m < 2) {
-      throw Exception(
+      throw DecisionInputException(
         '$methodName weighting requires at least 2 alternatives (found $m).',
       );
     }
 
     final firstRow = rawMatrix.first;
     if (firstRow.ratings.isEmpty) {
-      throw Exception('Criteria list cannot be empty!');
+      throw DecisionInputException('Criteria list cannot be empty!');
     }
 
     final criteriaIds = <String>[];
@@ -366,14 +368,16 @@ class ObjectiveWeightCalculator {
     for (final rating in firstRow.ratings) {
       final c = rating.criteria;
       if (c == null) {
-        throw Exception('Found rating without criteria! Data invalid.');
+        throw DecisionInputException(
+            'Found rating without criteria! Data invalid.');
       }
       final cid = c.id;
       if (cid == null || cid.isEmpty) {
-        throw Exception('Found rating without criteria ID! Data invalid.');
+        throw DecisionInputException(
+            'Found rating without criteria ID! Data invalid.');
       }
       if (criteriaMap.containsKey(cid)) {
-        throw Exception(
+        throw DecisionInputException(
           'Duplicate criterion ID "$cid" found in row for alternative '
           '"${firstRow.alternative.id ?? firstRow.alternative.name}".',
         );
@@ -388,10 +392,12 @@ class ObjectiveWeightCalculator {
     for (final row in rawMatrix) {
       final altId = row.alternative.id;
       if (altId == null || altId.isEmpty) {
-        throw Exception('Found alternative without ID! Data invalid.');
+        throw DecisionInputException(
+            'Found alternative without ID! Data invalid.');
       }
       if (values.containsKey(altId)) {
-        throw Exception('Duplicate alternative ID "$altId" found in matrix.');
+        throw DecisionInputException(
+            'Duplicate alternative ID "$altId" found in matrix.');
       }
       alternativeIds.add(altId);
 
@@ -399,16 +405,17 @@ class ObjectiveWeightCalculator {
       for (final rating in row.ratings) {
         final cid = rating.criteria?.id;
         if (cid == null || cid.isEmpty) {
-          throw Exception('Found rating without criteria ID! Data invalid.');
+          throw DecisionInputException(
+              'Found rating without criteria ID! Data invalid.');
         }
         if (rowValues.containsKey(cid)) {
-          throw Exception(
+          throw DecisionInputException(
             'Duplicate criterion ID "$cid" found in row for alternative "$altId".',
           );
         }
         final v = rating.value;
         if (v == null || v.isNaN || v.isInfinite) {
-          throw Exception(
+          throw DecisionInputException(
             'Invalid value for alternative "$altId", criterion "$cid".',
           );
         }
@@ -417,7 +424,7 @@ class ObjectiveWeightCalculator {
 
       for (final cid in criteriaIds) {
         if (!rowValues.containsKey(cid)) {
-          throw Exception(
+          throw DecisionInputException(
             'Missing rating for alternative "$altId", criterion "$cid".',
           );
         }

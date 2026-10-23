@@ -351,5 +351,12 @@ void main() {
       );
       expect(detailed.scores.length, 2);
     });
+
+    test('DecisionInputException directly accessible from barrel', () {
+      const exception = DecisionInputException('Barrel export check');
+      expect(exception, isA<Exception>());
+      expect(exception.message, equals('Barrel export check'));
+      expect(exception.toString(), equals('Exception: Barrel export check'));
+    });
   });
 }

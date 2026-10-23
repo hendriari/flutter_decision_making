@@ -1,3 +1,4 @@
+import 'package:decision_making_core/decision_making_core.dart';
 import 'package:flutter_decision_making/core/shared/dto/weighted_decision_alternative_dto.dart';
 import 'package:flutter_decision_making/core/shared/dto/weighted_decision_criteria_dto.dart';
 import 'package:flutter_decision_making/core/shared/dto/weighted_decision_matrix_dto.dart';
@@ -73,6 +74,7 @@ Future<List<Map<String, dynamic>>> generateWeightedDecisionMatrixIsolate({
     // Convert result to JSON format for returning to main isolate
     return result.map((e) => e.toJson()).toList();
   } catch (e, stackTrace) {
+    if (e is DecisionInputException) rethrow;
     throw Exception('Failed to generate matrix in isolate: $e\n$stackTrace');
   }
 }

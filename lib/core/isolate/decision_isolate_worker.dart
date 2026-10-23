@@ -1,5 +1,6 @@
 import 'dart:isolate';
 
+import 'package:decision_making_core/decision_making_core.dart';
 import 'package:flutter_decision_making/core/decision_making_enums.dart';
 import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_calculate_eigen_vector_alternative_isolated.dart';
 import 'package:flutter_decision_making/feature/ahp/data/datasource/ahp_calculate_eigen_vector_criteria_isolated.dart';
@@ -173,7 +174,12 @@ void decisionIsolateWorker(SendPort mainSendPort) {
       );
       message.replyPort.send(result);
     } catch (e, st) {
-      message.replyPort.send({'error': e.toString(), 'stack': st.toString()});
+      message.replyPort.send({
+        'error': e.toString(),
+        'isDecisionInputException': e is DecisionInputException,
+        'message': e is DecisionInputException ? e.message : null,
+        'stack': st.toString(),
+      });
     }
   });
 }

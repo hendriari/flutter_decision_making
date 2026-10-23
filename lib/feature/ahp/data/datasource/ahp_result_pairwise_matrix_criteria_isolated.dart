@@ -14,7 +14,7 @@ import 'package:flutter_decision_making/feature/ahp/data/mapper/pairwise_compari
 /// **Matrix Characteristics:**
 ///
 /// 1. **Reciprocal Matrix**:
-///    - If matrix[i][j] = x, then matrix[j][i] = 1/x
+///    - If `matrix[i][j] = x`, then `matrix[j][i] = 1/x`
 ///    - This ensures mathematical consistency
 ///
 /// 2. **Positive Elements**:
@@ -22,7 +22,7 @@ import 'package:flutter_decision_making/feature/ahp/data/mapper/pairwise_compari
 ///    - Zero or negative values are invalid
 ///
 /// 3. **Unity Diagonal**:
-///    - matrix[i][i] = 1 for all i
+///    - `matrix[i][i] = 1` for all `i`
 ///    - Each criterion compared to itself is equal
 ///
 /// 4. **Symmetric Structure**:
@@ -49,8 +49,8 @@ import 'package:flutter_decision_making/feature/ahp/data/mapper/pairwise_compari
 ///
 /// 3. **Fill Comparisons**:
 ///    - For each user comparison (A vs B with value x):
-///      * If A is more important: matrix[A][B] = x, matrix[B][A] = 1/x
-///      * If B is more important: matrix[A][B] = 1/x, matrix[B][A] = x
+///      * If A is more important: `matrix[A][B] = x`, `matrix[B][A] = 1/x`
+///      * If B is more important: `matrix[A][B] = 1/x`, `matrix[B][A] = x`
 ///
 /// **Parameters:**
 /// - [data]: Map containing:
@@ -58,8 +58,8 @@ import 'package:flutter_decision_making/feature/ahp/data/mapper/pairwise_compari
 ///   - 'inputs': List of pairwise comparison inputs (`List<Map<String, dynamic>>`)
 ///
 /// **Returns:**
-/// Square matrix (`List<List<double>>`) where matrix[i][j] represents
-/// how much criterion i is preferred over criterion j.
+/// Square matrix (`List<List<double>>`) where `matrix[i][j]` represents
+/// how much criterion `i` is preferred over criterion `j`.
 ///
 /// **Throws:**
 /// - [Exception] if any item is missing an ID
@@ -118,8 +118,8 @@ import 'package:flutter_decision_making/feature/ahp/data/mapper/pairwise_compari
 /// **Matrix Reading:**
 /// - Row represents "this criterion"
 /// - Column represents "compared to that criterion"
-/// - matrix[Safety][Cost] = 3.0 means "Safety is 3x more important than Cost"
-/// - matrix[Cost][Safety] = 0.33 means "Cost is 1/3 as important as Safety"
+/// - `matrix[Safety][Cost] = 3.0` means "Safety is 3x more important than Cost"
+/// - `matrix[Cost][Safety] = 0.33` means "Cost is 1/3 as important as Safety"
 ///
 /// **Next Steps:**
 /// After generating this matrix:

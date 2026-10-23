@@ -219,6 +219,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
     try {
       return AhpCalculator.generateHierarchy(criteria, alternative);
     } catch (e) {
+      if (e is DecisionInputException) rethrow;
       throw Exception('Failed generate hierarchy $e');
     } finally {
       endPerformanceProfiling('generate hierarchy');
@@ -236,6 +237,7 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
         idGenerator: () => _helper.getCustomUniqueId(),
       );
     } catch (e) {
+      if (e is DecisionInputException) rethrow;
       throw Exception('Failed generate pairwise criteria template $e');
     } finally {
       endPerformanceProfiling('generate pairwise criteria');

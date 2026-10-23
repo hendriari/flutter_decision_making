@@ -114,6 +114,7 @@ Future<List<Map<String, dynamic>>> generateInputPairwiseAlternative(
         .map((e) => PairwiseAlternativeInputMapper.fromEntity(e).toMap())
         .toList();
   } catch (e) {
+    if (e is DecisionInputException) rethrow;
     throw Exception('Failed generate pairwise alternative: $e');
   } finally {
     endPerformanceProfiling('generate pairwise alternative');

@@ -55,7 +55,7 @@ class SawLocalDatasourceImpl
   })  : _helper = helper ?? DecisionMakingHelper(),
         _isolate = isolate;
 
-  /// [MATRIX]
+  /// ### Matrix Generation
   /// GENERATE SAW MATRIX
   @override
   Future<List<WeightedDecisionMatrix>> generateSawMatrix({
@@ -119,7 +119,7 @@ class SawLocalDatasourceImpl
     startPerformanceProfiling('normalize matrix saw');
     try {
       if (listMatrix.isEmpty) {
-        throw Exception('Matrix cannot be empty!');
+        throw DecisionInputException('Matrix cannot be empty!');
       }
 
       var normalized = <WeightedDecisionMatrix>[];
@@ -226,7 +226,7 @@ class SawLocalDatasourceImpl
   }
 
   /// ==========================================================================
-  /// [RESULT WITH CRITERIA]
+  /// ### Result With Criteria
 
   @override
   Future<List<WeightedDecisionResult>> calculateResultWithExistingMatrix({
@@ -236,7 +236,7 @@ class SawLocalDatasourceImpl
     startPerformanceProfiling('Calculate result with existing matrix');
     try {
       if (matrix.isEmpty) {
-        throw Exception("Matrix cannot be empty!");
+        throw DecisionInputException("Matrix cannot be empty!");
       }
 
       await validateMaxInputValue(matrix);

@@ -1,3 +1,4 @@
+import 'decision_input_exception.dart';
 import 'weighted_decision_alternative.dart';
 import 'weighted_decision_criteria.dart';
 import 'weighted_decision_matrix.dart';
@@ -11,49 +12,53 @@ class MatrixValidator {
     required List<WeightedDecisionCriteria> criteria,
   }) {
     if (alternatives.isEmpty) {
-      throw Exception('Alternatives list cannot be empty!');
+      throw DecisionInputException('Alternatives list cannot be empty!');
     }
     if (criteria.isEmpty) {
-      throw Exception('Criteria list cannot be empty!');
+      throw DecisionInputException('Criteria list cannot be empty!');
     }
     if (alternatives.length > 100 || criteria.length > 100) {
-      throw Exception('Maximum 100 alternatives or criteria allowed!');
+      throw DecisionInputException(
+          'Maximum 100 alternatives or criteria allowed!');
     }
 
     final totalWeight = criteria.fold<double>(
       0.0,
       (sum, item) {
         if (item.weightPercent < 0) {
-          throw Exception('Criteria weight cannot be negative: ${item.name}');
+          throw DecisionInputException(
+              'Criteria weight cannot be negative: ${item.name}');
         }
         return sum + item.weightPercent;
       },
     );
 
     if (totalWeight <= 0) {
-      throw Exception('Total criteria weight must be greater than zero!');
+      throw DecisionInputException(
+          'Total criteria weight must be greater than zero!');
     }
   }
 
   /// Validates that all ratings have valid values within criteria boundaries.
   static void validateMatrixValues(List<WeightedDecisionMatrix> matrix) {
     if (matrix.isEmpty) {
-      throw Exception('Matrix cannot be empty!');
+      throw DecisionInputException('Matrix cannot be empty!');
     }
 
     for (final row in matrix) {
       for (final r in row.ratings) {
         final c = r.criteria;
         if (c == null) {
-          throw Exception('Rating on ${row.alternative.name} has no criteria.');
+          throw DecisionInputException(
+              'Rating on ${row.alternative.name} has no criteria.');
         }
         final val = r.value;
         if (val == null) {
-          throw Exception(
+          throw DecisionInputException(
               'Empty value in ${row.alternative.name} for criteria ${c.name}');
         }
         if (val > c.maxValue) {
-          throw Exception(
+          throw DecisionInputException(
               "The value '$val' for alternative '${row.alternative.name}' in criteria '${c.name}' is greater than the maximum (${c.maxValue}).");
         }
       }

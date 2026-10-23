@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:meta/meta.dart';
 
+import '../common/decision_input_exception.dart';
 import 'ahp_consistency_ratio.dart';
 import 'ahp_detailed_result.dart';
 import 'ahp_hierarchy.dart';
@@ -53,14 +54,14 @@ class AhpCalculator {
     String Function()? idGenerator,
   }) {
     if (criteria.isEmpty) {
-      throw Exception("Criteria can't be empty!");
+      throw DecisionInputException("Criteria can't be empty!");
     }
     if (alternative.isEmpty) {
-      throw Exception("Alternative can't be empty!");
+      throw DecisionInputException("Alternative can't be empty!");
     }
 
     if (criteria.length > 100 || alternative.length > 100) {
-      throw Exception(
+      throw DecisionInputException(
         'Too much data, please limit the number of criteria/alternatives (max 100 criteria and 100 alternative).',
       );
     }
@@ -173,7 +174,7 @@ class AhpCalculator {
     for (int index = 0; index < items.length; index++) {
       final id = items[index].id;
       if (id == null || id.isEmpty) {
-        throw Exception('Item with missing ID found');
+        throw DecisionInputException('Item with missing ID found');
       }
       itemIndexMap[id] = index;
     }
@@ -184,11 +185,12 @@ class AhpCalculator {
       final value = e.preferenceValue?.toDouble() ?? 1.0;
 
       if (i == null || j == null) {
-        throw Exception('One or both items not found in the list');
+        throw DecisionInputException('One or both items not found in the list');
       }
 
       if (value <= 0) {
-        throw Exception('Comparison value must be greater than zero');
+        throw DecisionInputException(
+            'Comparison value must be greater than zero');
       }
 
       if (e.isLeftMoreImportant == true) {
@@ -228,7 +230,7 @@ class AhpCalculator {
     for (int index = 0; index < items.length; index++) {
       final id = items[index].id;
       if (id == null || id.isEmpty) {
-        throw Exception('Alternative item has missing ID');
+        throw DecisionInputException('Alternative item has missing ID');
       }
       itemIndexMap[id] = index;
     }
@@ -238,12 +240,13 @@ class AhpCalculator {
       final j = itemIndexMap[comparison.right.id];
 
       if (i == null || j == null) {
-        throw Exception('Alternative not found in list');
+        throw DecisionInputException('Alternative not found in list');
       }
 
       final value = comparison.preferenceValue?.toDouble() ?? 1.0;
       if (value <= 0) {
-        throw Exception('Comparison value must be greater than zero');
+        throw DecisionInputException(
+            'Comparison value must be greater than zero');
       }
 
       if (comparison.isLeftMoreImportant == true) {
@@ -386,7 +389,7 @@ class AhpCalculator {
   }) {
     if (eigenVectorsAlternative.isEmpty ||
         eigenVectorsAlternative.first.isEmpty) {
-      throw Exception('Alternative matrix is empty.');
+      throw DecisionInputException('Alternative matrix is empty.');
     }
 
     final int altCount = eigenVectorsAlternative.first.length;
@@ -472,28 +475,33 @@ ${consistencyAlternatives.any((e) => e.isConsistent == false) ? '* Inconsistency
     required List<PairwiseAlternativeInput> inputsAlternative,
   }) {
     if (inputsCriteria.any((e) => e.preferenceValue == null)) {
-      throw Exception('Please complete all values from the criteria scale');
+      throw DecisionInputException(
+          'Please complete all values from the criteria scale');
     }
     if (inputsCriteria.any((e) => e.isLeftMoreImportant == null)) {
-      throw Exception('Please complete which more important from the criteria');
+      throw DecisionInputException(
+          'Please complete which more important from the criteria');
     }
     if (inputsAlternative
         .any((e) => e.alternative.any((d) => d.preferenceValue == null))) {
-      throw Exception('Please complete all values from the alternative scale');
+      throw DecisionInputException(
+          'Please complete all values from the alternative scale');
     }
     if (inputsAlternative
         .any((e) => e.alternative.any((d) => d.isLeftMoreImportant == null))) {
-      throw Exception(
+      throw DecisionInputException(
           'Please complete which more important from the alternative');
     }
 
     for (final h in hierarchy) {
       if (h.criteria.id == null || h.criteria.id!.isEmpty) {
-        throw Exception('Found criteria without ID! Data invalid.');
+        throw DecisionInputException(
+            'Found criteria without ID! Data invalid.');
       }
       for (final a in h.alternative) {
         if (a.id == null || a.id!.isEmpty) {
-          throw Exception('Found alternative without ID! Data invalid.');
+          throw DecisionInputException(
+              'Found alternative without ID! Data invalid.');
         }
       }
     }
@@ -502,19 +510,22 @@ ${consistencyAlternatives.any((e) => e.isConsistent == false) ? '* Inconsistency
           p.left.id!.isEmpty ||
           p.right.id == null ||
           p.right.id!.isEmpty) {
-        throw Exception('Found criteria without ID! Data invalid.');
+        throw DecisionInputException(
+            'Found criteria without ID! Data invalid.');
       }
     }
     for (final input in inputsAlternative) {
       if (input.criteria.id == null || input.criteria.id!.isEmpty) {
-        throw Exception('Found criteria without ID! Data invalid.');
+        throw DecisionInputException(
+            'Found criteria without ID! Data invalid.');
       }
       for (final p in input.alternative) {
         if (p.left.id == null ||
             p.left.id!.isEmpty ||
             p.right.id == null ||
             p.right.id!.isEmpty) {
-          throw Exception('Found alternative without ID! Data invalid.');
+          throw DecisionInputException(
+              'Found alternative without ID! Data invalid.');
         }
       }
     }

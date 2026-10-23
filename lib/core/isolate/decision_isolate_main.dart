@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:isolate';
 
+import 'package:decision_making_core/decision_making_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_decision_making/core/decision_making_enums.dart';
 import 'package:flutter_decision_making/core/decision_making_helper.dart';
@@ -275,6 +276,10 @@ class DecisionIsolateMain with WidgetsBindingObserver {
         );
 
         if (result is Map && result.containsKey('error')) {
+          if (result['isDecisionInputException'] == true &&
+              result['message'] != null) {
+            throw DecisionInputException(result['message'] as String);
+          }
           throw Exception('Isolate Task Error (#$taskId):\n'
               '${result['error']}\n'
               '${result['stack'] ?? ''}');

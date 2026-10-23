@@ -298,13 +298,13 @@ When subjective criteria weights are unavailable or data-driven objectivity is r
 ### Objective Weighting Edge Cases (No NaN Guarantee)
 
 - **Entropy:**
-  - `m < 2` (fewer than 2 alternatives): throws an `Exception`.
-  - Negative value (`x_ij < 0`): throws an `Exception`.
-  - Column sum equals 0 (`sum_i(x_ij) == 0`): throws an `Exception`.
+  - `m < 2` (fewer than 2 alternatives): throws a `DecisionInputException`.
+  - Negative value (`x_ij < 0`): throws a `DecisionInputException`.
+  - Column sum equals 0 (`sum_i(x_ij) == 0`): throws a `DecisionInputException`.
   - Zero cell value (`x_ij == 0` with positive column sum): allowed (`0 * ln(0) = 0`).
   - All `d_j == 0` (all columns constant): returns equal weights (`w_j = 1 / n`).
 - **CRITIC:**
-  - `m < 2` (fewer than 2 alternatives): throws an `Exception`.
+  - `m < 2` (fewer than 2 alternatives): throws a `DecisionInputException`.
   - Constant column (`max_j == min_j`): normalized values are `0.0`, `sigma_j = 0.0`, and correlation with other columns is `0.0`.
   - `sum_j(C_j) == 0` (all columns constant or perfectly correlated): returns equal weights (`w_j = 1 / n`).
 
@@ -344,9 +344,32 @@ void main() {
 
 The core calculation engines maintain consistent mathematical specifications for edge cases:
 
-- **SAW cost criteria with value 0:** If a cost criterion receives a rating value of `0.0`, an explicit `Exception("Rating value cannot be 0 for cost criteria")` is thrown to prevent division by zero (`min / 0.0`) or infinite scores.
+- **SAW cost criteria with value 0:** If a cost criterion receives a rating value of `0.0`, a `DecisionInputException("Rating value cannot be 0 for cost criteria")` is thrown to prevent division by zero (`min / 0.0`) or infinite scores.
 - **TOPSIS all-zero column:** When all alternatives have a value of `0.0` for a criterion (resulting in Euclidean norm = 0.0), each normalized cell safely evaluates to `0.0` instead of `NaN` or divide-by-zero.
 - **TOPSIS equidistant alternatives (D+ = D- = 0):** When all alternatives have identical distance to ideal solutions (such as single-alternative datasets or identical rows where `D+ = 0.0` and `D- = 0.0`), the relative closeness formula `D- / (D+ + D-)` safely resolves to a neutral score of `0.5` instead of `NaN`.
+
+---
+
+## Error Handling
+
+All input validation errors throw a dedicated `DecisionInputException` (which implements `Exception`). Because it implements `Exception`, existing generic `catch (e)` blocks continue to work without breaking changes, while new code can specifically catch `DecisionInputException`:
+
+```dart
+import 'package:decision_making_core/decision_making_core.dart';
+
+void calculateSafely(List<WeightedDecisionMatrix> matrix) {
+  try {
+    final results = SawCalculator.calculate(matrix);
+    print('Top result: ${results.first.alternative.name}');
+  } on DecisionInputException catch (e) {
+    // Specifically handle invalid decision-making inputs
+    print('Validation error: ${e.message}');
+  } catch (e) {
+    // Handle unexpected runtime errors
+    print('Unexpected error: $e');
+  }
+}
+```
 
 ---
 

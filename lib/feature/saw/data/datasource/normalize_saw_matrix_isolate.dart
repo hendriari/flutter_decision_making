@@ -36,6 +36,7 @@ Future<List<Map<String, dynamic>>> normalizeWeightedMatrixIsolate({
     // Convert back to JSON format
     return normalized.map((e) => e.toDto().toJson()).toList();
   } catch (e) {
+    if (e is DecisionInputException) rethrow;
     throw Exception('Failed to normalize matrix in isolate: $e');
   }
 }

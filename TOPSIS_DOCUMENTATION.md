@@ -1,44 +1,55 @@
 ## 📌 Important
 
-**Since calculations are performed on the client side, the total number of criteria and alternatives may affect your device’s performance. Although this package offloads heavy computations to a separate thread using Isolates, we recommend using data wisely.**
+**All calculations are performed client-side using pure Dart via `decision_making_core`. By default, calculations run synchronously on the main thread (`useIsolate: false`), which executes in under 1 ms for typical datasets (e.g. 80 alternatives × 25 criteria takes ~0.52 ms). Isolate processing is opt-in via `useIsolate: true` for heavy background operations where keeping the UI thread unblocked is desired, though message serialization adds a modest overhead.**
 
 ---
+
 ## ✨ Features
 
 - Generate decision matrix from criteria and alternatives
 - Automatic weight normalization to 100%
 - Support for both benefit and cost criteria
-- **Euclidean Normalization** for matrix scaling
-- **Ideal Solution Identification** (Positive A+ and Negative A-)
-- **Separation Measure** calculation (Euclidean Distance)
-- **Relative Closeness** calculation for final ranking
-- Isolate-based processing for large datasets (80+ alternatives or 25+ criteria)
-- Comprehensive input validation with detailed error messages
+- **Euclidean Vector Normalization** for matrix scaling
+- **Positive Ideal (A+) and Negative Ideal (A-) Solutions**
+- **Euclidean Distance Separation Measures** (D+ and D-)
+- **Relative Closeness Coefficient** (C_i) for final ranking
+- **Detailed intermediate computation steps** via `getTopsisDetailedResult` (`TopsisDetailedResult`)
+- **Sensitivity analysis & rank reversal evaluation** via `analyzeSensitivity` (`SensitivityAnalysisResult`)
+- **Objective criteria weighting** via Shannon Entropy (`calculateEntropyWeights`) and CRITIC (`calculateCriticWeights`)
+- Helper functions to apply objective weights to criteria lists or matrices
+- JSON serialization (`toJson()`) on all result and detailed models
+- Comprehensive input validation throwing dedicated `DecisionInputException`
+- Opt-in Isolate-based background processing (`useIsolate: true`, default `false`)
 - Built-in performance profiling (dev-friendly)
 - Auto-generation of unique IDs for entities
 
 ---
+
 ## 🔧 User Guide
 
-**1. Define Criteria and Alternatives**
+### 1. Initialize TOPSIS and Define Inputs
 
-Each item should have a unique ID. If not provided, the package auto-generates it.
+Each criterion and alternative should have a unique ID. If omitted, the package auto-generates one.
 
 ```dart
+import 'package:flutter_decision_making/flutter_decision_making.dart';
+
+final topsis = TOPSIS();
+
 final criteria = [
   WeightedDecisionCriteria(
     id: 'c1',
     name: 'Price',
-    weightPercent: 30,
-    isBenefit: false,  // Cost criteria (lower is better)
-    maxValue: 1000,
+    weightPercent: 40,
+    isBenefit: false, // Cost criterion (lower is better)
+    maxValue: 2000,
   ),
   WeightedDecisionCriteria(
     id: 'c2',
-    name: 'Quality',
-    weightPercent: 50,
-    isBenefit: true,   // Benefit criteria (higher is better)
-    maxValue: 10,
+    name: 'Performance',
+    weightPercent: 60,
+    isBenefit: true, // Benefit criterion (higher is better)
+    maxValue: 100,
   ),
 ];
 
@@ -48,98 +59,191 @@ final alternatives = [
 ];
 ```
 
-**2. Generate Decision Matrix**
-
-Create the TOPSIS matrix structure.
+### 2. Generate and Fill Decision Matrix
 
 ```dart
-TopsisRawMatrix rawMatrix = await _topsis.generateTopsisMatrix(
+// Generate the initial TOPSIS raw matrix
+TopsisRawMatrix rawMatrix = await topsis.generateTopsisMatrix(
   listAlternative: alternatives,
   listCriteria: criteria,
+  useIsolate: false, // Default is false (main thread)
+);
+
+// Update matrix values with ratings
+rawMatrix = await topsis.updateTopsisMatrix(
+  currentRawMatrix: rawMatrix,
+  matrixId: rawMatrix.matrixs[0].id,
+  ratingsId: rawMatrix.matrixs[0].ratings[0].id,
+  value: 1500.0,
 );
 ```
 
-**3. Fill Matrix with Rating Values**
-
-Fill in the rating values for each alternative-criteria pair. Values must not exceed the `maxValue`.
-
-**4. Calculate TOPSIS Results**
-
-Once all ratings are filled, calculate the final scores and rankings.
+### 3. Calculate Final Scores and Rankings
 
 ```dart
-List<WeightedDecisionResult> results = await datasource.calculateResult(
-  rawMatrix: rawMatrix,
-);
+try {
+  List<WeightedDecisionResult> results = await topsis.getTopsisResult(
+    matrix: rawMatrix,
+    useIsolate: false,
+  );
 
-// Results are sorted by closeness coefficient (highest to lowest)
-for (var result in results) {
-  print('${result.rank}. ${result.alternative.name}: ${result.score.toStringAsFixed(4)}');
+  for (final res in results) {
+    print('${res.rank}. ${res.alternative.name}: ${res.score.toStringAsFixed(4)}');
+  }
+} on DecisionInputException catch (e) {
+  print('Validation failed: ${e.message}');
 }
 ```
 
+Or calculate directly with an existing pre-filled raw matrix:
+
+```dart
+List<WeightedDecisionResult> results = await topsis.getTopsisResultWithExistingMatrix(
+  matrix: rawMatrix,
+  useIsolate: false,
+);
+```
+
+### 4. Detailed Results (Intermediate Computation Steps)
+
+To inspect all intermediate mathematical steps, use `getTopsisDetailedResult`:
+
+```dart
+TopsisDetailedResult detailed = await topsis.getTopsisDetailedResult(
+  matrix: rawMatrix,
+);
+
+// Access intermediate stages
+print('Euclidean normalized matrix rows: ${detailed.normalizedMatrix.length}');
+print('Normalized weights (sum to 1.0): ${detailed.normalizedWeights}');
+print('Weighted matrix rows: ${detailed.weightedMatrix.length}');
+print('Positive Ideal Solution (A+): ${detailed.positiveIdeal}');
+print('Negative Ideal Solution (A-): ${detailed.negativeIdeal}');
+print('Separation from A+ (D+): ${detailed.separationPlus}');
+print('Separation from A- (D-): ${detailed.separationMinus}');
+print('Final relative closeness scores: ${detailed.scores.map((s) => '${s.rank}: ${s.score}')}');
+
+// Full serializable JSON map
+Map<String, dynamic> jsonMap = detailed.toJson();
+```
+
+### 5. Sensitivity Analysis & Rank Reversal
+
+Evaluate how resilient the rankings are when criteria weights change, and check for rank reversal when alternatives are removed:
+
+```dart
+SensitivityAnalysisResult sensitivity = await topsis.analyzeSensitivity(
+  matrix: rawMatrix,
+  delta: 0.1, // Perturbation amount: +/- 10% (default: 0.1)
+);
+
+// Inspect weight perturbation results per criterion
+for (final sCase in sensitivity.sensitivityCases) {
+  print('Criterion ${sCase.criterionId} ${sCase.direction.symbol}: order changed = ${sCase.hasOrderChanged}');
+}
+
+// Inspect rank reversal upon dropping individual alternatives
+for (final rCase in sensitivity.rankReversalCases) {
+  print('Removed ${rCase.removedAlternativeId}: reversal detected = ${rCase.hasReversal}');
+}
+
+// Check overall stability (no rank flips under any perturbation or removal)
+print('Is system stable: ${sensitivity.isStable}');
+
+// Convert entire sensitivity report to JSON
+Map<String, dynamic> sensJson = sensitivity.toJson();
+```
+
+### 6. Objective Criteria Weighting (Entropy & CRITIC)
+
+When subjective weights are not known in advance, compute objective weights directly from the decision matrix:
+
+```dart
+// 1. Shannon Entropy weighting
+EntropyWeightResult entropy = await topsis.calculateEntropyWeights(
+  matrix: rawMatrix,
+);
+print('Entropy weights: ${entropy.weights}');
+print('Entropy dispersion d_j: ${entropy.d}');
+Map<String, dynamic> entropyJson = entropy.toJson();
+
+// 2. CRITIC weighting
+CriticWeightResult critic = await topsis.calculateCriticWeights(
+  matrix: rawMatrix,
+);
+print('CRITIC weights: ${critic.weights}');
+print('CRITIC standard deviations: ${critic.sigma}');
+Map<String, dynamic> criticJson = critic.toJson();
+
+// Apply objective weights to criteria definition:
+List<WeightedDecisionCriteria> updatedCriteria = topsis.applyObjectiveWeightsToCriteria(
+  listCriteria: criteria,
+  weights: entropy.weights,
+);
+
+// Or apply directly to the raw matrix:
+TopsisRawMatrix weightedRawMatrix = topsis.applyObjectiveWeightsToMatrix(
+  matrix: rawMatrix,
+  weights: entropy.weights,
+);
+
+// Run calculation with the objectively weighted matrix
+TopsisDetailedResult result = await topsis.getTopsisDetailedResult(matrix: weightedRawMatrix);
+```
+
 ---
-## 🛠️ How TOPSIS Works
 
-**The algorithm follows these steps:**
+## ⚡ When to Use Isolates (`useIsolate`)
 
-**1. Euclidean Normalization**
-Scales the values so the sum of squares in each column is 1.
-`r_ij = x_ij / sqrt(Σ x_ij²)`
-
-**2. Weighted Normalized Matrix**
-Multiplies normalized values by criteria weights.
-`v_ij = w_j * r_ij`
-
-**3. Ideal Solutions (A+ and A-)**
-- **Benefit Criteria**: A+ = Max(v), A- = Min(v)
-- **Cost Criteria**: A+ = Min(v), A- = Max(v)
-
-**4. Separation Measures (Distance)**
-Calculates Euclidean distance to ideal solutions.
-- `D+ = sqrt(Σ (v_ij - A+j)²)`
-- `D- = sqrt(Σ (v_ij - A-j)²)`
-
-**5. Relative Closeness (Score)**
-Calculates the final score (Preference Value).
-`Score = D- / (D+ + D-)`
+- **Default (`useIsolate: false`):** Runs on the current thread. Benchmark measurements show that pure Dart calculations complete in **<1 ms** for typical problem sizes (e.g. 80 × 25).
+- **Opt-in (`useIsolate: true`):** Spawns a background Dart Isolate. Use this when calculating extremely large matrices (thousands of alternatives) where you must guarantee zero UI thread jank, keeping in mind that data serialization to and from the isolate takes more time than the calculation itself.
+- **Web Platform:** Isolates are not supported on Flutter Web; calculations run safely on the main thread automatically.
 
 ---
-## 🔍 Sample Case
 
-Problem: Selecting a laptop based on Price (Cost) and Performance (Benefit).
+## 🛠️ Mathematical Method
 
-**1. Raw Data**
-- Laptop A: Price 1500, Performance 85
-- Laptop B: Price 1200, Performance 75
+1. **Euclidean Vector Normalization:**
+   `r_ij = x_ij / sqrt(sum_k(x_kj^2))` for each column `j`.
 
-**2. Euclidean Normalization**
-- Price Divider: `sqrt(1500² + 1200²) = 1920.94`
-- Performance Divider: `sqrt(85² + 75²) = 113.36`
+2. **Weighted Normalized Matrix:**
+   `v_ij = r_ij * w_j` where `w_j = weightPercent_j / sum(weightPercent)`.
 
-Normalized Matrix:
-- Laptop A: Price 0.781, Performance 0.750
-- Laptop B: Price 0.625, Performance 0.661
+3. **Ideal Solutions:**
+   - Benefit criteria: `A+ = max_i(v_ij)`, `A- = min_i(v_ij)`
+   - Cost criteria: `A+ = min_i(v_ij)`, `A- = max_i(v_ij)`
 
-**3. Weighted Matrix (Weight: Price 40%, Performance 60%)**
-- Laptop A: Price 0.312, Performance 0.450
-- Laptop B: Price 0.250, Performance 0.397
+4. **Separation Distances:**
+   - Distance from Positive Ideal: `D_i^+ = sqrt(sum_j((v_ij - A_j^+)^2))`
+   - Distance from Negative Ideal: `D_i^- = sqrt(sum_j((v_ij - A_j^-)^2))`
 
-**4. Ideal Solutions**
-- Price (Cost): A+ = 0.250 (Min), A- = 0.312 (Max)
-- Perf (Benefit): A+ = 0.450 (Max), A- = 0.397 (Min)
-
-**5. Distances & Final Score**
-- **Laptop A**: D+ = 0.062, D- = 0.053 -> Score = **0.461**
-- **Laptop B**: D+ = 0.053, D- = 0.062 -> Score = **0.539**
-
-**Result**: Laptop B is preferred because it has a higher relative closeness to the ideal solution.
+5. **Relative Closeness Coefficient:**
+   - Score: `C_i = D_i^- / (D_i^+ + D_i^-)`
+   - Values range between 0.0 and 1.0 (higher is better). Sorted in descending order.
 
 ---
-## 🚨 Common Errors and Solutions
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| "Bad state: No element" | Matrix/Criteria ID mismatch | Ensure IDs are consistent or use `calculateResultWithExistingMatrix` |
-| "Value exceeds maximum" | Rating > maxValue | Check input against criterion's maxValue |
-| "Total weight cannot be zero" | Sum of weights = 0 | Provide valid positive weights |
+## 🚨 Error Handling
+
+All input validation failures throw `DecisionInputException` (implements `Exception`).
+
+```dart
+try {
+  await topsis.getTopsisResult(matrix: rawMatrix);
+} on DecisionInputException catch (e) {
+  // Handle invalid user input
+  print('Validation error: ${e.message}');
+} catch (e) {
+  // Other unexpected errors
+  print('Unexpected error: $e');
+}
+```
+
+### Common Validation Rules
+- `Alternatives list cannot be empty!`
+- `Criteria list cannot be empty!`
+- `Matrix cannot be empty!`
+- `Total criteria weight cannot be zero!`
+- `Criteria weights cannot be negative.`
+- `Value exceeds maximum value!` (rating exceeds `criterion.maxValue`)
+- `Matrix not found!` / `Rating not found!` (ID lookups)

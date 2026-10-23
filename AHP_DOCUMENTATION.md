@@ -4,28 +4,28 @@
 
 ## 📌 Important
 
-**Since calculations are performed on the client side, the total number of criteria and alternatives may affect your device's performance. Although this package offloads heavy computations to a separate thread using Isolates for datasets with more than 15 criteria or alternatives, we recommend using data wisely.**
+**All calculations are performed client-side using pure Dart via `decision_making_core`. By default, calculations run synchronously on the main thread (`useIsolate: false`), which executes in under 1 ms for typical datasets. Isolate processing is opt-in via `useIsolate: true` for heavy background operations where keeping the UI thread unblocked is desired, though message serialization adds a modest overhead.**
 
 ---
 
-## ⚠️ Batasan AHP (AHP Limitations)
+## ⚠️ AHP Method Limitations & Approximation
 
-- **Metode Perhitungan Bobot:** Package ini memakai metode aproksimasi **normalized column averaging** (rata-rata kolom ternormalisasi), bukan *principal eigenvector* eksak berbasis dekomposisi matriks/nilai eigen.
-- **Akurasi & Selisih:** Selisih bobot terhadap eigenvector sebenarnya sekitar $4 \times 10^{-4}$ sampai $1.3 \times 10^{-3}$ pada kasus matriks konsisten ($CR \le 0.1$). Untuk matriks konsisten, selisihnya kecil. Untuk matriks tidak konsisten, selisihnya bisa lebih besar.
-- **Nilai Pembanding Eigenvector Sebenarnya (`np.linalg.eig`):**
-  - **Kasus Golden 1:** Bobot eigenvector eksak `[0.648329, 0.229651, 0.122020]`, $\lambda_{max} = 3.003695$ (vs column averaging `[0.647947, 0.229871, 0.122182]`, $\lambda_{max} = 3.003697$).
-  - **Kasus Golden 2:** Bobot eigenvector eksak `[0.558425, 0.319618, 0.121957]`, $\lambda_{max} = 3.018295$ (vs column averaging `[0.557143, 0.320238, 0.122619]`, $\lambda_{max} = 3.018325$).
-- **Tabel Random Index (RI) & Ukuran Matriks:**
-  - Tabel Random Index (RI) pada package ini menggunakan nilai empiris Saaty untuk ukuran matriks $n = 1..15$.
-  - Untuk $n > 15$, sistem menggunakan nilai *fallback* tetap sebesar `1.59` (`riTable[n] ?? 1.59`).
-  - Sebagai gambaran, estimasi RI dari simulasi Monte Carlo (matriks resiprokal acak dengan skala 1/9..9) menghasilkan:
-    - $n = 16 \approx 1.59$
-    - $n = 20 \approx 1.62$
-    - $n = 30 \approx 1.67$
-    - $n = 50 \approx 1.71$
-    - $n = 80 \approx 1.73$
-  - Akibat dari penggunaan batas tetap `1.59`, perhitungan Consistency Ratio ($CR = CI / RI$) untuk $n > 15$ menjadi sedikit lebih konservatif (angka CR sedikit lebih tinggi dari yang semestinya).
-  - **Catatan Praktis:** Dalam metodologi AHP nyata, perbandingan berpasangan dengan jumlah elemen yang sangat banyak ($n > 15$) tidak praktis bagi penilai manusia karena jumlah pertanyaan perbandingan tumbuh secara kuadratik ($n(n-1)/2$; misalnya $n=80$ membutuhkan 3.160 pasangan perbandingan), yang cenderung merusak konsistensi manusia.
+- **Weight Calculation Method:** This package uses the standard approximation method **normalized column averaging** (averaging normalized columns), rather than exact principal eigenvector decomposition (`np.linalg.eig`).
+- **Accuracy & Difference:** Weight differences compared to exact eigenvectors are typically around 0.0004 to 0.0013 on consistent matrices (CR <= 0.1). For consistent matrices, the difference is negligible.
+- **Reference Comparison (`np.linalg.eig`):**
+  - **Golden Case 1:** Exact eigenvector weights `[0.648329, 0.229651, 0.122020]`, lambda_max = 3.003695 (vs column averaging `[0.647947, 0.229871, 0.122182]`, lambda_max = 3.003697).
+  - **Golden Case 2:** Exact eigenvector weights `[0.558425, 0.319618, 0.121957]`, lambda_max = 3.018295 (vs column averaging `[0.557143, 0.320238, 0.122619]`, lambda_max = 3.018325).
+- **Random Index (RI) Table & Matrix Size:**
+  - Saaty's standard empirical Random Index (RI) table is used for matrix sizes n = 1..15.
+  - For n > 15, a fallback value of 1.59 is used (`riTable[n] ?? 1.59`).
+  - Empirical Monte Carlo estimates for reference:
+    - n = 16: ~1.59
+    - n = 20: ~1.62
+    - n = 30: ~1.67
+    - n = 50: ~1.71
+    - n = 80: ~1.73
+  - Because 1.59 is capped, the calculated Consistency Ratio (CR = CI / RI) for n > 15 is slightly conservative (reporting slightly higher CR than true Monte Carlo).
+  - **Practical Note:** In real-world AHP, pairwise comparisons for large counts (n > 15) are impractical for human evaluators because the required comparisons grow quadratically (n(n-1)/2; e.g., n=80 requires 3,160 pairs), which degrades judgment consistency.
 
 ---
 ## ✨ Features
@@ -35,9 +35,12 @@
 - Built-in Saaty comparison scale (no need to define manually)
 - Requires manual filling of paired comparison values for criteria and alternatives for valid analysis
 - Complete validation and exceptions if there are values that have not been filled in
-- Consistency Ratio check to ensure logical consistency (CR ≤ 0.1 for acceptable results)
+- Consistency Ratio check to ensure logical consistency (CR <= 0.1 for acceptable results)
 - Eigenvector and final score calculation using normalized column averaging method
-- Automatic isolate processing for large datasets (>15 items on non-web platforms)
+- **Detailed intermediate computation steps** via `getAhpDetailedResult` (`AhpDetailedResult`)
+- JSON serialization (`toJson()`) on all result and detailed models
+- Comprehensive input validation throwing dedicated `DecisionInputException`
+- Opt-in Isolate-based background processing (`useIsolate: true`, default `false`)
 - Customizable and extendable architecture with Clean Architecture pattern
 - Built-in performance profiling (dev-friendly)
 - Auto-generation of unique IDs for all entities
@@ -226,6 +229,42 @@ if (result.isConsistentCriteria && result.isConsistentAlternative) {
 }
 ```
 
+---
+
+**➛ Step 7: Calculate Detailed Results (Intermediate Steps)**
+
+To inspect all intermediate matrices, consistency ratios, and local/synthesized priority vectors:
+
+```dart
+AhpDetailedResult detailed = await _ahp.getAhpDetailedResult(
+  hierarchy: hierarchy,
+  inputsCriteria: criteriaInputs,
+  inputsAlternative: alternativeInputs,
+);
+
+// 1. Criteria evaluation
+final critEval = detailed.criteriaEvaluation;
+print('Criteria comparison matrix: ${critEval.comparisonMatrix}');
+print('Criteria normalized matrix: ${critEval.normalizedMatrix}');
+print('Criteria weights (sum to 1.0): ${critEval.weights}');
+print('lambda_max: ${critEval.lambdaMax}, CI: ${critEval.ci}, CR: ${critEval.cr}');
+print('Is criteria comparison consistent: ${critEval.isConsistent}');
+
+// 2. Alternative evaluations per criterion
+detailed.alternativeEvaluations.forEach((critId, altEval) {
+  print('Criterion $critId alternative weights: ${altEval.weights}');
+  print('Criterion $critId alternative CR: ${altEval.cr}');
+});
+
+// 3. Synthesized final scores and ranks
+for (final score in detailed.scores) {
+  print('${score.rank}. ${score.alternative.name}: ${score.score.toStringAsFixed(4)}');
+}
+
+// Full serializable JSON map
+Map<String, dynamic> jsonMap = detailed.toJson();
+```
+
 **Validation Before Calculation:**
 
 The method validates that:
@@ -235,10 +274,11 @@ The method validates that:
 
 **Throws:**
 
-- Exception: "Please complete all values from the criteria scale"
-- Exception: "Please complete which more important from the criteria"
-- Exception: "Please complete all values from the alternative scale"
-- Exception: "Please complete which more important from the alternative"
+All input validation failures throw `DecisionInputException`:
+- `DecisionInputException: "Please complete all values from the criteria scale"`
+- `DecisionInputException: "Please complete which more important from the criteria"`
+- `DecisionInputException: "Please complete all values from the alternative scale"`
+- `DecisionInputException: "Please complete which more important from the alternative"`
 
 ---
 
@@ -635,10 +675,10 @@ This prevents false negatives from floating-point precision issues.
 
 **5. Performance Considerations**
 
-- For web apps: Keep criteria + alternatives ≤ 30 total
-- For mobile/desktop: Up to 100 items supported
-- Large datasets: Consider breaking into sub-problems
-- Isolate threshold: Automatically handled at 15+ items
+- Main thread execution (`useIsolate: false`, default) takes <1 ms for typical inputs.
+- Isolate execution (`useIsolate: true`) is opt-in for heavy background processing.
+- For web apps: isolates are not supported; execution runs safely on the main thread.
+- Practical human limit: keep criteria + alternatives within reasonable counts (e.g. <=15) to maintain logical judgment consistency.
 
 **6. Error Prevention**
 
@@ -652,15 +692,19 @@ try {
   
   if (!result.isConsistentCriteria || !result.isConsistentAlternative) {
     // Handle inconsistency
-    showWarning(result.note);
+    print(result.note);
   }
   
   // Use results
-  displayResults(result.results);
-  
+  for (final res in result.results) {
+    print('${res.name}: ${res.value}');
+  }
+} on DecisionInputException catch (e) {
+  // Catch input validation errors
+  print('Input validation failed: ${e.message}');
 } catch (e) {
-  // Handle errors gracefully
-  showError('Failed to calculate: $e');
+  // Handle other errors gracefully
+  print('Failed to calculate: $e');
 }
 ```
 
@@ -668,16 +712,18 @@ try {
 
 ## 🚨 Error Handling
 
+All input validation failures throw `DecisionInputException` (implements `Exception`).
+
 **Common Errors and Solutions**
 
 | Error Message                     | When It Occurs                                                  | Solution                                 |
 |-----------------------------------|-----------------------------------------------------------------|------------------------------------------|
-|"Criteria can't be empty!"         | Calling `generateHierarchy()` with empty criteria list          | Provide at least one criterion           |
-|"Alternative can't be empty!"      | Calling `generateHierarchy()` with empty alternatives list      | Provide at least one alternative         |
-|"Too much data, please limit..."   | Criteria or alternatives exceed 100 items                       | Reduce the number of items to ≤100       |
-|"Please generate hierarchy first!" | Calling `generateCriteriaInputs()` before `generateHierarchy()` | Call `generateHierarchy()` first         |
-|"Please complete all values..."    | Calculating results with unfilled comparisons                   | Fill all comparison values               |
-|"Matrix must be square..."         | Internal error in eigenvector calculation                       | Check for data corruption                |
+|`Criteria can't be empty!`         | Calling `generateHierarchy()` with empty criteria list          | Provide at least one criterion           |
+|`Alternative can't be empty!`      | Calling `generateHierarchy()` with empty alternatives list      | Provide at least one alternative         |
+|`Too much data, please limit...`   | Criteria or alternatives exceed 100 items                       | Reduce the number of items to <=100      |
+|`Please generate hierarchy first!` | Calling `generateCriteriaInputs()` before `generateHierarchy()` | Call `generateHierarchy()` first         |
+|`Please complete all values...`    | Calculating results with unfilled comparisons                   | Fill all comparison values               |
+|`Matrix must be square...`         | Internal error in eigenvector calculation                       | Check for data corruption                |
 |"Alternative matrix is empty"      | No alternatives provided for final score                        | Ensure alternatives are properly defined |
 
 **Handling Consistency Warnings**

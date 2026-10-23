@@ -2,6 +2,15 @@
 
 All notable changes to `decision_making_core` will be documented in this file.
 
+## 0.3.0
+
+### Added
+- `DecisionInputException` type for all input validation failures across all calculation engines (`implements Exception`).
+
+### Changed
+- All input validation errors now throw `DecisionInputException` instead of generic `Exception` (existing `catch (e)` blocks remain fully compatible).
+- Removed LaTeX syntax from dartdoc comments across models and calculators in favor of plain ASCII notation.
+
 ## 0.2.1
 
 ### Updated

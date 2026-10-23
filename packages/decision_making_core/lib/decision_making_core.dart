@@ -7,6 +7,7 @@
 library;
 
 // Common
+export 'src/common/decision_input_exception.dart';
 export 'src/common/matrix_validator.dart';
 export 'src/common/weighted_decision_alternative.dart';
 export 'src/common/weighted_decision_criteria.dart';

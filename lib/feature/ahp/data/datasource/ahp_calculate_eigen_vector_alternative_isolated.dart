@@ -14,16 +14,16 @@ import 'package:flutter_decision_making/core/decision_making_performance_profili
 /// 4. The resulting row averages form the priority vector (eigenvector)
 ///
 /// **Mathematical Formula:**
-/// For a matrix M with elements m[i][j]:
-/// - Column sum: colSum[j] = Σ(m[i][j]) for all i
-/// - Normalized: normalized[i][j] = m[i][j] / colSum[j]
-/// - Priority: priority[i] = (Σ(normalized[i][j]) for all j) / n
+/// For a matrix `M` with elements `m[i][j]`:
+/// - Column sum: `colSum[j] = Σ(m[i][j])` for all `i`
+/// - Normalized: `normalized[i][j] = m[i][j] / colSum[j]`
+/// - Priority: `priority[i] = (Σ(normalized[i][j]) for all j) / n`
 ///
 /// **Parameters:**
 /// - [data]: Map containing:
 ///   - 'matrix': A square pairwise comparison matrix (`List<List<dynamic>>`)
-///               where matrix[i][j] represents how much alternative i is
-///               preferred over alternative j
+///               where `matrix[i][j]` represents how much alternative `i` is
+///               preferred over alternative `j`
 ///
 /// **Returns:**
 /// A list of doubles representing the priority weights for each alternative.
@@ -67,6 +67,7 @@ Future<List<double>> ahpCalculateEigenVectorAlternative(
 
     return AhpCalculator.calculateEigenVector(matrix);
   } catch (e) {
+    if (e is DecisionInputException) rethrow;
     throw Exception('Failed to calculate eigen vector alternative: $e');
   } finally {
     endPerformanceProfiling('calculate eigen vector alternative');

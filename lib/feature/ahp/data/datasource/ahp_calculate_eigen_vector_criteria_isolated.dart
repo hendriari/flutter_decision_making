@@ -31,8 +31,8 @@ import 'package:flutter_decision_making/core/decision_making_performance_profili
 /// **Parameters:**
 /// - [data]: Map containing:
 ///   - 'matrix': Square pairwise comparison matrix (`List<List<dynamic>>`)
-///               where matrix[i][j] indicates how much criterion i is
-///               preferred over criterion j using Saaty's 1-9 scale
+///               where `matrix[i][j]` indicates how much criterion `i` is
+///               preferred over criterion `j` using Saaty's 1-9 scale
 ///
 /// **Returns:**
 /// List of priority weights for each criterion. The weights sum to 1.0,
@@ -80,6 +80,7 @@ Future<List<double>> ahpCalculateEigenVectorCriteria(
 
     return AhpCalculator.calculateEigenVector(matrix);
   } catch (e) {
+    if (e is DecisionInputException) rethrow;
     throw Exception('Failed calculate eigen vector $e');
   } finally {
     endPerformanceProfiling('calculate eigen vector');
