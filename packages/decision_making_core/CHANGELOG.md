@@ -2,6 +2,11 @@
 
 All notable changes to `decision_making_core` will be documented in this file.
 
+## 0.2.1
+
+### Updated
+- Update installation instructions from README.md
+
 ## 0.2.0
 
 ### Added
