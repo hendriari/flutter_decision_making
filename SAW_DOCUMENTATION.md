@@ -1,6 +1,6 @@
 ## 📌 Important
 
-**All calculations are performed client-side using pure Dart via `decision_making_core`. By default, calculations run synchronously on the main thread (`useIsolate: false`), which executes in under 1 ms for typical datasets (e.g. 80 alternatives × 25 criteria takes ~0.19 ms). Isolate processing is opt-in via `useIsolate: true` for heavy background operations where keeping the UI thread unblocked is desired, though message serialization adds a modest overhead.**
+**All calculations are performed client-side using pure Dart via `decision_making_core`. By default, calculations run synchronously on the main thread (`useIsolate: false`), which executes in under 1 ms for typical datasets (e.g. 80 alternatives × 25 criteria takes ~0.19 ms on Apple Silicon in profile mode; mobile devices will be slower). Isolate processing is opt-in via `useIsolate: true` for heavy background operations where keeping the UI thread unblocked is desired, though message serialization adds a modest overhead.**
 
 ---
 
@@ -167,7 +167,7 @@ EntropyWeightResult entropy = await saw.calculateEntropyWeights(
   matrix: matrix,
 );
 print('Entropy weights: ${entropy.weights}');
-print('Entropy dispersion d_j: ${entropy.d}');
+print('Entropy dispersion d_j: ${entropy.divergence}');
 Map<String, dynamic> entropyJson = entropy.toJson();
 
 // 2. CRITIC weighting
@@ -175,7 +175,7 @@ CriticWeightResult critic = await saw.calculateCriticWeights(
   matrix: matrix,
 );
 print('CRITIC weights: ${critic.weights}');
-print('CRITIC standard deviations: ${critic.sigma}');
+print('CRITIC standard deviations: ${critic.standardDeviations}');
 Map<String, dynamic> criticJson = critic.toJson();
 
 // Apply objective weights to criteria definition:
@@ -198,7 +198,7 @@ SawDetailedResult result = await saw.getSawDetailedResult(matrix: weightedMatrix
 
 ## ⚡ When to Use Isolates (`useIsolate`)
 
-- **Default (`useIsolate: false`):** Runs on the current thread. Benchmark measurements show that pure Dart calculations complete in **<1 ms** for typical problem sizes (e.g. 80 × 25).
+- **Default (`useIsolate: false`):** Runs on the current thread. Measured on **Apple Silicon (macOS) in `--profile` mode**, pure Dart calculations complete in **0.19 ms** (0.18–0.35 ms) for 80 × 25 and **8.71 ms** (8.39–12.27 ms) for 2000 × 50. Note that mobile devices will be slower than these numbers, so profile on your target device.
 - **Opt-in (`useIsolate: true`):** Spawns a background Dart Isolate. Use this when calculating extremely large matrices (thousands of alternatives) where you must guarantee zero UI thread jank, keeping in mind that data serialization to and from the isolate takes more time than the calculation itself.
 - **Web Platform:** Isolates are not supported on Flutter Web; calculations run safely on the main thread automatically.
 

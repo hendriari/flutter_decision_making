@@ -4,7 +4,7 @@
 
 ## 📌 Important
 
-**All calculations are performed client-side using pure Dart via `decision_making_core`. By default, calculations run synchronously on the main thread (`useIsolate: false`), which executes in under 1 ms for typical datasets. Isolate processing is opt-in via `useIsolate: true` for heavy background operations where keeping the UI thread unblocked is desired, though message serialization adds a modest overhead.**
+**All calculations are performed client-side using pure Dart via `decision_making_core`. By default, calculations run synchronously on the main thread (`useIsolate: false`). In benchmark measurements on Apple Silicon (macOS) in `--profile` mode, main thread execution completed in 0.56 ms (0.54–1.93 ms) for 10 × 5, 1.28 ms (1.05–1.87 ms) for 20 × 5, and 31.71 ms (31.21–52.50 ms) for 80 × 10. Note that mobile devices will be slower than these numbers, so profile on your target device. Isolate processing is opt-in via `useIsolate: true` for heavy background operations where keeping the UI thread unblocked is desired, though message serialization adds a modest overhead.**
 
 ---
 
@@ -611,10 +611,10 @@ This stores validated criteria and alternatives after `generateHierarchy()` is c
 
 - Unique ID Generation: Uses `DecisionMakingHelper.getCustomUniqueId()`
 - Integrated Performance Profiling: All major operations tracked with `Stopwatch`
-- Automatic Isolate Usage:
-    - Triggered when criteria OR alternatives > 15 items
-    - Only on non-web platforms (web doesn't support isolates)
-    - Flag `_useIsolate` controls processing mode
+- Opt-in Isolate Usage (`useIsolate`):
+    - By default, calculations run synchronously on the main thread (`useIsolate: false`)
+    - Background processing can be enabled via `useIsolate: true` for heavy background tasks
+    - On Flutter Web, calculations run safely on the main thread automatically (isolates are not supported on web)
 - Efficient Matrix Operations: O(n²) algorithms for eigenvector calculation
 
 **Validation & Error Handling**
@@ -644,7 +644,7 @@ This prevents false negatives from floating-point precision issues.
 
 **1. Data Preparation**
 
-- Limit to 15 or fewer items for optimal web performance
+- Limit to 15 or fewer items for cognitive consistency and practical evaluation (pairwise comparisons grow quadratically as n(n-1)/2)
 - Use meaningful names for criteria and alternatives
 - Provide IDs if you need specific identification (otherwise auto-generated)
 - Keep hierarchy depth simple (criteria → alternatives, no sub-criteria)
@@ -675,10 +675,15 @@ This prevents false negatives from floating-point precision issues.
 
 **5. Performance Considerations**
 
-- Main thread execution (`useIsolate: false`, default) takes <1 ms for typical inputs.
-- Isolate execution (`useIsolate: true`) is opt-in for heavy background processing.
+- Main thread execution (`useIsolate: false`, default) benchmarks on Apple Silicon (macOS) in `--profile` mode:
+    - 10 alternatives × 5 criteria: **0.56 ms** median (0.54–1.93 ms)
+    - 20 alternatives × 5 criteria: **1.28 ms** median (1.05–1.87 ms)
+    - 50 alternatives × 5 criteria: **6.16 ms** median (5.80–6.31 ms)
+    - 80 alternatives × 10 criteria: **31.71 ms** median (31.21–52.50 ms)
+- Mobile devices will be slower than these numbers, so profile on your target device.
+- Isolate execution (`useIsolate: true`) is opt-in for heavy background processing where keeping the UI thread unblocked is desired.
 - For web apps: isolates are not supported; execution runs safely on the main thread.
-- Practical human limit: keep criteria + alternatives within reasonable counts (e.g. <=15) to maintain logical judgment consistency.
+- Practical human limit: keep criteria + alternatives within reasonable counts (e.g. <=15) to maintain logical judgment consistency, as pairwise comparisons require n(n-1)/2 judgments per matrix.
 
 **6. Error Prevention**
 
