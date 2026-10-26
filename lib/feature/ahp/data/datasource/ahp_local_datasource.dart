@@ -318,23 +318,24 @@ class AhpLocalDatasourceImpl extends AhpLocalDatasource {
   }) async {
     try {
       if (inputsCriteria.any((e) => e.preferenceValue == null)) {
-        throw Exception("Please complete all values from the criteria scale");
+        throw DecisionInputException(
+            "Please complete all values from the criteria scale");
       }
 
       if (inputsCriteria.any((e) => e.isLeftMoreImportant == null)) {
-        throw Exception(
+        throw DecisionInputException(
             "Please complete which more important from the criteria");
       }
 
       if (inputsAlternative
           .any((e) => e.alternative.any((d) => d.preferenceValue == null))) {
-        throw Exception(
+        throw DecisionInputException(
             "Please complete all values from the alternative scale");
       }
 
       if (inputsAlternative.any(
           (e) => e.alternative.any((d) => d.isLeftMoreImportant == null))) {
-        throw Exception(
+        throw DecisionInputException(
             "Please complete which more important from the alternative");
       }
 

@@ -1,3 +1,5 @@
+import 'package:flutter_decision_making/core/decision_making_enums.dart';
+import 'package:flutter_decision_making/core/isolate/decision_isolate_main.dart';
 import 'package:flutter_decision_making/flutter_decision_making.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -178,6 +180,102 @@ void main() {
             isA<DecisionInputException>(),
             predicate<DecisionInputException>(
                 (e) => e.message.contains('Matrix cannot be empty!')),
+          ),
+        ),
+      );
+    });
+
+    test(
+        'AHP getAhpResult with useIsolate: true throws DecisionInputException on uncompleted criteria inputs',
+        () async {
+      final hierarchy = await fdm.ahp.generateHierarchy(
+        listCriteria: [
+          AhpItem(id: 'c1', name: 'Crit 1'),
+          AhpItem(id: 'c2', name: 'Crit 2'),
+        ],
+        listAlternative: [
+          AhpItem(id: 'a1', name: 'Alt 1'),
+          AhpItem(id: 'a2', name: 'Alt 2'),
+        ],
+      );
+      final criteriaInputs = await fdm.ahp.generateCriteriaInputs();
+
+      expect(
+        () => fdm.ahp.getAhpResult(
+          hierarchy: hierarchy,
+          inputsCriteria: criteriaInputs,
+          inputsAlternative: [],
+          useIsolate: true,
+        ),
+        throwsA(
+          allOf(
+            isA<DecisionInputException>(),
+            predicate<DecisionInputException>((e) => e.message.contains(
+                'Please complete all values from the criteria scale')),
+          ),
+        ),
+      );
+    });
+
+    test(
+        'AHP calculateFinalScore in isolate worker throws reconstructed DecisionInputException when alternative matrix is empty',
+        () async {
+      final isolateMain = DecisionIsolateMain();
+      expect(
+        () => isolateMain.runTask(
+          DecisionAlgorithm.ahp,
+          AhpProcessingIsolateCommand.calculateFinalScore,
+          {
+            'eigen_vector_criteria': [1.0],
+            'eigen_vector_alternative': <dynamic>[],
+            'alternative_raw': [
+              {'id': 'a1', 'name': 'Alt 1'}
+            ],
+            'consistency_criteria_raw': {
+              'source': 'criteria',
+              'ratio': 0.0,
+              'is_consistent': true,
+            },
+            'consistency_alternative_raw': <dynamic>[],
+          },
+        ),
+        throwsA(
+          allOf(
+            isA<DecisionInputException>(),
+            predicate<DecisionInputException>(
+                (e) => e.message.contains('Alternative matrix is empty.')),
+          ),
+        ),
+      );
+    });
+
+    test(
+        'WeightedDecisionMatrixMixin validateMaxInputValue throws DecisionInputException when rating has no criteria',
+        () async {
+      final matrixWithNullCriteria = [
+        WeightedDecisionMatrix(
+          id: 'm1',
+          alternative: WeightedDecisionAlternative(id: 'a1', name: 'Product A'),
+          ratings: [
+            WeightedDecisionRating(
+              id: 'r1',
+              criteria: null,
+              value: 10.0,
+            ),
+          ],
+        ),
+      ];
+
+      expect(
+        () => fdm.saw.getSawResult(
+          matrix: matrixWithNullCriteria,
+          useIsolate: false,
+        ),
+        throwsA(
+          allOf(
+            isA<DecisionInputException>(),
+            predicate<DecisionInputException>((e) =>
+                e.message.contains('Rating on Product A has no criteria.')),
           ),
         ),
       );

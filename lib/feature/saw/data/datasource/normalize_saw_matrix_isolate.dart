@@ -21,7 +21,7 @@ Future<List<Map<String, dynamic>>> normalizeWeightedMatrixIsolate({
     );
 
     if (rawListMatrix.isEmpty) {
-      throw Exception('Matrix cannot be empty!');
+      throw DecisionInputException('Matrix cannot be empty!');
     }
 
     // Parse JSON into DTO objects

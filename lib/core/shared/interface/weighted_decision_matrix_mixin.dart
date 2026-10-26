@@ -193,18 +193,19 @@ mixin WeightedDecisionMatrixMixin {
         final criteria = r.criteria;
 
         if (criteria == null) {
-          throw Exception("Rating on ${e.alternative.name} has no criteria.");
+          throw DecisionInputException(
+              "Rating on ${e.alternative.name} has no criteria.");
         }
 
         final value = r.value;
 
         if (value == null) {
-          throw Exception(
+          throw DecisionInputException(
               "Empty value in ${e.alternative.name} for criteria ${criteria.name}");
         }
 
         if (value > criteria.maxValue) {
-          throw Exception(
+          throw DecisionInputException(
               "The value '$value' for alternative '${e.alternative.name}' in criteria '${criteria.name}' "
               "is greater than the maximum (${criteria.maxValue}).");
         }

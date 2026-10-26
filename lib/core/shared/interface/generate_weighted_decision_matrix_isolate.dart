@@ -35,7 +35,7 @@ Future<List<Map<String, dynamic>>> generateWeightedDecisionMatrixIsolate({
     // Validate required keys exist in input data
     if (!data.containsKey('list_criteria') ||
         !data.containsKey('list_alternative')) {
-      throw Exception(
+      throw DecisionInputException(
           'Missing required keys: list_criteria or list_alternative');
     }
 
@@ -44,7 +44,7 @@ Future<List<Map<String, dynamic>>> generateWeightedDecisionMatrixIsolate({
 
     // Validate data is not null
     if (rawCriteria == null || rawAlternative == null) {
-      throw Exception('Criteria or alternative data is null');
+      throw DecisionInputException('Criteria or alternative data is null');
     }
 
     // Extract lists from raw data
