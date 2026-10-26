@@ -217,12 +217,12 @@ AhpResult result = await _ahp.getAhpResult(
 );
 
 // Access results
-for (var item in result.results) {
+for (var item in result.results ?? []) {
   print('${item.name}: ${item.value.toStringAsFixed(4)}');
 }
 
 // Check consistency
-if (result.isConsistentCriteria && result.isConsistentAlternative) {
+if (result.isConsistentCriteria == true && result.isConsistentAlternative == true) {
   print('All comparisons are consistent!');
 } else {
   print('Warning: ${result.note}');
@@ -256,9 +256,9 @@ detailed.alternativeEvaluations.forEach((critId, altEval) {
   print('Criterion $critId alternative CR: ${altEval.cr}');
 });
 
-// 3. Synthesized final scores and ranks
+// 3. Synthesized final scores
 for (final score in detailed.scores) {
-  print('${score.rank}. ${score.alternative.name}: ${score.score.toStringAsFixed(4)}');
+  print('${score.name}: ${score.value.toStringAsFixed(4)}');
 }
 
 // Full serializable JSON map
@@ -695,13 +695,13 @@ try {
     inputsAlternative: alternativeInputs,
   );
   
-  if (!result.isConsistentCriteria || !result.isConsistentAlternative) {
+  if (result.isConsistentCriteria != true || result.isConsistentAlternative != true) {
     // Handle inconsistency
     print(result.note);
   }
   
   // Use results
-  for (final res in result.results) {
+  for (final res in result.results ?? []) {
     print('${res.name}: ${res.value}');
   }
 } on DecisionInputException catch (e) {
@@ -746,7 +746,7 @@ When CR > 0.1, the result will include:
 4. Recalculate results
 
 ```dart
-if (!result.isConsistentCriteria) {
+if (result.isConsistentCriteria != true) {
   print('Criteria comparisons are inconsistent!');
   print('CR: ${result.consistencyCriteriaRatio}');
   print(result.note);
