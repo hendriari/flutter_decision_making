@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import '../common/decision_input_exception.dart';
 import '../common/matrix_validator.dart';
 import '../common/weighted_decision_criteria.dart';
 import '../common/weighted_decision_matrix.dart';
@@ -15,16 +16,16 @@ import 'topsis_raw_matrix.dart';
 class TopsisCalculator {
   /// Normalizes a decision matrix using Euclidean vector normalization.
   ///
-  /// Formula: $r_{ij} = x_{ij} / \sqrt{\sum_{k=1}^m x_{kj}^2}$
+  /// Formula: r_ij = x_ij / sqrt(sum_{k=1}^m x_kj^2)
   static List<WeightedDecisionMatrix> normalizeEuclidean({
     required List<WeightedDecisionMatrix> matrix,
     required List<WeightedDecisionCriteria> criteria,
   }) {
     if (matrix.isEmpty) {
-      throw Exception('Matrix cannot be empty!');
+      throw DecisionInputException('Matrix cannot be empty!');
     }
     if (criteria.isEmpty) {
-      throw Exception('Criteria list cannot be empty!');
+      throw DecisionInputException('Criteria list cannot be empty!');
     }
 
     final dividers = <String, double>{};
@@ -55,7 +56,7 @@ class TopsisCalculator {
 
   /// Calculates the weighted normalized decision matrix.
   ///
-  /// Formula: $v_{ij} = r_{ij} \times (w_j / 100.0)$
+  /// Formula: v_ij = r_ij * (w_j / 100.0)
   static List<WeightedDecisionMatrix> weightMatrix(
       List<WeightedDecisionMatrix> normalizedMatrix) {
     return normalizedMatrix.map((row) {
@@ -71,8 +72,8 @@ class TopsisCalculator {
 
   /// Identifies the Positive Ideal Solution (A+) and Negative Ideal Solution (A-).
   ///
-  /// - For Benefit: $A^+ = \max(v_{ij})$, $A^- = \min(v_{ij})$
-  /// - For Cost: $A^+ = \min(v_{ij})$, $A^- = \max(v_{ij})$
+  /// - For Benefit: A+ = max(v_ij), A- = min(v_ij)
+  /// - For Cost: A+ = min(v_ij), A- = max(v_ij)
   static TopsisIdealValue calculateIdealSolutions({
     required List<WeightedDecisionMatrix> weightedMatrix,
     required List<WeightedDecisionCriteria> criteria,
@@ -107,8 +108,8 @@ class TopsisCalculator {
 
   /// Calculates separation measures from ideal solutions using Euclidean distance.
   ///
-  /// - $D_i^+ = \sqrt{\sum (v_{ij} - A_j^+)^2}$
-  /// - $D_i^- = \sqrt{\sum (v_{ij} - A_j^-)^2}$
+  /// - D_i^+ = sqrt(sum (v_ij - A_j^+)^2)
+  /// - D_i^- = sqrt(sum (v_ij - A_j^-)^2)
   static List<TopsisMatrix> calculateSeparationDistances({
     required List<WeightedDecisionMatrix> weightedMatrix,
     required TopsisIdealValue idealValue,
@@ -215,7 +216,8 @@ class TopsisCalculator {
     for (final c in normalizedCriteria) {
       final id = c.id;
       if (id == null) {
-        throw Exception('Found criteria without ID! Data invalid.');
+        throw DecisionInputException(
+            'Found criteria without ID! Data invalid.');
       }
       normalizedWeights[id] = c.weightPercent / 100.0;
     }
@@ -237,7 +239,8 @@ class TopsisCalculator {
     for (final m in distanceMatrix) {
       final altId = m.alternative.id;
       if (altId == null) {
-        throw Exception('Found alternative without ID! Data invalid.');
+        throw DecisionInputException(
+            'Found alternative without ID! Data invalid.');
       }
       separationPlus[altId] = m.distancePlus;
       separationMinus[altId] = m.distanceMinus;
@@ -289,7 +292,8 @@ class TopsisCalculator {
     for (final c in normalizedCriteria) {
       final id = c.id;
       if (id == null) {
-        throw Exception('Found criteria without ID! Data invalid.');
+        throw DecisionInputException(
+            'Found criteria without ID! Data invalid.');
       }
       criteriaIds.add(id);
       normalizedWeights[id] = c.weightPercent / 100.0;
@@ -299,7 +303,8 @@ class TopsisCalculator {
     for (final row in rawMatrix.matrixs) {
       final id = row.alternative.id;
       if (id == null) {
-        throw Exception('Found alternative without ID! Data invalid.');
+        throw DecisionInputException(
+            'Found alternative without ID! Data invalid.');
       }
       alternativeIds.add(id);
     }

@@ -11,8 +11,8 @@ import 'objective_weight_calculator.dart';
 /// - [criteriaIds]: Ordered list of criteria IDs matching the input order.
 /// - [normalizedMatrix]: Min-max normalized matrix (r_ij) keyed by alternative ID -> criteria ID.
 /// - [standardDeviations]: Sample standard deviation (sigma_j, divisor m - 1) per criteria ID.
-/// - [correlationMatrix]: Pearson correlation matrix (R = [r_jk]) keyed by criteria ID -> criteria ID.
-/// - [informationContent]: Amount of information (C_j = sigma_j * sum_k(1 - r_jk)) per criteria ID.
+/// - [correlationMatrix]: Pearson correlation matrix (`R = r_jk`) keyed by criteria ID -> criteria ID.
+/// - [informationContent]: Amount of information (`C_j = sigma_j * sum_k(1 - r_jk)`) per criteria ID.
 /// - [weights]: Final objective weights (w_j = C_j / sum_j(C_j)) per criteria ID (summing to 1.0).
 class CriticWeightResult {
   /// Ordered list of criteria IDs matching the input order.

@@ -1,3 +1,4 @@
+import '../common/decision_input_exception.dart';
 import 'alternative_pair.dart';
 import 'rank_reversal_case.dart';
 import 'sensitivity_analysis_result.dart';
@@ -21,7 +22,8 @@ class SensitivityCalculator {
     double delta = 0.1,
   }) {
     if (delta <= 0) {
-      throw Exception('Sensitivity delta must be greater than zero.');
+      throw DecisionInputException(
+          'Sensitivity delta must be greater than zero.');
     }
 
     // 1. Base Evaluation

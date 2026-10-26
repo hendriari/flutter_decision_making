@@ -149,7 +149,7 @@ Derive data-driven criteria weights (summing to 1.0) directly from a decision ma
   - Edge cases: throws an `Exception` if `m < 2`, any value is negative, or a column sum is `0`; `0` cell values are allowed; if all `d_j == 0` (all columns constant), returns equal weights (`1 / n`).
 - **CRITIC (`calculateCriticWeights` / `ObjectiveWeightCalculator.calculateCritic`):**
   - Applies min-max normalization per column (`(x - min) / (max - min)` for benefit, `(max - x) / (max - min)` for cost), computes sample standard deviation `sigma_j` (divisor `m - 1`) and the Pearson correlation matrix `R = [r_jk]` between normalized columns, `C_j = sigma_j * sum_k(1 - r_jk)`, and `w_j = C_j / sum_j(C_j)`.
-  - Edge cases: throws an `Exception` if `m < 2`; a constant column (`max == min`) gets normalized values `0.0`, `sigma_j = 0.0`, and `0.0` correlation with other columns; if `sum_j(C_j) == 0`, returns equal weights (`1 / n`).
+  - Edge cases: throws a `DecisionInputException` if `m < 2`; a constant column (`max == min`) gets normalized values `0.0`, `sigma_j = 0.0`, and `0.0` correlation with other columns; if `sum_j(C_j) == 0`, returns equal weights (`1 / n`).
 
 ```dart
 final entropy = await _decisionMaking.saw.calculateEntropyWeights(matrix: matrix);
@@ -202,19 +202,43 @@ Major method logs:
 
 By default all calculations run on the **main thread** (`useIsolate: false`). Isolates are **opt-in** via `useIsolate: true`.
 
-Measured on **Apple Silicon (macOS), `--profile` mode**, public API, median [min–max] of 10 runs after 3 warm-ups:
+Measured on **Apple Silicon (macOS), `--profile` mode**, public API, median (min–max) of 10 runs after 3 warm-ups:
 
 | Case (alternatives × criteria) | Main thread (ms) | Isolate, warm (ms) | Main thread blocked (ms) |
 |:--|:--|:--|:--|
-| SAW 80 × 25      | **0.19** [0.18–0.35]    | 4.35 [3.01–5.86]       | 0.85 [0.00–3.03]       |
-| SAW 2000 × 50    | **8.71** [8.39–12.27]   | 449.24 [411.99–477.15] | 244.23 [219.73–262.51] |
-| TOPSIS 80 × 25   | **0.52** [0.50–0.55]    | 4.02 [3.33–6.18]       | 0.80 [0.00–3.34]       |
-| TOPSIS 2000 × 50 | **47.53** [40.32–52.14] | 526.39 [464.34–605.88] | 277.99 [223.17–306.31] |
-| AHP 80 × 10      | **31.71** [31.21–52.50] | 51.01 [47.90–66.97]    | 25.84 [23.09–39.94]    |
+| SAW 80 × 25      | **0.19** (0.18–0.35)    | 4.35 (3.01–5.86)       | 0.85 (0.00–3.03)       |
+| SAW 2000 × 50    | **8.71** (8.39–12.27)   | 449.24 (411.99–477.15) | 244.23 (219.73–262.51) |
+| TOPSIS 80 × 25   | **0.52** (0.50–0.55)    | 4.02 (3.33–6.18)       | 0.80 (0.00–3.34)       |
+| TOPSIS 2000 × 50 | **47.53** (40.32–52.14) | 526.39 (464.34–605.88) | 277.99 (223.17–306.31) |
+| AHP 80 × 10      | **31.71** (31.21–52.50) | 51.01 (47.90–66.97)    | 25.84 (23.09–39.94)    |
 
 "Main thread blocked" is estimated with an event-loop lag monitor; values near 0 mean the blocking was below its detection threshold (about 1 ms), not that it is exactly zero. Mobile devices will be slower than these numbers, so profile on your target device.
 
 **Recommendation:** keep the default. Sending data to an isolate costs more (serialization) than the calculation itself in every case measured. Use `useIsolate: true` only if you must keep very large calculations off the UI thread and accept a longer total time. Note that AHP needs n(n-1)/2 pairwise judgments per matrix, so very large AHP inputs are rarely practical for human evaluators.
+
+---
+
+## 🚨 Error Handling
+
+Input validation failures across all algorithms throw `DecisionInputException` (exported from both `flutter_decision_making` and `decision_making_core`, implementing `Exception`). Generic `catch (e)` blocks continue to work seamlessly, while specific validation logic can be caught via `on DecisionInputException`:
+
+```dart
+import 'package:flutter_decision_making/flutter_decision_making.dart';
+
+Future<void> evaluate(List<WeightedDecisionMatrix> matrix) async {
+  final saw = SAW();
+  try {
+    final results = await saw.getSawResult(matrix: matrix);
+    print('Best alternative: ${results.first.alternative.name}');
+  } on DecisionInputException catch (e) {
+    // Specifically handle user input or matrix validation errors
+    print('Validation error: ${e.message}');
+  } catch (e) {
+    // Other unexpected exceptions
+    print('Error: $e');
+  }
+}
+```
 
 ---
 

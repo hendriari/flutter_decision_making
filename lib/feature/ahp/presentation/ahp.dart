@@ -20,11 +20,11 @@ class AHP {
   }) async {
     try {
       if (listCriteria.isEmpty) {
-        throw Exception("Criteria can't be empty!");
+        throw DecisionInputException("Criteria can't be empty!");
       }
 
       if (listAlternative.isEmpty) {
-        throw Exception("Alternative can't be empty!");
+        throw DecisionInputException("Alternative can't be empty!");
       }
 
       final identificationUsecase = AhpIdentificationUsecase(
@@ -52,7 +52,7 @@ class AHP {
   /// GENERATE PAIRWISE CRITERIA INPUT
   Future<List<PairwiseComparisonInput>> generateCriteriaInputs() async {
     if (_currentAhpIdentification.criteria.isEmpty) {
-      throw Exception(
+      throw DecisionInputException(
           'Please generate hierarchy first! need hierarchy nodes to generate criteria inputs');
     }
 
@@ -71,7 +71,7 @@ class AHP {
     bool useIsolate = false,
   }) async {
     if (hierarchyNodes.isEmpty) {
-      throw Exception(
+      throw DecisionInputException(
           'Please generate hierarchy first! need hierarchy nodes to generate alternative inputs');
     }
 
@@ -191,7 +191,7 @@ class AHP {
   /// CALCULATE DETAILED AHP RESULT
   ///
   /// Returns an [AhpDetailedResult] containing comparison matrices, normalized matrices,
-  /// priority weights ($w_j$), consistency metrics ($\lambda_{\max}$, $CI$, $RI$, $CR$),
+  /// priority weights (w_j), consistency metrics (lambda_max, CI, RI, CR),
   /// local priority scores per criterion, and final synthesized scores.
   Future<AhpDetailedResult> getAhpDetailedResult({
     required List<AhpHierarchy> hierarchy,

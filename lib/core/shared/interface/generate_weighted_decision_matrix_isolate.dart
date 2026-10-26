@@ -1,3 +1,4 @@
+import 'package:decision_making_core/decision_making_core.dart';
 import 'package:flutter_decision_making/core/shared/dto/weighted_decision_alternative_dto.dart';
 import 'package:flutter_decision_making/core/shared/dto/weighted_decision_criteria_dto.dart';
 import 'package:flutter_decision_making/core/shared/dto/weighted_decision_matrix_dto.dart';
@@ -34,7 +35,7 @@ Future<List<Map<String, dynamic>>> generateWeightedDecisionMatrixIsolate({
     // Validate required keys exist in input data
     if (!data.containsKey('list_criteria') ||
         !data.containsKey('list_alternative')) {
-      throw Exception(
+      throw DecisionInputException(
           'Missing required keys: list_criteria or list_alternative');
     }
 
@@ -43,7 +44,7 @@ Future<List<Map<String, dynamic>>> generateWeightedDecisionMatrixIsolate({
 
     // Validate data is not null
     if (rawCriteria == null || rawAlternative == null) {
-      throw Exception('Criteria or alternative data is null');
+      throw DecisionInputException('Criteria or alternative data is null');
     }
 
     // Extract lists from raw data
@@ -73,6 +74,7 @@ Future<List<Map<String, dynamic>>> generateWeightedDecisionMatrixIsolate({
     // Convert result to JSON format for returning to main isolate
     return result.map((e) => e.toJson()).toList();
   } catch (e, stackTrace) {
+    if (e is DecisionInputException) rethrow;
     throw Exception('Failed to generate matrix in isolate: $e\n$stackTrace');
   }
 }

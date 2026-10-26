@@ -1,14 +1,11 @@
 import 'dart:developer' as dev;
 
+import 'package:decision_making_core/decision_making_core.dart';
 import 'package:flutter_decision_making/core/decision_making_enums.dart';
 import 'package:flutter_decision_making/core/decision_making_helper.dart';
 import 'package:flutter_decision_making/core/isolate/decision_processing_isolate_command.dart';
 import 'package:flutter_decision_making/core/isolate/decision_isolate_main.dart';
 import 'package:flutter_decision_making/core/shared/dto/weighted_decision_matrix_dto.dart';
-import 'package:flutter_decision_making/core/shared/entity/weighted_decision_alternative.dart';
-import 'package:flutter_decision_making/core/shared/entity/weighted_decision_criteria.dart';
-import 'package:flutter_decision_making/core/shared/entity/weighted_decision_matrix.dart';
-import 'package:flutter_decision_making/core/shared/entity/weighted_decision_rating.dart';
 
 import '../mapper/weighted_decision_alternative_mapper.dart';
 import '../mapper/weighted_decision_criteria_mapper.dart';
@@ -34,22 +31,23 @@ mixin WeightedDecisionMatrixMixin {
     List<WeightedDecisionCriteria> criteria,
   ) {
     if (alternatives.isEmpty) {
-      throw Exception("Alternatives list cannot be empty!");
+      throw DecisionInputException("Alternatives list cannot be empty!");
     }
 
     if (criteria.isEmpty) {
-      throw Exception("Criteria list cannot be empty!");
+      throw DecisionInputException("Criteria list cannot be empty!");
     }
 
     for (var c in criteria) {
       if (c.weightPercent < 0) {
-        throw Exception("Criteria weight cannot be negative: ${c.name}");
+        throw DecisionInputException(
+            "Criteria weight cannot be negative: ${c.name}");
       }
     }
 
     final totalWeight = criteria.fold<num>(0, (a, b) => a + b.weightPercent);
     if (totalWeight == 0) {
-      throw Exception("Total criteria weight cannot be zero.");
+      throw DecisionInputException("Total criteria weight cannot be zero.");
     }
   }
 
@@ -195,18 +193,19 @@ mixin WeightedDecisionMatrixMixin {
         final criteria = r.criteria;
 
         if (criteria == null) {
-          throw Exception("Rating on ${e.alternative.name} has no criteria.");
+          throw DecisionInputException(
+              "Rating on ${e.alternative.name} has no criteria.");
         }
 
         final value = r.value;
 
         if (value == null) {
-          throw Exception(
+          throw DecisionInputException(
               "Empty value in ${e.alternative.name} for criteria ${criteria.name}");
         }
 
         if (value > criteria.maxValue) {
-          throw Exception(
+          throw DecisionInputException(
               "The value '$value' for alternative '${e.alternative.name}' in criteria '${criteria.name}' "
               "is greater than the maximum (${criteria.maxValue}).");
         }
@@ -322,7 +321,7 @@ mixin WeightedDecisionMatrixMixin {
         .fold<double>(0, (a, b) => a + (b.criteria?.weightPercent ?? 0));
 
     if (totalWeight == 0) {
-      throw Exception("Total criteria weight cannot be zero.");
+      throw DecisionInputException("Total criteria weight cannot be zero.");
     }
 
     if (totalWeight == 100) {
@@ -338,7 +337,7 @@ mixin WeightedDecisionMatrixMixin {
       final currentWeight = rating.criteria?.weightPercent ?? 0;
 
       if (currentWeight < 0) {
-        throw Exception(
+        throw DecisionInputException(
           "Weight cannot be negative for criteria: ${rating.criteria?.name}",
         );
       }

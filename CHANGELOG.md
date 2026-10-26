@@ -1,3 +1,17 @@
+## 2.2.0
+
+### Added
+- Exported `DecisionInputException` from `package:flutter_decision_making/flutter_decision_making.dart` for typed input validation exception handling.
+- Exception serialization across isolate boundaries so `DecisionInputException` is preserved and rethrown on the main thread when `useIsolate: true`.
+
+### Changed
+- All input validation errors across SAW, TOPSIS, and AHP now throw `DecisionInputException` instead of generic `Exception` (existing `catch (e)` blocks remain fully compatible).
+- Requires `decision_making_core ^0.3.0`.
+- Updated algorithm documentation (`AHP_DOCUMENTATION.md`, `SAW_DOCUMENTATION.md`, `TOPSIS_DOCUMENTATION.md`) and package READMEs to document `useIsolate` guidelines, detailed intermediate results (`SawDetailedResult`, `TopsisDetailedResult`, `AhpDetailedResult`), sensitivity analysis, objective weighting, and typed error handling.
+- Resolved all unresolved doc reference warnings in `dart doc` (0 warnings, 0 errors).
+
+---
+
 ## 2.1.0
 
 ### Added

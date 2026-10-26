@@ -41,14 +41,14 @@ class SAW {
 
     final matrixIndex = updatedList.indexWhere((m) => m.id == matrixId);
     if (matrixIndex == -1) {
-      throw Exception("Matrix not found!");
+      throw DecisionInputException("Matrix not found!");
     }
 
     final matrix = updatedList[matrixIndex];
 
     final ratingIndex = matrix.ratings.indexWhere((r) => r.id == ratingsId);
     if (ratingIndex == -1) {
-      throw Exception("Rating not found!");
+      throw DecisionInputException("Rating not found!");
     }
 
     var updatedRatings = List<WeightedDecisionRating>.from(matrix.ratings);

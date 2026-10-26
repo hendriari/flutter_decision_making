@@ -12,30 +12,30 @@ class AhpMatrixEvaluation {
   /// Ordered list of item IDs corresponding to rows and columns of the matrix.
   final List<String> itemIds;
 
-  /// Reciprocal pairwise comparison matrix ($A$).
+  /// Reciprocal pairwise comparison matrix `A`.
   final List<List<double>> comparisonMatrix;
 
-  /// Normalized pairwise comparison matrix ($N$, where each element is divided by its column sum).
+  /// Normalized pairwise comparison matrix `N`, where each element is divided by its column sum.
   final List<List<double>> normalizedMatrix;
 
-  /// Priority weights computed via normalized column averaging ($w$).
+  /// Priority weights computed via normalized column averaging (`w`).
   /// Key: item ID.
   /// Value: weight fraction summing to 1.0.
   final Map<String, double> weights;
 
-  /// Maximum eigenvalue approximation ($\lambda_{\max}$).
+  /// Maximum eigenvalue approximation (`lambda_max`).
   final double lambdaMax;
 
-  /// Consistency Index ($CI = \frac{\lambda_{\max} - n}{n - 1}$).
+  /// Consistency Index (`CI = (lambda_max - n) / (n - 1)`).
   final double ci;
 
-  /// Random Index ($RI$) used for evaluation from Saaty's table.
+  /// Random Index (`RI`) used for evaluation from Saaty's table.
   final double ri;
 
-  /// Consistency Ratio ($CR = \frac{CI}{RI}$).
+  /// Consistency Ratio (`CR = CI / RI`).
   final double cr;
 
-  /// Whether this comparison matrix is considered consistent ($CR \le 0.1$).
+  /// Whether this comparison matrix is considered consistent (`CR <= 0.1`).
   final bool isConsistent;
 
   const AhpMatrixEvaluation({
@@ -75,12 +75,12 @@ class AhpMatrixEvaluation {
 /// Contains all intermediate computation steps:
 /// - [criteriaEvaluation]: Comparison matrix, normalized matrix, weights, and consistency metrics for criteria.
 /// - [alternativeEvaluations]: Map of criteria ID to alternative matrix evaluations under that criterion.
-/// - [criteriaWeights]: Map of criteria ID to priority weight fraction ($w_j$).
-/// - [scoresPerCriteria]: Map of criteria ID to alternative priority scores ($s_{ij}$).
-/// - [weightedScoresPerCriteria]: Map of criteria ID to weighted alternative scores ($w_j \times s_{ij}$).
-/// - [scores]: Final ranked alternatives with synthesized scores ($\sum_j w_j \times s_{ij}$).
-/// - [isConsistentCriteria]: Whether criteria comparison satisfies consistency ($CR \le 0.1$).
-/// - [isConsistentAlternative]: Whether all alternative comparisons satisfy consistency ($CR \le 0.1$).
+/// - [criteriaWeights]: Map of criteria ID to priority weight fraction (w_j).
+/// - [scoresPerCriteria]: Map of criteria ID to alternative priority scores (s_ij).
+/// - [weightedScoresPerCriteria]: Map of criteria ID to weighted alternative scores (w_j * s_ij).
+/// - [scores]: Final ranked alternatives with synthesized scores (sum_j w_j * s_ij).
+/// - [isConsistentCriteria]: Whether criteria comparison satisfies consistency (CR <= 0.1).
+/// - [isConsistentAlternative]: Whether all alternative comparisons satisfy consistency (CR <= 0.1).
 /// - [isConsistent]: Whether both criteria and all alternative matrices satisfy consistency.
 /// - [note]: Descriptive note or warning if any matrix is inconsistent.
 class AhpDetailedResult {
@@ -92,15 +92,15 @@ class AhpDetailedResult {
   /// Value: [AhpMatrixEvaluation] for alternatives under that criterion.
   final Map<String, AhpMatrixEvaluation> alternativeEvaluations;
 
-  /// Weights of criteria by criteria ID ($w_j$).
+  /// Weights of criteria by criteria ID (w_j).
   final Map<String, double> criteriaWeights;
 
-  /// Alternative local priority scores per criterion ($s_{ij}$).
+  /// Alternative local priority scores per criterion (s_ij).
   /// Key: Criteria ID.
   /// Value: Map of Alternative ID -> local priority score under that criterion.
   final Map<String, Map<String, double>> scoresPerCriteria;
 
-  /// Weighted alternative scores per criterion ($v_{ij} = w_j \times s_{ij}$).
+  /// Weighted alternative scores per criterion (v_ij = w_j * s_ij).
   /// Key: Criteria ID.
   /// Value: Map of Alternative ID -> weighted score under that criterion.
   final Map<String, Map<String, double>> weightedScoresPerCriteria;

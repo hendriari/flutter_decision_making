@@ -6,40 +6,40 @@ import 'topsis_ideal_value.dart';
 ///
 /// Contains all intermediate computation steps:
 /// - [initialMatrix]: The original decision matrix passed as input.
-/// - [normalizedMatrix]: Decision matrix normalized per cell using Euclidean vector normalization ($r_{ij}$).
+/// - [normalizedMatrix]: Decision matrix normalized per cell using Euclidean vector normalization (r_ij).
 /// - [normalizedWeights]: Map of criteria IDs to their normalized weight fractions (w_j between 0.0 and 1.0, summing to 1.0).
-/// - [weightedMatrix]: Matrix where each cell is weighted ($v_{ij} = r_{ij} \times w_j$).
-/// - [positiveIdeal]: Positive Ideal Solution ($A_j^+$) per criteria ID.
-/// - [negativeIdeal]: Negative Ideal Solution ($A_j^-$) per criteria ID.
-/// - [separationPlus]: Separation distance from Positive Ideal Solution ($D_i^+$) per alternative ID.
-/// - [separationMinus]: Separation distance from Negative Ideal Solution ($D_i^-$) per alternative ID.
-/// - [scores]: Final ranked alternatives with relative closeness scores ($C_i = \frac{D_i^-}{D_i^+ + D_i^-}$) and 1-based ranks.
+/// - [weightedMatrix]: Matrix where each cell is weighted (v_ij = r_ij * w_j).
+/// - [positiveIdeal]: Positive Ideal Solution (A_j^+) per criteria ID.
+/// - [negativeIdeal]: Negative Ideal Solution (A_j^-) per criteria ID.
+/// - [separationPlus]: Separation distance from Positive Ideal Solution (D_i^+) per alternative ID.
+/// - [separationMinus]: Separation distance from Negative Ideal Solution (D_i^-) per alternative ID.
+/// - [scores]: Final ranked alternatives with relative closeness scores (C_i = D_i^- / (D_i^+ + D_i^-)) and 1-based ranks.
 class TopsisDetailedResult {
   /// The original decision matrix passed as input.
   final List<WeightedDecisionMatrix> initialMatrix;
 
-  /// Decision matrix after Euclidean vector normalization ($r_{ij}$).
+  /// Decision matrix after Euclidean vector normalization (r_ij).
   final List<WeightedDecisionMatrix> normalizedMatrix;
 
-  /// Normalized criteria weights as fractions summing to 1.0 ($w_j$).
+  /// Normalized criteria weights as fractions summing to 1.0 (w_j).
   ///
   /// Key: Criteria ID.
-  /// Value: Weight fraction ($w_j = \text{weightPercent} / \sum \text{weightPercent}$).
+  /// Value: Weight fraction (w_j = weightPercent / sum weightPercent).
   final Map<String, double> normalizedWeights;
 
-  /// Weighted normalized decision matrix where each cell is $v_{ij} = r_{ij} \times w_j$.
+  /// Weighted normalized decision matrix where each cell is v_ij = r_ij * w_j.
   final List<WeightedDecisionMatrix> weightedMatrix;
 
-  /// Positive Ideal Solution ($A_j^+$) per criteria ID.
+  /// Positive Ideal Solution (A_j^+) per criteria ID.
   final Map<String, double> positiveIdeal;
 
-  /// Negative Ideal Solution ($A_j^-$) per criteria ID.
+  /// Negative Ideal Solution (A_j^-) per criteria ID.
   final Map<String, double> negativeIdeal;
 
-  /// Separation distance from Positive Ideal Solution ($D_i^+$) per alternative ID.
+  /// Separation distance from Positive Ideal Solution (D_i^+) per alternative ID.
   final Map<String, double> separationPlus;
 
-  /// Separation distance from Negative Ideal Solution ($D_i^-$) per alternative ID.
+  /// Separation distance from Negative Ideal Solution (D_i^-) per alternative ID.
   final Map<String, double> separationMinus;
 
   /// Final scores and sequential rankings for each alternative.

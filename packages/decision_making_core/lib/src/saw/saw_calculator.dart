@@ -1,3 +1,4 @@
+import '../common/decision_input_exception.dart';
 import '../common/matrix_validator.dart';
 import '../common/weighted_decision_matrix.dart';
 import '../common/weighted_decision_rating.dart';
@@ -23,7 +24,7 @@ class SawCalculator {
   static List<WeightedDecisionMatrix> normalize(
       List<WeightedDecisionMatrix> matrix) {
     if (matrix.isEmpty) {
-      throw Exception('Matrix cannot be empty!');
+      throw DecisionInputException('Matrix cannot be empty!');
     }
 
     final stats = _calculateCriteriaStats(matrix);
@@ -41,7 +42,7 @@ class SawCalculator {
   static List<WeightedDecisionResult> calculateScores(
       List<WeightedDecisionMatrix> normalizedMatrix) {
     if (normalizedMatrix.isEmpty) {
-      throw Exception('Normalized matrix cannot be empty!');
+      throw DecisionInputException('Normalized matrix cannot be empty!');
     }
 
     final results = <WeightedDecisionResult>[];
@@ -52,7 +53,7 @@ class SawCalculator {
       for (final rating in row.ratings) {
         final criteria = rating.criteria;
         if (criteria == null) {
-          throw Exception(
+          throw DecisionInputException(
             'Rating without criteria found for alternative: ${row.alternative.name}',
           );
         }
@@ -115,7 +116,8 @@ class SawCalculator {
         if (c != null) {
           final id = c.id;
           if (id == null) {
-            throw Exception('Found rating without criteria ID! Data invalid.');
+            throw DecisionInputException(
+                'Found rating without criteria ID! Data invalid.');
           }
           normalizedWeights[id] = c.weightPercent / 100.0;
         }
@@ -166,7 +168,8 @@ class SawCalculator {
       if (c != null) {
         final id = c.id;
         if (id == null) {
-          throw Exception('Found rating without criteria ID! Data invalid.');
+          throw DecisionInputException(
+              'Found rating without criteria ID! Data invalid.');
         }
         criteriaIds.add(id);
         normalizedWeights[id] = c.weightPercent / 100.0;
@@ -177,7 +180,8 @@ class SawCalculator {
     for (final row in rawMatrix) {
       final id = row.alternative.id;
       if (id == null) {
-        throw Exception('Found alternative without ID! Data invalid.');
+        throw DecisionInputException(
+            'Found alternative without ID! Data invalid.');
       }
       alternativeIds.add(id);
     }
@@ -221,7 +225,8 @@ class SawCalculator {
         final val = rating.value ?? 0.0;
 
         if (cid == null) {
-          throw Exception('Found rating without criteria ID! Data invalid.');
+          throw DecisionInputException(
+              'Found rating without criteria ID! Data invalid.');
         }
 
         final current = stats[cid];
@@ -252,7 +257,7 @@ class SawCalculator {
     }
 
     if (!criteria.isBenefit && val == 0.0) {
-      throw Exception(
+      throw DecisionInputException(
         'Zero value found in cost criteria: ${criteria.name}. '
         'Cost criteria must have positive values.',
       );

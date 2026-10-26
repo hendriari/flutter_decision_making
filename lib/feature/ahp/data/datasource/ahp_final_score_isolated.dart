@@ -131,7 +131,7 @@ Future<Map<String, dynamic>> ahpFinalScore(Map<String, dynamic> data) async {
 
     if (eigenVectorsAlternative.isEmpty ||
         eigenVectorsAlternative.first.isEmpty) {
-      throw Exception('Alternative matrix is empty.');
+      throw DecisionInputException('Alternative matrix is empty.');
     }
 
     final finalResult = AhpCalculator.calculateFinalScore(
@@ -145,6 +145,7 @@ Future<Map<String, dynamic>> ahpFinalScore(Map<String, dynamic> data) async {
 
     return AhpResultMapper.fromEntity(finalResult).toMap();
   } catch (e) {
+    if (e is DecisionInputException) rethrow;
     throw Exception('Failed calculate final score: $e');
   } finally {
     endPerformanceProfiling('calculate final score');

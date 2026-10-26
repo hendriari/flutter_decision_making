@@ -13,8 +13,8 @@ import 'package:flutter_decision_making/feature/ahp/data/mapper/pairwise_compari
 ///
 /// **Matrix Properties:**
 /// - **Square matrix**: n×n where n is the number of alternatives
-/// - **Reciprocal**: If matrix[i][j] = x, then matrix[j][i] = 1/x
-/// - **Diagonal is 1**: matrix[i][i] = 1 (alternative compared to itself)
+/// - **Reciprocal**: If `matrix[i][j] = x`, then `matrix[j][i] = 1/x`
+/// - **Diagonal is 1**: `matrix[i][i] = 1` (alternative compared to itself)
 /// - **Positive values**: All elements are positive real numbers
 ///
 /// **Saaty's Scale (1-9):**
@@ -33,14 +33,14 @@ import 'package:flutter_decision_making/feature/ahp/data/mapper/pairwise_compari
 /// 2. **Build index map**: Map alternative IDs to matrix row/column indices
 ///
 /// 3. **Process each comparison**:
-///    - Get indices i and j for the compared alternatives
+///    - Get indices `i` and `j` for the compared alternatives
 ///    - Get preference value and direction from user input
 ///    - If left is more important:
-///      * matrix[i][j] = value
-///      * matrix[j][i] = 1/value
+///      * `matrix[i][j] = value`
+///      * `matrix[j][i] = 1/value`
 ///    - If right is more important:
-///      * matrix[i][j] = 1/value
-///      * matrix[j][i] = value
+///      * `matrix[i][j] = 1/value`
+///      * `matrix[j][i] = value`
 ///
 /// **Parameters:**
 /// - [data]: Map containing:
@@ -97,9 +97,9 @@ import 'package:flutter_decision_making/feature/ahp/data/mapper/pairwise_compari
 /// indicating no preferences have been specified.
 ///
 /// **Matrix Interpretation:**
-/// - matrix[i][j] = 5: Alternative i is 5x more preferred than alternative j
-/// - matrix[i][j] = 0.5: Alternative i is half as preferred as alternative j
-/// - matrix[i][j] = 1: Alternatives i and j are equally preferred
+/// - `matrix[i][j] = 5`: Alternative `i` is 5x more preferred than alternative `j`
+/// - `matrix[i][j] = 0.5`: Alternative `i` is half as preferred as alternative `j`
+/// - `matrix[i][j] = 1`: Alternatives `i` and `j` are equally preferred
 ///
 /// **Performance:**
 /// - Time complexity: O(n² + c) where n = alternatives, c = comparisons
